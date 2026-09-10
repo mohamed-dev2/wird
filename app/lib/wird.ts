@@ -219,6 +219,43 @@ export const DEFAULT_INTENTION = "أطلب رضى الله في عملي وكل�
 
 export const QURAN_GOAL_PAGES = 20;
 
+export type QadaItem = { id: string; label: string; day: string; cleared: boolean };
+export type Challenge = {
+  id: string;
+  title: string;
+  target: number;
+  start: string;
+  checks: string[];
+};
+export type Breaker = { name: string; created: string; slips: string[] };
+
+export const FAST_TYPES = ["فرض رمضان", "نافلة", "قضاء", "أيام بيض", "نذر/كفارة"];
+export const PRAYER_NAMES = ["الفجر", "الظهر", "العصر", "المغرب", "العشاء"];
+
+export function hijriParts(d: Date): { year: number; month: number; day: number } | null {
+  try {
+    const fmt = new Intl.DateTimeFormat("en-u-ca-islamic-umalqura-nu-latn", {
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
+    });
+    const get = (t: string) => Number(fmt.formatToParts(d).find((p) => p.type === t)?.value);
+    const v = { year: get("year"), month: get("month"), day: get("day") };
+    return Number.isFinite(v.year) && Number.isFinite(v.month) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+export function isRamadanDay(d: Date): boolean {
+  return hijriParts(d)?.month === 9;
+}
+
+export function diffDays(fromId: string, toId: string): number {
+  const ms = Date.parse(toId) - Date.parse(fromId);
+  return Number.isFinite(ms) ? Math.max(0, Math.round(ms / 86400000)) : 0;
+}
+
 export function dayId(d = new Date()): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");

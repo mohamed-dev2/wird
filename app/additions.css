@@ -568,6 +568,49 @@
   color: #38715f;
 }
 
+.chl-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.mini-check {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid #c5d0ca;
+  background: #fff;
+  color: #178268;
+  font-size: 13px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.mini-check[aria-pressed="true"] {
+  background: #178268;
+  border-color: #178268;
+  color: #fff;
+}
+
+.goal-add {
+  border: 1px dashed #aac7ba;
+  border-radius: 13px;
+  background: transparent;
+  color: #17715c;
+  font: inherit;
+  font-size: 10px;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.goal-add:hover {
+  background: #f4faf8;
+}
+
 .tiny-progress {
   height: 4px;
   border-radius: 9px;

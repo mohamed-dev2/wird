@@ -557,14 +557,183 @@
   resize: vertical;
 }
 
+.ramadan-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+  padding: 15px 18px;
+  border-radius: 16px;
+  color: #f3ecdb;
+  background: linear-gradient(120deg, #143f3b, #1d6a5c);
+  border: 1px solid #2a7a68;
+}
+
+.ramadan-banner > span {
+  font-size: 26px;
+}
+
+.ramadan-banner > div {
+  flex: 1;
+}
+
+.ramadan-banner b {
+  font-size: 13px;
+}
+
+.ramadan-banner p {
+  margin: 4px 0 0;
+  font-size: 10px;
+  color: #c9ddd4;
+}
+
+.ramadan-banner button {
+  font: inherit;
+  font-size: 9px;
+  border: 0;
+  border-radius: 8px;
+  background: #f0ca73;
+  color: #294c43;
+  padding: 9px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ramadan-banner button.soft {
+  background: transparent;
+  border: 1px solid #5da08d;
+  color: #eaf6f1;
+}
+
+.struggle-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 10px;
+  margin-top: 13px;
+}
+
+.qada-card,
+.fast-card,
+.breaker-card {
+  background: #fff;
+  border: 1px solid #e5ece7;
+  border-radius: 13px;
+  padding: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qada-card h3,
+.fast-card h3,
+.breaker-card h3 {
+  font-size: 12px;
+  margin: 0;
+}
+
+.breaker-card p {
+  font-size: 9px;
+  color: #839089;
+  margin: 0;
+}
+
+.qada-add,
+.fast-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.qada-add button,
+.fast-types button {
+  font: inherit;
+  font-size: 8px;
+  color: #61746c;
+  border: 1px solid #dde7e1;
+  background: #fff;
+  border-radius: 15px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fast-types button.selected {
+  background: #e2f3e9;
+  color: #126b55;
+  border-color: #badeca;
+}
+
+.qada-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  color: #5b6d64;
+  background: #f6faf7;
+  border: 1px solid #e7efe9;
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.qada-row span {
+  flex: 1;
+}
+
+.qada-row button {
+  font: inherit;
+  font-size: 8px;
+  border: 0;
+  border-radius: 6px;
+  background: #178268;
+  color: #fff;
+  padding: 5px 7px;
+  cursor: pointer;
+}
+
+.breaker-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.breaker-actions button {
+  font: inherit;
+  font-size: 8px;
+  border: 0;
+  border-radius: 7px;
+  background: #966d2f;
+  color: #fff;
+  padding: 7px 9px;
+  cursor: pointer;
+}
+
+.linklike {
+  font: inherit;
+  font-size: 8px;
+  color: #8a9a92;
+  background: transparent;
+  border: 0;
+  padding: 4px 2px;
+  cursor: pointer;
+}
+
+.linklike:hover {
+  color: #41544b;
+  text-decoration: underline;
+}
+
 @media (max-width: 750px) {
   .rescue-plan {
     padding: 16px;
   }
   .rescue-grid,
   .utility-row,
-  .steady-grid {
+  .steady-grid,
+  .struggle-grid {
     grid-template-columns: 1fr;
+  }
+  .ramadan-banner {
+    flex-wrap: wrap;
   }
   .friday-card {
     flex-wrap: wrap;

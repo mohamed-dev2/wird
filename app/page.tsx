@@ -3,16 +3,23 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import {
   adhkar,
+  type Breaker,
+  type Challenge,
   dayId,
   DEFAULT_DONE,
   DEFAULT_INTENTION,
+  diffDays,
   duas,
   extras,
+  FAST_TYPES,
+  isRamadanDay,
   loadDailyList,
   loadDailyNumber,
   loadDailyText,
   loadFromStorage,
   NAV_ITEMS,
+  PRAYER_NAMES,
+  type QadaItem,
   QURAN_GOAL_PAGES,
   saveToStorage,
   sections,
@@ -475,6 +482,10 @@ export default function Home() {
   const [snoozed, setSnoozed] = useState<string[]>([]);
   const [rampReduced, setRampReduced] = useState(false);
   const [fridayAdded, setFridayAdded] = useState(false);
+  const [qada, setQada] = useState<QadaItem[]>([]);
+  const [fastType, setFastType] = useState<string | null>(null);
+  const [breaker, setBreaker] = useState<Breaker | null>(null);
+  const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [today, setToday] = useState<Date | null>(null);
   useEffect(() => {
     // Mount-once hydration: stored values are client-only, so they load here
@@ -496,6 +507,10 @@ export default function Home() {
     setSnoozed(loadDailyList("wird-snoozed-v2", [], t));
     setRampReduced(loadFromStorage("wird-ramp-v1", false));
     setFridayAdded(loadFromStorage("wird-friday-plan-v1", false));
+    setQada(loadFromStorage("wird-qada-v1", []));
+    setFastType(loadDailyText("wird-fast-v2", "", t) || null);
+    setBreaker(loadFromStorage("wird-breaker-v1", null));
+    setChallenges(loadFromStorage("wird-challenges-v1", []));
     setToday(new Date());
     setMounted(true);
   }, []);
@@ -568,6 +583,22 @@ export default function Home() {
     if (!mounted) return;
     saveToStorage("wird-friday-plan-v1", fridayAdded);
   }, [mounted, fridayAdded]);
+  useEffect(() => {
+    if (!mounted) return;
+    saveToStorage("wird-qada-v1", qada);
+  }, [mounted, qada]);
+  useEffect(() => {
+    if (!mounted) return;
+    saveToStorage("wird-fast-v2", { day: dayId(), text: fastType ?? "" });
+  }, [mounted, fastType]);
+  useEffect(() => {
+    if (!mounted) return;
+    saveToStorage("wird-breaker-v1", breaker);
+  }, [mounted, breaker]);
+  useEffect(() => {
+    if (!mounted) return;
+    saveToStorage("wird-challenges-v1", challenges);
+  }, [mounted, challenges]);
   const allHabits = useMemo(
     () => [...sections.flatMap((s) => s.habits), ...extras, ...customs],
     [customs],
@@ -651,6 +682,72 @@ export default function Home() {
     const v = askName("ما نيتك اليوم؟");
     if (v) setIntention(v);
   };
+  const addQada = (label: string) => {
+    const t = dayId();
+    setQada((current) => [...current, { id: `qada-${Date.now()}`, label, day: t, cleared: false }]);
+  };
+  const clearQada = (id: string) => {
+    setQada((current) => current.map((q) => (q.id === id ? { ...q, cleared: !q.cleared } : q)));
+  };
+  const removeQada = (id: string) => {
+    setQada((current) => current.filter((q) => q.id !== id));
+  };
+  const qadaOpen = qada.filter((q) => !q.cleared).length;
+  const startBreaker = () => {
+    const name = askName("ما العادة التي تريد كسرها؟");
+    if (name) setBreaker({ name, created: dayId(), slips: [] });
+  };
+  const logSlip = () => {
+    const t = dayId();
+    setBreaker((b) => (b && !b.slips.includes(t) ? { ...b, slips: [...b.slips, t] } : b));
+  };
+  const breakerCleanDays = breaker
+    ? diffDays(
+        breaker.slips.length > 0
+          ? (breaker.slips[breaker.slips.length - 1] ?? breaker.created)
+          : breaker.created,
+        dayId(),
+      )
+    : 0;
+  const addChallenge = () => {
+    const title = askName("اسم التحدي (مثال: الفجر ٣٠ يومًا):");
+    if (!title) return;
+    const daysRaw = askName("عدد الأيام (مثال: ٣٠):");
+    const target = Math.min(
+      365,
+      Math.max(
+        2,
+        parseInt(
+          (daysRaw ?? "").replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d).toString()),
+          10,
+        ) || 30,
+      ),
+    );
+    setChallenges((current) => [
+      ...current,
+      { id: `chl-${Date.now()}`, title, target, start: dayId(), checks: [] },
+    ]);
+  };
+  const toggleChallengeDay = (id: string) => {
+    const t = dayId();
+    setChallenges((current) =>
+      current.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              checks: c.checks.includes(t) ? c.checks.filter((d) => d !== t) : [...c.checks, t],
+            }
+          : c,
+      ),
+    );
+  };
+  const removeChallenge = (id: string) => {
+    try {
+      if (!window.confirm("حذف هذا التحدي؟")) return;
+    } catch {}
+    setChallenges((current) => current.filter((c) => c.id !== id));
+  };
+  const ramadan = today != null && isRamadanDay(today);
   const cycleFilter = () =>
     setFilter((f) => (f === "all" ? "done" : f === "done" ? "todo" : "all"));
   const filterLabel = filter === "all" ? "⌄ الكل" : filter === "done" ? "✓ المكتمل" : "○ المتبقي";
@@ -718,6 +815,25 @@ export default function Home() {
             ‹ <span>اليوم</span> {gregLabel} ›
           </button>
         </header>
+        {ramadan && (
+          <section className="ramadan-banner">
+            <span>🌙</span>
+            <div>
+              <b>رمضان كريم — تقبل الله طاعتكم</b>
+              <p>التراويح والقيام في انتظارك الليلة.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => toggle("taraweeh")}
+              aria-pressed={done.includes("taraweeh")}
+            >
+              {done.includes("taraweeh") ? "✓ صليت التراويح" : "سجل التراويح"}
+            </button>
+            <button type="button" className="soft" onClick={() => setFastType("فرض رمضان")}>
+              صائم اليوم
+            </button>
+          </section>
+        )}
         {active === "insights" ? (
           <ProgressView />
         ) : active === "calendar" ? (
@@ -1100,6 +1216,102 @@ export default function Home() {
                     </button>
                   </article>
                 </section>
+                <section className="struggle-grid">
+                  <article className="qada-card">
+                    <p className="eyebrow">قضاء الفوائت</p>
+                    <h3>{qadaOpen === 0 ? "لا فوائت — ما شاء الله" : `عليك ${qadaOpen} صلوات`}</h3>
+                    <div className="qada-add">
+                      {PRAYER_NAMES.map((p) => (
+                        <button key={p} type="button" onClick={() => addQada(p)}>
+                          + {p}
+                        </button>
+                      ))}
+                    </div>
+                    {qada
+                      .filter((q) => !q.cleared)
+                      .slice(-4)
+                      .map((q) => (
+                        <div key={q.id} className="qada-row">
+                          <span>
+                            {q.label} · {q.day}
+                          </span>
+                          <button type="button" onClick={() => clearQada(q.id)}>
+                            قضيتها ✓
+                          </button>
+                          <button
+                            type="button"
+                            className="linklike"
+                            onClick={() => removeQada(q.id)}
+                            aria-label="حذف"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    {qada.some((q) => q.cleared) && (
+                      <button
+                        type="button"
+                        className="linklike"
+                        onClick={() => setQada((c) => c.filter((q) => !q.cleared))}
+                      >
+                        مسح المقضية
+                      </button>
+                    )}
+                  </article>
+                  <article className="fast-card">
+                    <p className="eyebrow">صيام اليوم</p>
+                    <h3>{fastType ? `صائم: ${fastType}` : "لست صائمًا اليوم"}</h3>
+                    <div className="fast-types">
+                      {FAST_TYPES.map((f) => (
+                        <button
+                          key={f}
+                          type="button"
+                          aria-pressed={fastType === f}
+                          className={fastType === f ? "selected" : ""}
+                          onClick={() => setFastType((cur) => (cur === f ? null : f))}
+                        >
+                          {f}
+                        </button>
+                      ))}
+                    </div>
+                  </article>
+                  <article className="breaker-card">
+                    <p className="eyebrow">كسر عادة سيئة</p>
+                    {!breaker ? (
+                      <>
+                        <h3>اختر عادة تتوب منها اليوم</h3>
+                        <button type="button" onClick={startBreaker}>
+                          + ابدأ التحدي
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <h3>
+                          {breaker.name} — {breakerCleanDays} يوم نظيف 🔥
+                        </h3>
+                        <p>زلّات مسجلة: {breaker.slips.length}</p>
+                        <div className="breaker-actions">
+                          <button type="button" onClick={logSlip}>
+                            سجل زلة (واستغفر)
+                          </button>
+                          <button
+                            type="button"
+                            className="linklike"
+                            onClick={() => {
+                              try {
+                                if (window.confirm("حذف تحدي كسر العادة؟")) setBreaker(null);
+                              } catch {
+                                setBreaker(null);
+                              }
+                            }}
+                          >
+                            إنهاء
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </article>
+                </section>
                 {showNow && (
                   <NowView
                     done={done}
@@ -1414,6 +1626,46 @@ export default function Home() {
                     <strong>جديد</strong>
                   </article>
                 ))}
+                {challenges.map((c) => {
+                  const pct = Math.min(100, Math.round((c.checks.length / c.target) * 100));
+                  const todayDone = c.checks.includes(dayId());
+                  return (
+                    <article key={c.id}>
+                      <span className="goal-icon">🏆</span>
+                      <div>
+                        <b>{c.title}</b>
+                        <small>
+                          {c.checks.length} / {c.target} يوم
+                        </small>
+                        <div className="tiny-progress">
+                          <i style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                      <div className="chl-actions">
+                        <button
+                          type="button"
+                          className="mini-check"
+                          onClick={() => toggleChallengeDay(c.id)}
+                          aria-pressed={todayDone}
+                          aria-label="تسجيل اليوم"
+                        >
+                          {todayDone ? "✓" : "+"}
+                        </button>
+                        <button
+                          type="button"
+                          className="linklike"
+                          onClick={() => removeChallenge(c.id)}
+                          aria-label="حذف التحدي"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+                <button type="button" className="goal-add" onClick={addChallenge}>
+                  + تحدٍ جديد
+                </button>
               </div>
             </section>
             <section className="night-section">
