@@ -322,6 +322,11 @@
   border-color: #e8ca86;
 }
 
+.calendar button.selected {
+  outline: 2px solid #14725d;
+  outline-offset: 1px;
+}
+
 .calendar-note {
   display: flex;
   align-items: center;

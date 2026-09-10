@@ -36,6 +36,7 @@ main {
   flex-direction: column;
   position: fixed;
   inset: 0 0 0 auto;
+  overflow-y: auto;
 }
 
 .brand {
@@ -189,12 +190,10 @@ header {
   font-weight: 700;
   margin: 0 0 8px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 h1 {
   font-size: 27px;
-  letter-spacing: -1.2px;
   margin: 0 0 8px;
 }
 
@@ -326,7 +325,7 @@ h1 span {
   width: 130px;
   height: 130px;
   border-radius: 50%;
-  background: conic-gradient(#f5ce73 0 64deg, rgba(255, 255, 255, 0.16) 64deg);
+  background: conic-gradient(#f5ce73 0 var(--ring, 64deg), rgba(255, 255, 255, 0.16) var(--ring, 64deg));
   display: grid;
   place-items: center;
 }
@@ -726,7 +725,7 @@ footer {
   .content {
     margin: 0;
     width: 100%;
-    padding: 25px 17px;
+    padding: 25px 17px 110px;
   }
   header {
     align-items: flex-start;

@@ -350,6 +350,24 @@
   cursor: pointer;
 }
 
+.dont-forget button.done {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+.reflection textarea {
+  width: 100%;
+  background: #fff;
+  border: 1px dashed #ccdbd3;
+  border-radius: 9px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 10px;
+  padding: 12px;
+  min-height: 64px;
+  resize: vertical;
+}
+
 @media (max-width: 750px) {
   .rescue-plan {
     padding: 16px;

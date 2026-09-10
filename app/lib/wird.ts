@@ -78,3 +78,11 @@ export function loadDailyNumber(key: string, fallback: number, today: string): n
   if (raw && typeof raw === "object" && raw.day === today && typeof raw.value === "number") return raw.value;
   return fallback;
 }
+
+type DailyText = { day: string; text: string };
+
+export function loadDailyText(key: string, fallback: string, today: string): string {
+  const raw = loadFromStorage<DailyText | null>(key, null);
+  if (raw && typeof raw === "object" && raw.day === today && typeof raw.text === "string") return raw.text;
+  return fallback;
+}

@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import "./styles.css";
 import "./additions.css";
 import "./views.css";
-import "./companion.css";
 import "./rescue.css";
 
 export const metadata: Metadata = {
