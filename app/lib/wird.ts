@@ -213,13 +213,7 @@ export const NAV_ITEMS: [string, string, string][] = [
   ["account", "◌", "حسابي"],
 ];
 
-export const DEFAULT_DONE = [
-  "fajr-sunnah",
-  "fajr-jamaa",
-  "morning",
-  "dhuhr-before",
-  "dhuhr-jamaa",
-];
+export const DEFAULT_DONE = ["fajr-sunnah", "fajr-jamaa", "morning", "dhuhr-before", "dhuhr-jamaa"];
 
 export const DEFAULT_INTENTION = "أطلب رضى الله في عملي وكلامي";
 
@@ -253,56 +247,28 @@ export function saveToStorage(key: string, value: unknown): void {
 
 type DailyList = { day: string; ids: string[] };
 
-export function loadDailyList(
-  key: string,
-  fallback: string[],
-  today: string,
-): string[] {
+export function loadDailyList(key: string, fallback: string[], today: string): string[] {
   const raw = loadFromStorage<DailyList | string[]>(key, fallback);
   if (Array.isArray(raw)) return raw; // migrate v1 shape
-  if (
-    raw &&
-    typeof raw === "object" &&
-    raw.day === today &&
-    Array.isArray(raw.ids)
-  )
-    return raw.ids;
+  if (raw && typeof raw === "object" && raw.day === today && Array.isArray(raw.ids)) return raw.ids;
   return fallback;
 }
 
 type DailyNumber = { day: string; value: number };
 
-export function loadDailyNumber(
-  key: string,
-  fallback: number,
-  today: string,
-): number {
+export function loadDailyNumber(key: string, fallback: number, today: string): number {
   const raw = loadFromStorage<DailyNumber | number>(key, fallback);
   if (typeof raw === "number") return raw; // migrate v1 shape
-  if (
-    raw &&
-    typeof raw === "object" &&
-    raw.day === today &&
-    typeof raw.value === "number"
-  )
+  if (raw && typeof raw === "object" && raw.day === today && typeof raw.value === "number")
     return raw.value;
   return fallback;
 }
 
 type DailyText = { day: string; text: string };
 
-export function loadDailyText(
-  key: string,
-  fallback: string,
-  today: string,
-): string {
+export function loadDailyText(key: string, fallback: string, today: string): string {
   const raw = loadFromStorage<DailyText | null>(key, null);
-  if (
-    raw &&
-    typeof raw === "object" &&
-    raw.day === today &&
-    typeof raw.text === "string"
-  )
+  if (raw && typeof raw === "object" && raw.day === today && typeof raw.text === "string")
     return raw.text;
   return fallback;
 }

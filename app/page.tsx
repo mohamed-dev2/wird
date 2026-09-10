@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import {
   adhkar,
   dayId,
@@ -18,6 +18,13 @@ import {
   sections,
   type Habit,
 } from "./lib/wird";
+import {
+  collectBackup,
+  decryptBackup,
+  downloadFile,
+  encryptBackup,
+  restoreBackup,
+} from "./lib/crypto";
 
 function ProgressView() {
   const [period, setPeriod] = useState("آخر ٧ أيام");
@@ -30,25 +37,19 @@ function ProgressView() {
         <h2>خطواتك الهادئة تصنع أثرًا</h2>
         <p>اختر الفترة التي تود أن تتأملها، بلا مقارنة ولا لوم.</p>
         <div className="periods">
-          {[
-            "اليوم",
-            "آخر ٧ أيام",
-            "أسبوعان",
-            "الشهر الحالي",
-            "٣ أشهر",
-            "الموسم",
-            "السنة",
-          ].map((item) => (
-            <button
-              type="button"
-              key={item}
-              onClick={() => setPeriod(item)}
-              aria-pressed={period === item}
-              className={period === item ? "selected" : ""}
-            >
-              {item}
-            </button>
-          ))}
+          {["اليوم", "آخر ٧ أيام", "أسبوعان", "الشهر الحالي", "٣ أشهر", "الموسم", "السنة"].map(
+            (item) => (
+              <button
+                type="button"
+                key={item}
+                onClick={() => setPeriod(item)}
+                aria-pressed={period === item}
+                className={period === item ? "selected" : ""}
+              >
+                {item}
+              </button>
+            ),
+          )}
         </div>
       </div>
       <div className="metric-row">
@@ -87,9 +88,7 @@ function ProgressView() {
               </div>
             ))}
           </div>
-          <p className="chart-caption">
-            أفضل وقت لك كان بعد الفجر — بداية موفقة ليومك.
-          </p>
+          <p className="chart-caption">أفضل وقت لك كان بعد الفجر — بداية موفقة ليومك.</p>
         </article>
         <article className="soft-insight">
           <span>✦</span>
@@ -101,11 +100,9 @@ function ProgressView() {
       </div>
       <div className="badge-row">
         <p>شاراتك اللطيفة</p>
-        {["فجر ٧ أيام", "وتر ١٤ ليلة", "رفيق الجمعة", "ورد ٣٠ يومًا"].map(
-          (item) => (
-            <span key={item}>✦ {item}</span>
-          ),
-        )}
+        {["فجر ٧ أيام", "وتر ١٤ ليلة", "رفيق الجمعة", "ورد ٣٠ يومًا"].map((item) => (
+          <span key={item}>✦ {item}</span>
+        ))}
       </div>
     </section>
   );
@@ -180,9 +177,7 @@ function CalendarView({
         ))}
       </div>
       {calDay != null && (
-        <p className="chart-caption">
-          يوم {calDay}: سجّل وردك من صفحة اليوم، وسيُحفظ تقدمك هنا.
-        </p>
+        <p className="chart-caption">يوم {calDay}: سجّل وردك من صفحة اليوم، وسيُحفظ تقدمك هنا.</p>
       )}
       <article className="calendar-note">
         <span>☾</span>
@@ -199,9 +194,7 @@ function CalendarView({
 }
 
 function AdhkarView() {
-  const [salawat, setSalawat] = useState(() =>
-    loadDailyNumber("wird-salawat-v2", 0, dayId()),
-  );
+  const [salawat, setSalawat] = useState(() => loadDailyNumber("wird-salawat-v2", 0, dayId()));
   useEffect(() => {
     saveToStorage("wird-salawat-v2", { day: dayId(), value: salawat });
   }, [salawat]);
@@ -236,10 +229,7 @@ function AdhkarView() {
           <p>١٠٠ مرة • اجعلها رفيقة يومك</p>
         </div>
         <b>{salawat >= 100 ? "✓" : salawat}</b>
-        <button
-          type="button"
-          onClick={() => setSalawat((c) => (c >= 100 ? 0 : c + 1))}
-        >
+        <button type="button" onClick={() => setSalawat((c) => (c >= 100 ? 0 : c + 1))}>
           {salawat >= 100 ? "تم الورد · ابدأ من جديد" : "ابدأ العدّاد"}
         </button>
       </article>
@@ -248,6 +238,64 @@ function AdhkarView() {
 }
 
 function AccountView({ onReset }: { onReset: () => void }) {
+  const [backupMsg, setBackupMsg] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const askPass = (msg: string) => {
+    try {
+      return window.prompt(msg)?.trim() || null;
+    } catch {
+      return null;
+    }
+  };
+  const stamp = () => new Date().toISOString().slice(0, 10);
+  const onExportPlain = () => {
+    try {
+      const data = collectBackup();
+      downloadFile(`wird-backup-${stamp()}.json`, JSON.stringify({ v: 1, plain: true, data }));
+      setBackupMsg(`تم التصدير (${Object.keys(data).length} عنصرًا). احفظ الملف في مكان آمن.`);
+    } catch {
+      setBackupMsg("تعذر التصدير. تحقق من مساحة التخزين.");
+    }
+  };
+  const onExportEnc = async () => {
+    const pass = askPass("كلمة سر التشفير (احفظها — لا يمكن الاستعادة بدونها):");
+    if (!pass) return;
+    try {
+      const payload = await encryptBackup(pass, collectBackup());
+      downloadFile(`wird-backup-enc-${stamp()}.json`, payload);
+      setBackupMsg("تم تصدير نسخة مشفرة (AES-GCM).");
+    } catch {
+      setBackupMsg("تعذر التشفير على هذا المتصفح.");
+    }
+  };
+  const onImportFile = async (f: File | undefined) => {
+    if (!f) return;
+    try {
+      const text = await f.text();
+      let data: unknown = JSON.parse(text);
+      if (data && typeof data === "object" && "enc" in (data as Record<string, unknown>)) {
+        const pass = askPass("كلمة سر النسخة المشفرة:");
+        if (!pass) return;
+        data = await decryptBackup(pass, text);
+      } else if (data && typeof data === "object" && "data" in (data as Record<string, unknown>)) {
+        data = (data as { data: unknown }).data;
+      }
+      const n = restoreBackup(data);
+      setBackupMsg(`تمت الاستعادة (${n} عنصرًا). حدّث الصفحة لرؤية بياناتك.`);
+    } catch {
+      setBackupMsg("ملف غير صالح أو كلمة سر خاطئة.");
+    }
+  };
+  const onWipe = () => {
+    try {
+      if (!window.confirm("مسح كل بيانات ورد من هذا الجهاز نهائيًا؟")) return;
+      const data = collectBackup();
+      for (const k of Object.keys(data)) localStorage.removeItem(k);
+      setBackupMsg("مُسحت كل البيانات. حدّث الصفحة للبدء من جديد.");
+    } catch {
+      setBackupMsg("تعذر المسح.");
+    }
+  };
   return (
     <section className="destination-view">
       <div className="profile-hero">
@@ -282,6 +330,38 @@ function AccountView({ onReset }: { onReset: () => void }) {
         <button type="button" onClick={onReset}>
           يوم جديد
         </button>
+      </article>
+      <article className="new-day backup-card">
+        <span>🛡</span>
+        <div>
+          <b>النسخ الاحتياطي والخصوصية</b>
+          <p>بياناتك على جهازك فقط — لا خوادم ولا حسابات. صدّر نسخة مشفرة أو استعدها متى شئت.</p>
+          <div className="backup-actions">
+            <button type="button" onClick={onExportEnc}>
+              تصدير مشفر
+            </button>
+            <button type="button" onClick={onExportPlain}>
+              تصدير عادي
+            </button>
+            <button type="button" onClick={() => fileRef.current?.click()}>
+              استيراد
+            </button>
+            <button type="button" className="danger" onClick={onWipe}>
+              مسح الكل
+            </button>
+          </div>
+          {backupMsg && <p className="backup-msg">{backupMsg}</p>}
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/json"
+            hidden
+            onChange={(e) => {
+              void onImportFile(e.target.files?.[0]);
+              e.target.value = "";
+            }}
+          />
+        </div>
       </article>
     </section>
   );
@@ -335,11 +415,7 @@ function NowView({
                     : "now-check"
               }
             >
-              {done.includes(item.id)
-                ? "✓"
-                : partial.includes(item.id)
-                  ? "◐"
-                  : ""}
+              {done.includes(item.id) ? "✓" : partial.includes(item.id) ? "◐" : ""}
             </button>
             <div>
               <b>{item.title}</b>
@@ -389,9 +465,7 @@ export default function Home() {
   const [tasbeeh, setTasbeeh] = useState(0);
   const [customs, setCustoms] = useState<Habit[]>([]);
   const [customDuas, setCustomDuas] = useState<string[]>([]);
-  const [customGoals, setCustomGoals] = useState<
-    { title: string; detail: string }[]
-  >([]);
+  const [customGoals, setCustomGoals] = useState<{ title: string; detail: string }[]>([]);
   const [intention, setIntention] = useState(DEFAULT_INTENTION);
   const [remindPrayer, setRemindPrayer] = useState(false);
   const [filter, setFilter] = useState<"all" | "done" | "todo">("all");
@@ -529,23 +603,17 @@ export default function Home() {
   const totalPoints = allHabits.reduce((sum, h) => sum + h.points, 0);
   const toggle = (id: string) =>
     setDone((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id],
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
     );
   const togglePartial = (id: string) => {
     setPartial((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id],
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
     );
     setDone((current) => current.filter((item) => item !== id));
   };
   const toggleSnooze = (id: string) =>
     setSnoozed((current) =>
-      current.includes(id)
-        ? current.filter((item) => item !== id)
-        : [...current, id],
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
     );
   const resetDay = () => {
     setDone([]);
@@ -568,10 +636,7 @@ export default function Home() {
   const addCustom = () => {
     const title = askName("اسم العبادة المخصصة:");
     if (title)
-      setCustoms((current) => [
-        ...current,
-        { id: `custom-${Date.now()}`, title, points: 2 },
-      ]);
+      setCustoms((current) => [...current, { id: `custom-${Date.now()}`, title, points: 2 }]);
   };
   const addDua = () => {
     const dua = askName("اكتب دعاءً من قلبك:");
@@ -580,10 +645,7 @@ export default function Home() {
   const addGoal = () => {
     const title = askName("اسم الهدف الجديد:");
     if (title)
-      setCustomGoals((current) => [
-        ...current,
-        { title, detail: "هدف جديد · ابدأ بخطوة صغيرة" },
-      ]);
+      setCustomGoals((current) => [...current, { title, detail: "هدف جديد · ابدأ بخطوة صغيرة" }]);
   };
   const editIntention = () => {
     const v = askName("ما نيتك اليوم؟");
@@ -591,14 +653,9 @@ export default function Home() {
   };
   const cycleFilter = () =>
     setFilter((f) => (f === "all" ? "done" : f === "done" ? "todo" : "all"));
-  const filterLabel =
-    filter === "all" ? "⌄ الكل" : filter === "done" ? "✓ المكتمل" : "○ المتبقي";
+  const filterLabel = filter === "all" ? "⌄ الكل" : filter === "done" ? "✓ المكتمل" : "○ المتبقي";
   const passFilter = (id: string) =>
-    filter === "all"
-      ? true
-      : filter === "done"
-        ? done.includes(id)
-        : !done.includes(id);
+    filter === "all" ? true : filter === "done" ? done.includes(id) : !done.includes(id);
   const scrollToQuran = () => {
     try {
       document
@@ -608,10 +665,7 @@ export default function Home() {
   };
   const completed = allHabits.filter((h) => done.includes(h.id)).length;
   const total = allHabits.length;
-  const quranPct = Math.min(
-    100,
-    Math.round((quranPages / QURAN_GOAL_PAGES) * 100),
-  );
+  const quranPct = Math.min(100, Math.round((quranPages / QURAN_GOAL_PAGES) * 100));
   const ringDeg = `${(total ? completed / total : 0) * 360}deg`;
 
   return (
@@ -642,11 +696,7 @@ export default function Home() {
               <small>واصل هذا النور</small>
             </div>
           </div>
-          <button
-            type="button"
-            className="profile"
-            onClick={() => setActive("account")}
-          >
+          <button type="button" className="profile" onClick={() => setActive("account")}>
             <span>م</span>
             <div>
               محمد عبدالله<small>الحمدلله دائمًا</small>
@@ -662,25 +712,16 @@ export default function Home() {
             <h1>
               صباح النور، محمد <span>☀</span>
             </h1>
-            <p className="subhead">
-              كل خطوة صغيرة تقرّبك. جعل الله يومك عامرًا بذكره.
-            </p>
+            <p className="subhead">كل خطوة صغيرة تقرّبك. جعل الله يومك عامرًا بذكره.</p>
           </div>
-          <button
-            type="button"
-            className="date-button"
-            onClick={() => setActive("calendar")}
-          >
+          <button type="button" className="date-button" onClick={() => setActive("calendar")}>
             ‹ <span>اليوم</span> {gregLabel} ›
           </button>
         </header>
         {active === "insights" ? (
           <ProgressView />
         ) : active === "calendar" ? (
-          <CalendarView
-            fridayAdded={fridayAdded}
-            onFridayAdd={() => setFridayAdded((v) => !v)}
-          />
+          <CalendarView fridayAdded={fridayAdded} onFridayAdd={() => setFridayAdded((v) => !v)} />
         ) : active === "library" ? (
           <AdhkarView />
         ) : active === "account" ? (
@@ -702,9 +743,7 @@ export default function Home() {
                   onClick={() => toggle("witr")}
                   aria-pressed={done.includes("witr")}
                 >
-                  {done.includes("witr")
-                    ? "✓ تم تسجيل الوتر"
-                    : "سجّل الوتر الآن"}
+                  {done.includes("witr") ? "✓ تم تسجيل الوتر" : "سجّل الوتر الآن"}
                 </button>
               </section>
             ) : (
@@ -714,8 +753,8 @@ export default function Home() {
                     <span className="pill">رحلتك اليوم · يوم {dayMode}</span>
                     <h2>أنت تصنع أثرًا جميلًا</h2>
                     <p>
-                      أكملت <b>{completed}</b> من {total} وردًا اليوم. استمر،
-                      فالقليل الدائم أحبّ إلى الله.
+                      أكملت <b>{completed}</b> من {total} وردًا اليوم. استمر، فالقليل الدائم أحبّ
+                      إلى الله.
                     </p>
                     <div className="progress-line">
                       <span
@@ -730,15 +769,11 @@ export default function Home() {
                         <small>إنجاز اليوم</small>
                       </b>
                       <b>
-                        {completedPoints} / {totalPoints}{" "}
-                        <small>نقطة بركة</small>
+                        {completedPoints} / {totalPoints} <small>نقطة بركة</small>
                       </b>
                     </div>
                   </div>
-                  <div
-                    className="hero-ring"
-                    style={{ "--ring": ringDeg } as CSSProperties}
-                  >
+                  <div className="hero-ring" style={{ "--ring": ringDeg } as CSSProperties}>
                     <div>
                       <b>{completed}</b>
                       <span>مكتمل</span>
@@ -757,11 +792,7 @@ export default function Home() {
                         type="button"
                         onClick={() => {
                           setDayMode(mode);
-                          setMinimumPlan(
-                            mode === "مشغول" ||
-                              mode === "سفر" ||
-                              mode === "مرض",
-                          );
+                          setMinimumPlan(mode === "مشغول" || mode === "سفر" || mode === "مرض");
                         }}
                         className={dayMode === mode ? "selected" : ""}
                         key={mode}
@@ -835,9 +866,7 @@ export default function Home() {
                         onClick={() => toggle("morning")}
                         aria-pressed={done.includes("morning")}
                       >
-                        {done.includes("morning")
-                          ? "✓ تم تسجيلها"
-                          : "ابدأ الآن ←"}
+                        {done.includes("morning") ? "✓ تم تسجيلها" : "ابدأ الآن ←"}
                       </button>
                     </article>
                     <article className="quran-session" id="quran-session">
@@ -874,9 +903,7 @@ export default function Home() {
                             {[5, 10, 15, 30].map((minute) => (
                               <button
                                 type="button"
-                                className={
-                                  selectedMinutes === minute ? "selected" : ""
-                                }
+                                className={selectedMinutes === minute ? "selected" : ""}
                                 onClick={() => setSelectedMinutes(minute)}
                                 key={minute}
                               >
@@ -906,9 +933,7 @@ export default function Home() {
                         onClick={() => toggle("daily-dua")}
                         aria-pressed={done.includes("daily-dua")}
                       >
-                        {done.includes("daily-dua")
-                          ? "✓ دعوت به اليوم"
-                          : "دعوت به اليوم"}
+                        {done.includes("daily-dua") ? "✓ دعوت به اليوم" : "دعوت به اليوم"}
                       </button>
                     </article>
                   </div>
@@ -942,9 +967,7 @@ export default function Home() {
                           ? "الوضع المخفف · صفحة واحدة يوميًا"
                           : "الأسبوع الثاني · صفحتان يوميًا"}
                       </h3>
-                      <p>
-                        تقدّمك هادئ وثابت. يمكنك التوقف أو تقليل الهدف متى شئت.
-                      </p>
+                      <p>تقدّمك هادئ وثابت. يمكنك التوقف أو تقليل الهدف متى شئت.</p>
                     </div>
                     <div className="ramp-steps">
                       <i className="done">١</i>
@@ -990,14 +1013,8 @@ export default function Home() {
                 <section className="friday-card">
                   <span>☾</span>
                   <div>
-                    <p className="eyebrow">
-                      رفيق الجمعة {isFriday ? "· اليوم" : "· خطتك القادمة"}
-                    </p>
-                    <h3>
-                      {isFriday
-                        ? "جمعة مباركة، وردك ينتظرك"
-                        : "ورد الجمعة بانتظارك"}
-                    </h3>
+                    <p className="eyebrow">رفيق الجمعة {isFriday ? "· اليوم" : "· خطتك القادمة"}</p>
+                    <h3>{isFriday ? "جمعة مباركة، وردك ينتظرك" : "ورد الجمعة بانتظارك"}</h3>
                     <div>
                       {[
                         "سورة الكهف",
@@ -1011,9 +1028,7 @@ export default function Home() {
                           type="button"
                           onClick={() => toggle(`friday-${item}`)}
                           aria-pressed={done.includes(`friday-${item}`)}
-                          className={
-                            done.includes(`friday-${item}`) ? "complete" : ""
-                          }
+                          className={done.includes(`friday-${item}`) ? "complete" : ""}
                           key={item}
                         >
                           {done.includes(`friday-${item}`) ? "✓ " : ""}
@@ -1022,36 +1037,27 @@ export default function Home() {
                       ))}
                     </div>
                   </div>
-                  <b>
-                    {done.filter((item) => item.startsWith("friday-")).length} /
-                    ٦
-                  </b>
+                  <b>{done.filter((item) => item.startsWith("friday-")).length} / ٦</b>
                 </section>
                 <section className="utility-row">
                   <article>
                     <div>
                       <p className="eyebrow">مفضلة المستخدم</p>
                       <div className="favorite-tags">
-                        {[
-                          "الوتر",
-                          "ورد القرآن",
-                          "أذكار الصباح",
-                          "صلة الوالدين",
-                          "الاستغفار",
-                        ].map((item) => (
-                          <button
-                            type="button"
-                            onClick={() => toggle(`fav-${item}`)}
-                            aria-pressed={done.includes(`fav-${item}`)}
-                            className={
-                              done.includes(`fav-${item}`) ? "fav on" : "fav"
-                            }
-                            key={item}
-                          >
-                            {done.includes(`fav-${item}`) ? "✓ " : ""}
-                            {item}
-                          </button>
-                        ))}
+                        {["الوتر", "ورد القرآن", "أذكار الصباح", "صلة الوالدين", "الاستغفار"].map(
+                          (item) => (
+                            <button
+                              type="button"
+                              onClick={() => toggle(`fav-${item}`)}
+                              aria-pressed={done.includes(`fav-${item}`)}
+                              className={done.includes(`fav-${item}`) ? "fav on" : "fav"}
+                              key={item}
+                            >
+                              {done.includes(`fav-${item}`) ? "✓ " : ""}
+                              {item}
+                            </button>
+                          ),
+                        )}
                       </div>
                     </div>
                   </article>
@@ -1110,10 +1116,7 @@ export default function Home() {
                     <span>✦</span>
                     <div>
                       <b>خطة الحد الأدنى مفعّلة</b>
-                      <p>
-                        الصلوات، ذكر قصير، آية واحدة، استغفار ١٠ مرات، والوتر.
-                        هذا يكفي لليوم.
-                      </p>
+                      <p>الصلوات، ذكر قصير، آية واحدة، استغفار ١٠ مرات، والوتر. هذا يكفي لليوم.</p>
                     </div>
                     <button type="button" onClick={() => setMinimumPlan(false)}>
                       إلغاء
@@ -1146,11 +1149,7 @@ export default function Home() {
                   <p className="eyebrow">نية اليوم</p>
                   <h3>{intention}</h3>
                 </div>
-                <button
-                  type="button"
-                  aria-label="تعديل النية"
-                  onClick={editIntention}
-                >
+                <button type="button" aria-label="تعديل النية" onClick={editIntention}>
                   ✎
                 </button>
               </article>
@@ -1190,8 +1189,8 @@ export default function Home() {
                       <p>{section.time}</p>
                     </div>
                     <span className="card-count">
-                      {section.habits.filter((h) => done.includes(h.id)).length}
-                      /{section.habits.length}
+                      {section.habits.filter((h) => done.includes(h.id)).length}/
+                      {section.habits.length}
                     </span>
                   </div>
                   <div className="habit-list">
@@ -1200,18 +1199,12 @@ export default function Home() {
                       .map((habit) => (
                         <button
                           type="button"
-                          className={
-                            done.includes(habit.id)
-                              ? "habit completed"
-                              : "habit"
-                          }
+                          className={done.includes(habit.id) ? "habit completed" : "habit"}
                           onClick={() => toggle(habit.id)}
                           aria-pressed={done.includes(habit.id)}
                           key={habit.id}
                         >
-                          <span className="check">
-                            {done.includes(habit.id) ? "✓" : ""}
-                          </span>
+                          <span className="check">{done.includes(habit.id) ? "✓" : ""}</span>
                           <span className="habit-text">
                             <b>{habit.title}</b>
                             {habit.detail && <small>{habit.detail}</small>}
@@ -1240,14 +1233,10 @@ export default function Home() {
                       type="button"
                       onClick={() => toggle(habit.id)}
                       aria-pressed={done.includes(habit.id)}
-                      className={
-                        done.includes(habit.id) ? "extra done" : "extra"
-                      }
+                      className={done.includes(habit.id) ? "extra done" : "extra"}
                       key={habit.id}
                     >
-                      <span className="extra-check">
-                        {done.includes(habit.id) ? "✓" : "+"}
-                      </span>
+                      <span className="extra-check">{done.includes(habit.id) ? "✓" : "+"}</span>
                       <div>
                         <b>{habit.title}</b>
                         <small>{habit.detail || "عمل يسير وأثر كبير"}</small>
@@ -1274,17 +1263,10 @@ export default function Home() {
                 </div>
               </div>
               <div className="quran-actions">
-                <button
-                  type="button"
-                  onClick={() => setQuranPages((p) => p + 1)}
-                >
+                <button type="button" onClick={() => setQuranPages((p) => p + 1)}>
                   أضف صفحة +
                 </button>
-                <button
-                  type="button"
-                  className="soft-button"
-                  onClick={scrollToQuran}
-                >
+                <button type="button" className="soft-button" onClick={scrollToQuran}>
                   عرض خطتي
                 </button>
               </div>
@@ -1304,9 +1286,7 @@ export default function Home() {
                     type="button"
                     onClick={() => toggle(`adhkar-${item}`)}
                     aria-pressed={done.includes(`adhkar-${item}`)}
-                    className={
-                      done.includes(`adhkar-${item}`) ? "tag tagged" : "tag"
-                    }
+                    className={done.includes(`adhkar-${item}`) ? "tag tagged" : "tag"}
                     key={item}
                   >
                     {done.includes(`adhkar-${item}`) && "✓ "}
@@ -1324,9 +1304,7 @@ export default function Home() {
                   </div>
                   <span>☾</span>
                 </div>
-                <p className="dua-feature">
-                  “اللهم أعنّي على ذكرك وشكرك وحسن عبادتك.”
-                </p>
+                <p className="dua-feature">“اللهم أعنّي على ذكرك وشكرك وحسن عبادتك.”</p>
                 <div className="dua-tags">
                   {duas.map((dua, i) => (
                     <button
@@ -1334,9 +1312,7 @@ export default function Home() {
                       key={dua}
                       onClick={() => toggle(`dua-${i}`)}
                       aria-pressed={done.includes(`dua-${i}`)}
-                      className={
-                        done.includes(`dua-${i}`) ? "tag tagged" : "tag"
-                      }
+                      className={done.includes(`dua-${i}`) ? "tag tagged" : "tag"}
                     >
                       {done.includes(`dua-${i}`) ? "✓ " : ""}
                       {dua}
@@ -1348,9 +1324,7 @@ export default function Home() {
                       key={`custom-dua-${i}`}
                       onClick={() => toggle(`dua-custom-${i}`)}
                       aria-pressed={done.includes(`dua-custom-${i}`)}
-                      className={
-                        done.includes(`dua-custom-${i}`) ? "tag tagged" : "tag"
-                      }
+                      className={done.includes(`dua-custom-${i}`) ? "tag tagged" : "tag"}
                     >
                       {done.includes(`dua-custom-${i}`) ? "✓ " : ""}
                       {dua}
@@ -1366,8 +1340,7 @@ export default function Home() {
                 <p className="eyebrow">تذكير لطيف</p>
                 <h2>كل يوم بداية جديدة</h2>
                 <p>
-                  فاتك شيء؟ لا بأس. اختر عملًا صغيرًا الآن، والله يحب العمل
-                  الدائم ولو كان قليلًا.
+                  فاتك شيء؟ لا بأس. اختر عملًا صغيرًا الآن، والله يحب العمل الدائم ولو كان قليلًا.
                 </p>
                 <div className="weekly">
                   <span>هذا الأسبوع</span>
@@ -1448,10 +1421,7 @@ export default function Home() {
                 <span>☾</span>
                 <p className="eyebrow">قبل النوم</p>
                 <h2>اختتم يومك بسكينة</h2>
-                <p>
-                  وضوء، أذكار النوم، آية الكرسي، نعمة تشكر الله عليها، ثم نية
-                  للفجر.
-                </p>
+                <p>وضوء، أذكار النوم، آية الكرسي، نعمة تشكر الله عليها، ثم نية للفجر.</p>
                 <button type="button" onClick={() => setFocusMode(true)}>
                   ابدأ روتين الليل ←
                 </button>
@@ -1468,20 +1438,13 @@ export default function Home() {
                 <span>هذه المساحة لك وحدك، ولا تدخل في الإحصاءات.</span>
               </div>
             </section>
-            <footer>
-              ﴿ وَاذْكُر رَّبَّكَ كَثِيرًا وَسَبِّحْ بِالْعَشِيِّ وَالْإِبْكَارِ
-              ﴾
-            </footer>
+            <footer>﴿ وَاذْكُر رَّبَّكَ كَثِيرًا وَسَبِّحْ بِالْعَشِيِّ وَالْإِبْكَارِ ﴾</footer>
           </>
         )}
       </section>
       {showZikr && (
         <aside className="zikr-popover">
-          <button
-            type="button"
-            className="close-zikr"
-            onClick={() => setShowZikr(false)}
-          >
+          <button type="button" className="close-zikr" onClick={() => setShowZikr(false)}>
             ×
           </button>
           <p className="eyebrow">اذكر الله</p>
@@ -1511,20 +1474,12 @@ export default function Home() {
               </button>
             ))}
           </div>
-          <button
-            type="button"
-            className="zikr-tap"
-            onClick={() => setZikrCount((c) => c + 1)}
-          >
+          <button type="button" className="zikr-tap" onClick={() => setZikrCount((c) => c + 1)}>
             + ١
           </button>
         </aside>
       )}
-      <button
-        type="button"
-        className="zikr-fab"
-        onClick={() => setShowZikr(!showZikr)}
-      >
+      <button type="button" className="zikr-fab" onClick={() => setShowZikr(!showZikr)}>
         ☷ <span>اذكر الله</span>
       </button>
       <nav className="bottom-nav">

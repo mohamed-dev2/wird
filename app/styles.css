@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=DM+Sans:wght@500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=DM+Sans:wght@500;600;700&display=swap");
 
 :root {
   --ink: #172422;
@@ -256,7 +256,8 @@ h1 span {
   border-radius: 50%;
   left: -50px;
   top: -88px;
-  box-shadow: 0 0 0 35px rgba(255, 255, 255, 0.04),
+  box-shadow:
+    0 0 0 35px rgba(255, 255, 255, 0.04),
     0 0 0 70px rgba(255, 255, 255, 0.025);
 }
 
@@ -308,7 +309,9 @@ h1 span {
 }
 
 .hero-stats b {
-  font: 700 18px "DM Sans", sans-serif;
+  font:
+    700 18px "DM Sans",
+    sans-serif;
 }
 
 .hero-stats small {
@@ -325,7 +328,10 @@ h1 span {
   width: 130px;
   height: 130px;
   border-radius: 50%;
-  background: conic-gradient(#f5ce73 0 var(--ring, 64deg), rgba(255, 255, 255, 0.16) var(--ring, 64deg));
+  background: conic-gradient(
+    #f5ce73 0 var(--ring, 64deg),
+    rgba(255, 255, 255, 0.16) var(--ring, 64deg)
+  );
   display: grid;
   place-items: center;
 }
@@ -395,7 +401,9 @@ h1 span {
   border-radius: 16px;
   padding: 16px 16px 13px;
   box-shadow: 0 2px 3px rgba(17, 46, 38, 0.015);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .card:hover {

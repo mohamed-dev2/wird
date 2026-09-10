@@ -106,7 +106,9 @@
 }
 
 .quran-session h3 {
-  font: 700 16px DM Sans, sans-serif;
+  font:
+    700 16px DM Sans,
+    sans-serif;
 }
 
 .daily-dua {
@@ -262,7 +264,9 @@
   color: #fff;
   border-radius: 20px;
   padding: 11px 14px;
-  font: 600 10px Alexandria, sans-serif;
+  font:
+    600 10px Alexandria,
+    sans-serif;
   box-shadow: 0 7px 22px rgba(16, 81, 65, 0.28);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -316,7 +320,9 @@
 }
 
 .zikr-current strong {
-  font: 700 23px DM Sans, sans-serif;
+  font:
+    700 23px DM Sans,
+    sans-serif;
   color: #16715c;
 }
 
@@ -531,7 +537,9 @@
 }
 
 .friday-card > b {
-  font: 700 12px "DM Sans", sans-serif;
+  font:
+    700 12px "DM Sans",
+    sans-serif;
   color: #9b7534;
   white-space: nowrap;
 }

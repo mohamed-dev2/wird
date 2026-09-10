@@ -33,7 +33,9 @@
 }
 
 .moment-grid h3 b {
-  font-family: DM Sans, sans-serif;
+  font-family:
+    DM Sans,
+    sans-serif;
   font-size: 11px;
   color: #15725e;
   margin-right: 6px;
@@ -560,7 +562,9 @@
 }
 
 .goal-grid strong {
-  font: 600 10px DM Sans, sans-serif;
+  font:
+    600 10px DM Sans,
+    sans-serif;
   color: #38715f;
 }
 

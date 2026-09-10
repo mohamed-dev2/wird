@@ -66,7 +66,9 @@
 
 .metric-row span {
   display: block;
-  font: 700 23px DM Sans, sans-serif;
+  font:
+    700 23px DM Sans,
+    sans-serif;
   color: #176f5d;
 }
 
@@ -463,7 +465,9 @@
 }
 
 .counter-feature > b {
-  font: 700 26px DM Sans, sans-serif;
+  font:
+    700 26px DM Sans,
+    sans-serif;
 }
 
 .counter-feature button {
@@ -582,6 +586,33 @@
   border-radius: 8px;
   padding: 8px;
   cursor: pointer;
+}
+
+.backup-card > span {
+  background: #e6f4ec;
+}
+
+.backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.backup-actions button {
+  border-color: #cfe3d6;
+  color: #14705b;
+}
+
+.backup-actions button.danger {
+  border-color: #eec9c9;
+  color: #a33e3e;
+}
+
+.backup-msg {
+  font-size: 9px;
+  color: #4a6b5e;
+  margin: 8px 0 0 !important;
 }
 
 .bottom-nav {
