@@ -1,0 +1,373 @@
+.rescue-plan {
+  margin-top: 15px;
+  padding: 21px;
+  border: 1px solid #dcebe2;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #f8fcf9, #f2f8f4);
+}
+
+.rescue-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.rescue-top h2 {
+  font-size: 17px;
+  margin: 0 0 6px;
+}
+
+.rescue-top p:not(.eyebrow) {
+  font-size: 10px;
+  color: #73827a;
+  margin: 0;
+}
+
+.rescue-top > span {
+  font-size: 22px;
+  color: #d7a043;
+}
+
+.rescue-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 17px 0 12px;
+}
+
+.rescue-grid article {
+  border-radius: 13px;
+  padding: 15px;
+  background: #fff;
+  border: 1px solid #e5eee8;
+  transition: transform 0.2s ease;
+}
+
+.rescue-grid article:hover {
+  transform: translateY(-2px);
+}
+
+.rescue-grid h3 {
+  font-size: 12px;
+  margin: 0 0 5px;
+}
+
+.rescue-grid p:not(.eyebrow) {
+  font-size: 9px;
+  color: #839089;
+  margin: 0;
+}
+
+.one-now {
+  background: linear-gradient(140deg, #e7f5ed, #fff) !important;
+}
+
+.one-now button,
+.daily-dua button,
+.session-start {
+  margin-top: 12px;
+  font: inherit;
+  font-size: 9px;
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #17745e;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.one-now button:hover,
+.session-start:hover {
+  background: #125e4c;
+}
+
+.minutes {
+  display: flex;
+  gap: 4px;
+  margin-top: 11px;
+}
+
+.minutes button {
+  font: inherit;
+  font-size: 8px;
+  color: #718078;
+  background: #f5f8f6;
+  border: 1px solid #e2ebe5;
+  border-radius: 6px;
+  padding: 5px 6px;
+  cursor: pointer;
+}
+
+.minutes button.selected {
+  background: #e2f2e9;
+  color: #126b55;
+  border-color: #b8dcc7;
+}
+
+.quran-session h3 {
+  font: 700 16px DM Sans, sans-serif;
+}
+
+.daily-dua {
+  background: linear-gradient(140deg, #fffaf0, #fff) !important;
+}
+
+.daily-dua button {
+  background: #9b7131;
+}
+
+.daily-dua button:hover {
+  background: #825e28;
+}
+
+.rescue-bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid #e3ece6;
+  padding-top: 12px;
+}
+
+.rescue-bottom > div {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.rescue-bottom span {
+  font-size: 17px;
+  color: #1a765f;
+}
+
+.rescue-bottom p {
+  margin: 0;
+}
+
+.rescue-bottom b,
+.rescue-bottom small {
+  display: block;
+}
+
+.rescue-bottom b {
+  font-size: 9px;
+}
+
+.rescue-bottom small {
+  font-size: 8px;
+  color: #829088;
+  margin-top: 3px;
+}
+
+.rescue-bottom button {
+  font: inherit;
+  font-size: 8px;
+  border: 1px solid #d6e4db;
+  background: #fff;
+  color: #397363;
+  border-radius: 7px;
+  padding: 7px;
+  cursor: pointer;
+}
+
+.rescue-bottom .record-prayer {
+  background: #16745e;
+  color: #fff;
+  border-color: #16745e;
+}
+
+.utility-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 0.9fr;
+  gap: 10px;
+  margin-top: 13px;
+}
+
+.utility-row article {
+  background: #fff;
+  border: 1px solid #e5ece7;
+  border-radius: 13px;
+  padding: 13px;
+}
+
+.favorite-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.fav {
+  font: inherit;
+  font-size: 8px;
+  color: #61746c;
+  border: 1px solid #dde7e1;
+  background: #fff;
+  border-radius: 15px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.fav.on {
+  background: #e8f5ed;
+  color: #14705b;
+  border-color: #b8dcca;
+}
+
+.dont-forget > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.dont-forget button {
+  font: inherit;
+  font-size: 8px;
+  color: #687a72;
+  background: transparent;
+  border: 0;
+  padding: 3px 0;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.tawbah {
+  background: #f9f7f2 !important;
+}
+
+.tawbah b {
+  display: block;
+  font-size: 10px;
+  margin: 3px 0 9px;
+}
+
+.tawbah button {
+  font: inherit;
+  font-size: 8px;
+  color: #8a6c36;
+  border: 1px solid #e8dac0;
+  background: #fff;
+  border-radius: 7px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.zikr-fab {
+  position: fixed;
+  bottom: 22px;
+  left: 25px;
+  z-index: 25;
+  border: 0;
+  background: #18745f;
+  color: #fff;
+  border-radius: 20px;
+  padding: 11px 14px;
+  font: 600 10px Alexandria, sans-serif;
+  box-shadow: 0 7px 22px rgba(16, 81, 65, 0.28);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.zikr-fab:hover {
+  transform: scale(1.05);
+  background: #125e4c;
+}
+
+.zikr-fab span {
+  margin-right: 4px;
+}
+
+.zikr-popover {
+  position: fixed;
+  left: 25px;
+  bottom: 70px;
+  z-index: 26;
+  width: 275px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #dfe9e3;
+  border-radius: 16px;
+  box-shadow: 0 14px 40px rgba(28, 63, 52, 0.18);
+}
+
+.close-zikr {
+  position: absolute;
+  left: 11px;
+  top: 9px;
+  border: 0;
+  background: transparent;
+  color: #8d9b94;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.zikr-current {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 10px 0;
+  padding: 12px;
+  background: #eff8f3;
+  border-radius: 10px;
+}
+
+.zikr-current b {
+  font-size: 12px;
+}
+
+.zikr-current strong {
+  font: 700 23px DM Sans, sans-serif;
+  color: #16715c;
+}
+
+.zikr-options {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.zikr-options button {
+  font: inherit;
+  font-size: 8px;
+  color: #64766e;
+  background: #fff;
+  border: 1px solid #e0e9e3;
+  border-radius: 7px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.zikr-tap {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  background: #17745e;
+  color: #fff;
+  font: inherit;
+  font-size: 11px;
+  padding: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+@media (max-width: 750px) {
+  .rescue-plan {
+    padding: 16px;
+  }
+  .rescue-grid,
+  .utility-row {
+    grid-template-columns: 1fr;
+  }
+  .rescue-bottom > button:first-of-type {
+    display: none;
+  }
+  .zikr-fab {
+    bottom: 72px;
+    left: 16px;
+  }
+  .zikr-popover {
+    bottom: 121px;
+    left: 16px;
+    width: calc(100vw - 32px);
+  }
+}
