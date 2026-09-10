@@ -355,6 +355,187 @@
   opacity: 0.55;
 }
 
+.steady-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 13px;
+}
+
+.ramp-card,
+.intention-card {
+  border: 1px solid #e5eee8;
+  border-radius: 13px;
+  padding: 15px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ramp-card h3,
+.intention-card h3 {
+  font-size: 12px;
+  margin: 0 0 5px;
+}
+
+.ramp-card p:not(.eyebrow),
+.intention-card > div > p:not(.eyebrow) {
+  font-size: 9px;
+  color: #839089;
+  margin: 0;
+}
+
+.ramp-steps {
+  display: flex;
+  gap: 6px;
+}
+
+.ramp-steps i {
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #f1f6f3;
+  color: #7b8a83;
+  border: 1px solid #e2ebe5;
+}
+
+.ramp-steps i.done {
+  background: #e2f3e9;
+  color: #126b55;
+  border-color: #badeca;
+}
+
+.ramp-card > button {
+  align-self: flex-start;
+  font: inherit;
+  font-size: 9px;
+  background: #fff;
+  border: 1px solid #dfe8e2;
+  border-radius: 8px;
+  color: #61746c;
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ramp-card > button:hover {
+  background: #f5f8f6;
+  border-color: #cbd5d0;
+}
+
+.intention-card > span {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #fff4e6;
+  color: #de9a40;
+  font-size: 16px;
+}
+
+.intention-card > div > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 9px;
+}
+
+.intention-card button {
+  font: inherit;
+  font-size: 8px;
+  color: #61746c;
+  border: 1px solid #dde7e1;
+  background: #fff;
+  border-radius: 15px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.intention-card button:hover {
+  background: #f5f8f6;
+}
+
+.intention-card button.selected {
+  background: #e2f3e9;
+  color: #126b55;
+  border-color: #badeca;
+}
+
+.friday-card {
+  margin-top: 13px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border: 1px solid #e9e2d2;
+  border-radius: 14px;
+  padding: 15px;
+  background: linear-gradient(120deg, #fffdf6, #fff);
+}
+
+.friday-card > span {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #f4ecd9;
+  color: #9b7534;
+  font-size: 19px;
+}
+
+.friday-card > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.friday-card h3 {
+  font-size: 13px;
+  margin: 0 0 8px;
+}
+
+.friday-card > div > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.friday-card button {
+  font: inherit;
+  font-size: 8px;
+  color: #61746c;
+  border: 1px solid #e5ddc8;
+  background: #fff;
+  border-radius: 15px;
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.friday-card button:hover {
+  background: #faf6ec;
+}
+
+.friday-card button.complete {
+  background: #e8f5ed;
+  color: #14705b;
+  border-color: #b8dcca;
+}
+
+.friday-card > b {
+  font: 700 12px "DM Sans", sans-serif;
+  color: #9b7534;
+  white-space: nowrap;
+}
+
 .reflection textarea {
   width: 100%;
   background: #fff;
@@ -373,8 +554,12 @@
     padding: 16px;
   }
   .rescue-grid,
-  .utility-row {
+  .utility-row,
+  .steady-grid {
     grid-template-columns: 1fr;
+  }
+  .friday-card {
+    flex-wrap: wrap;
   }
   .rescue-bottom > button:first-of-type {
     display: none;

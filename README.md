@@ -1,6 +1,6 @@
 # ورد - رفيقك اليومي
 
-متابعة العبادات والأوراد اليومية (Next.js 14 + React 18).
+متابعة العبادات والأوراد اليومية (Next.js 16 + React 19).
 
 ## التشغيل
 
@@ -20,6 +20,9 @@ npm run typecheck
 - التاريخ الهجري/الميلادي ديناميكي عبر `Intl`.
 - البيانات ومساعدات التخزين في `app/lib/wird.ts` بدل تكديسها في `page.tsx`.
 - كل الأزرار `type="button"` وأزرار التبديل تحمل `aria-pressed`.
-- Node المقترح 20 (`.nvmrc`) ليتوافق مع `@types/node@20` رغم أن جهازك يعمل بـ 24.
-- Next 14.2.35 هو آخر ترقيع آمن ضمن السطر 14.x؛ الترقية الكاملة الموصى بها لاحقًا إلى Next 15.5+ أو 16.x (تتطلب اختبار React 19).
+- Node المقترح 22 (`.nvmrc`).
+- الفحص عبر ESLint CLI بإعداد flat (`eslint.config.mjs`) لأن `next lint` أُزيل في Next 16، والبناء لم يعد يفحص تلقائيًا.
+- الأمان: `next.config.ts` يضيف `X-Content-Type-Options` و`X-Frame-Options: DENY` و`Referrer-Policy` و`Permissions-Policy` ويخفي `X-Powered-By`.
+- لا hydration errors: الحالة تبدأ بقيم ثابتة مطابقة لـ SSR ثم تُحمّل القيم المحفوظة بعد التركيب (`mounted`).
+- بعد أي ترقية رئيسية شغّل `npm run clean` أولًا (كاش `.next` القديم كسر بناء 16 مرة).
 
