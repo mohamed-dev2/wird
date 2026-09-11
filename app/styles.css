@@ -6,6 +6,30 @@
   box-sizing: border-box;
 }
 
+::selection {
+  background: var(--brand);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 8px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand);
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -242,6 +266,7 @@ h1 span {
   position: relative;
   display: flex;
   align-items: center;
+  box-shadow: 0 20px 50px rgba(16, 94, 80, 0.22);
 }
 
 .hero:before {

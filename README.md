@@ -1,5 +1,12 @@
 # ورد — رفيقك اليومي | Wird Daily Tracker
 
+[![CI](https://github.com/mohamed-dev2/wird/actions/workflows/ci.yml/badge.svg)](https://github.com/mohamed-dev2/wird/actions/workflows/ci.yml)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
+[![React](https://img.shields.io/badge/React-19-61dafb)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6)](https://www.typescriptlang.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green)](./LICENSE)
+[![PWA ready](https://img.shields.io/badge/PWA-ready-14725d)](./public/manifest.webmanifest)
+
 Daily Islamic habits tracker — Next.js 16 + React 19, **100% on-device** (localStorage only, no database, no accounts).
 
 ## التشغيل | Run

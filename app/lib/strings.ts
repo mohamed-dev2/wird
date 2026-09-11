@@ -432,6 +432,18 @@ const AR: Record<string, string> = {
   "ad.cfDone": "تم الورد · ابدأ من جديد",
   "ad.cfGo": "ابدأ العدّاد",
   "cm.del": "حذف؟",
+  "dm.t": "وضع العرض",
+  "dm.s": "املأ التطبيق بـ ٤٥ يومًا من البيانات التجريبية لترى الإحصاءات والمدرب يعملان فورًا.",
+  "dm.seed": "تعبئة تجريبية",
+  "dm.clear": "مسح التجريبية",
+  "dm.ok": "تمت تعبئة {n} يومًا. حدّث الصفحة.",
+  "dm.cleared": "مُسحت بيانات العرض.",
+  "dm.warn": "لن تمس بياناتك الحالية — تُضاف الأيام الفارغة فقط.",
+  "ins.share": "مشاركة تقدمي",
+  "ins.shared": "تمت المشاركة ✓",
+  "ins.downloaded": "حُفظت الصورة ✓",
+  "ins.shareFail": "تعذرت المشاركة",
+  "pwa.install": "تثبيت التطبيق",
 };
 
 const EN: Record<string, string> = {
@@ -866,6 +878,18 @@ const EN: Record<string, string> = {
   "ad.cfDone": "Done · restart",
   "ad.cfGo": "Start counter",
   "cm.del": "Delete?",
+  "dm.t": "Demo mode",
+  "dm.s": "Fill the app with 45 days of sample data to see stats and coach instantly.",
+  "dm.seed": "Load demo",
+  "dm.clear": "Clear demo",
+  "dm.ok": "Loaded {n} days. Refresh.",
+  "dm.cleared": "Demo cleared.",
+  "dm.warn": "Won't touch your data — only empty days fill.",
+  "ins.share": "Share progress",
+  "ins.shared": "Shared ✓",
+  "ins.downloaded": "Image saved ✓",
+  "ins.shareFail": "Share failed",
+  "pwa.install": "Install app",
 };
 
 export function tr(lang: Lang, key: string, vars?: Record<string, string | number>): string {

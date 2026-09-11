@@ -5,6 +5,11 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { NAV_HREFS, NAV_ITEMS } from "../lib/wird";
 import { useT } from "../lib/i18n";
+
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: string }>;
+};
 import { isVoiceSupported, listenOnce, matchCommand } from "../lib/voice";
 import { useWird } from "./wird-store";
 
@@ -27,6 +32,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const [voiceOn, setVoiceOn] = useState(false);
   const [listening, setListening] = useState(false);
   const [heard, setHeard] = useState("");
+  const [installEvt, setInstallEvt] = useState<BeforeInstallPromptEvent | null>(null);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- feature-detect once after mount (SSR has no window)
     setVoiceOn(isVoiceSupported());
@@ -74,6 +80,14 @@ export function Shell({ children }: { children: ReactNode }) {
     const id = window.setTimeout(() => setHeard(""), 4000);
     return () => window.clearTimeout(id);
   }, [heard]);
+  useEffect(() => {
+    const onPrompt = (e: Event) => {
+      e.preventDefault();
+      setInstallEvt(e as BeforeInstallPromptEvent);
+    };
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    return () => window.removeEventListener("beforeinstallprompt", onPrompt);
+  }, []);
   const runVoice = async () => {
     if (listening) return;
     setListening(true);
@@ -159,6 +173,21 @@ export function Shell({ children }: { children: ReactNode }) {
                 title={t("header.voice")}
               >
                 {listening ? "…" : "🎙"}
+              </button>
+            )}
+            {installEvt && (
+              <button
+                type="button"
+                className="mic-btn"
+                aria-label={t("pwa.install")}
+                title={t("pwa.install")}
+                onClick={() => {
+                  const ev = installEvt;
+                  setInstallEvt(null);
+                  void ev.prompt().catch(() => undefined);
+                }}
+              >
+                📲
               </button>
             )}
           </div>

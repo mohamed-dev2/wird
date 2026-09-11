@@ -389,7 +389,18 @@
   border: 1px solid #dcebe2;
   border-radius: 16px;
   padding: 18px 20px;
-  background: linear-gradient(135deg, var(--brand-soft), var(--brand-soft));
+  background: linear-gradient(135deg, #f8fcf9, #f2f8f4);
+}
+
+.brief-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.brief-head .eyebrow {
+  margin: 0;
 }
 
 .year-card .metric-row {

@@ -9,6 +9,8 @@ import {
   restoreBackup,
 } from "../../lib/crypto";
 import { DEFAULT_REMINDERS, ensurePermission, fireNotification } from "../../lib/notify";
+import { buildDemo, clearDemoData, mergeHistoryDemo, saveDemoReviews } from "../../lib/demo";
+import { dayId } from "../../lib/wird";
 import { PRAYER_AR, PRAYER_ORDER, type PrayerTimes } from "../../lib/prayer";
 import { useStoredState } from "../../lib/use-stored-state";
 import { useT } from "../../lib/i18n";
@@ -51,6 +53,44 @@ function AppearanceCard() {
             {lang === "ar" ? "English" : "العربية"}
           </button>
         </div>
+      </div>
+    </article>
+  );
+}
+
+function DemoCard() {
+  const t = useT();
+  const { allHabits } = useWird();
+  const [msg, setMsg] = useState("");
+  const seed = () => {
+    const { history, reviews } = buildDemo(
+      dayId(),
+      allHabits.map((h) => h.id),
+    );
+    const n = mergeHistoryDemo(history);
+    saveDemoReviews(reviews);
+    setMsg(t("dm.ok", { n }));
+  };
+  const clear = () => {
+    clearDemoData();
+    setMsg(t("dm.cleared"));
+  };
+  return (
+    <article className="new-day">
+      <span>🧪</span>
+      <div>
+        <b>{t("dm.t")}</b>
+        <p>{t("dm.s")}</p>
+        <div className="backup-actions">
+          <button type="button" onClick={seed}>
+            {t("dm.seed")}
+          </button>
+          <button type="button" className="danger" onClick={clear}>
+            {t("dm.clear")}
+          </button>
+        </div>
+        <p className="backup-msg">{t("dm.warn")}</p>
+        {msg && <p className="backup-msg">{msg}</p>}
       </div>
     </article>
   );
@@ -239,6 +279,7 @@ export function AccountView({ onReset }: { onReset: () => void }) {
         </div>
       </article>
       <AppearanceCard />
+      <DemoCard />
       <article className="new-day">
         <span>🕌</span>
         <div>

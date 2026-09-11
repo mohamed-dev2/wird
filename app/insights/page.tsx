@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { dataStreak, lastNDays } from "../lib/history";
 import { buildBrief, buildCatalog, categoryBalance, type Category } from "../lib/coach";
 import { dayId, hijriParts } from "../lib/wird";
+import { shareProgress } from "../lib/share";
 import { useT } from "../lib/i18n";
 import { useWird } from "../components/wird-store";
 
@@ -122,6 +123,24 @@ export default function InsightsPage() {
     () => buildBrief(history, deeds, todayId, lang),
     [history, deeds, todayId, lang],
   );
+  const [shareMsg, setShareMsg] = useState<string | null>(null);
+  const onShare = () => {
+    void shareProgress({
+      avg: metrics.avg,
+      streak: metrics.streak,
+      witr: metrics.witr,
+      pages: metrics.pages,
+      days: periodDays,
+    }).then((r) =>
+      setShareMsg(
+        r === "shared"
+          ? t("ins.shared")
+          : r === "downloaded"
+            ? t("ins.downloaded")
+            : t("ins.shareFail"),
+      ),
+    );
+  };
 
   const yearStats = useMemo(() => {
     const curH = hijriParts(new Date(`${todayId}T12:00:00Z`));
@@ -212,7 +231,13 @@ export default function InsightsPage() {
         </article>
       </div>
       <div className="brief-card">
-        <p className="eyebrow">{t("ins.coach")}</p>
+        <div className="brief-head">
+          <p className="eyebrow">{t("ins.coach")}</p>
+          <button type="button" className="linklike" onClick={onShare}>
+            📤 {t("ins.share")}
+          </button>
+        </div>
+        {shareMsg && <p className="backup-msg">{shareMsg}</p>}
         {brief.risks.length === 0 &&
         brief.neglect.length === 0 &&
         !brief.pace &&
