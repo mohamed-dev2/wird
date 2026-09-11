@@ -24,7 +24,9 @@ test("today loads, toggles persist, no hydration errors", async ({ page }) => {
     const el = document.querySelector("header .eyebrow");
     return !!el && el.textContent !== "يوم جديد";
   });
-  await expect(page.getByRole("heading", { name: /صباح النور/ })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /صباح النور|مساء النور|طاب يومك|ليلة هادئة/ }),
+  ).toBeVisible();
 
   const firstHabit = page.locator(".habit").first();
   const wasDone = await firstHabit.evaluate((el) => el.classList.contains("completed"));

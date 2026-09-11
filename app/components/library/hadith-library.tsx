@@ -3,8 +3,10 @@
 import { useMemo, useState } from "react";
 import { HADITH_BOOKS, NAWAWI, type HadithEntry } from "../../lib/data/hadith";
 import { normalizeAr } from "../../lib/quran";
+import { copyText } from "../../lib/clipboard";
 import { useStoredState } from "../../lib/use-stored-state";
 import { useT } from "../../lib/i18n";
+import { HadithFull } from "./hadith-full";
 
 function gradeClass(grade: string): string {
   if (grade.includes("متفق")) return "grade-muttafaq";
@@ -27,11 +29,7 @@ function EntryCard({
   onRead: () => void;
 }) {
   const t = useT();
-  const copy = () => {
-    try {
-      void navigator.clipboard?.writeText(`${entry.text} — (${entry.ref})`);
-    } catch {}
-  };
+  const copy = () => copyText(`${entry.text} — (${entry.ref})`);
   return (
     <article className={`hadith-card${read ? " read" : ""}`}>
       <p>{entry.text}</p>
@@ -64,6 +62,7 @@ export function HadithLibrary() {
   const [readIds, setReadIds] = useStoredState<string[]>("wird-hadith-read-v1", []);
   const toggleRead = (id: string) =>
     setReadIds((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+  const [mode, setMode] = useState<"curated" | "full">("curated");
 
   const all: (HadithEntry & { book: string })[] = useMemo(
     () => [
@@ -81,15 +80,39 @@ export function HadithLibrary() {
 
   return (
     <div className="hadith-lib">
-      <div className="lib-toolbar">
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t("hd.search")}
-          aria-label={t("hd.searchAria")}
-        />
+      <div className="book-chips">
+        <button
+          type="button"
+          onClick={() => setMode("curated")}
+          aria-pressed={mode === "curated"}
+          className={mode === "curated" ? "selected" : ""}
+        >
+          {t("hf.curated")}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("full")}
+          aria-pressed={mode === "full"}
+          className={mode === "full" ? "selected" : ""}
+        >
+          {t("hf.full")}
+        </button>
       </div>
-      {results ? (
+      {mode === "full" ? (
+        <HadithFull favs={favs} toggleFav={toggleFav} readIds={readIds} toggleRead={toggleRead} />
+      ) : (
+        <>
+          <div className="lib-toolbar">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={t("hd.search")}
+              aria-label={t("hd.searchAria")}
+            />
+          </div>
+        </>
+      )}
+      {mode === "curated" && results ? (
         <div className="lib-results">
           {results.length === 0 && <p className="chart-caption">{t("hd.noRes")}</p>}
           {results.map((e) => (

@@ -11,6 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import {
+  askPrompt,
   dayId,
   DEFAULT_DONE,
   DEFAULT_INTENTION,
@@ -21,6 +22,7 @@ import {
   loadDailyNumber,
   loadDailyText,
   loadFromStorage,
+  parseArDigits,
   QURAN_GOAL_PAGES,
   saveToStorage,
   sections,
@@ -31,6 +33,7 @@ import {
 } from "../lib/wird";
 import { emptyDay, recordDay, type DayRecord, type History } from "../lib/history";
 import { normalizeDayMode } from "../lib/daymode";
+import { tr } from "../lib/strings";
 import type { PrayerTimes } from "../lib/prayer";
 import {
   adoptKeys,
@@ -435,30 +438,23 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     setPartial([]);
     setSnoozed([]);
   };
-  const askName = (message: string) => {
-    try {
-      const v = window.prompt(message)?.trim();
-      return v ? v : null;
-    } catch {
-      return null;
-    }
-  };
+  const askName = askPrompt;
   const addCustom = () => {
-    const title = askName("اسم العبادة المخصصة:");
+    const title = askName(tr(lang, "tools.customAsk"));
     if (title)
       setCustoms((current) => [...current, { id: `custom-${Date.now()}`, title, points: 2 }]);
   };
   const addDua = () => {
-    const dua = askName("اكتب دعاءً من قلبك:");
+    const dua = askName(tr(lang, "dua.ask"));
     if (dua) setCustomDuas((current) => [...current, dua]);
   };
   const addGoal = () => {
-    const title = askName("اسم الهدف الجديد:");
+    const title = askName(tr(lang, "goals.ask"));
     if (title)
-      setCustomGoals((current) => [...current, { title, detail: "هدف جديد · ابدأ بخطوة صغيرة" }]);
+      setCustomGoals((current) => [...current, { title, detail: tr(lang, "goals.newDetail") }]);
   };
   const editIntention = () => {
-    const v = askName("ما نيتك اليوم؟");
+    const v = askName(tr(lang, "intent.ask"));
     if (v) setIntention(v);
   };
   const addQada = (label: string) => {
@@ -473,7 +469,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   };
   const qadaOpen = qada.filter((q) => !q.cleared).length;
   const startBreaker = () => {
-    const name = askName("ما العادة التي تريد كسرها؟");
+    const name = askName(tr(lang, "br.ask"));
     if (name) setBreaker({ name, created: dayId(), slips: [] });
   };
   const logSlip = () => {
@@ -489,19 +485,10 @@ export function WirdProvider({ children }: { children: ReactNode }) {
       )
     : 0;
   const addChallenge = () => {
-    const title = askName("اسم التحدي (مثال: الفجر ٣٠ يومًا):");
+    const title = askName(tr(lang, "ch.askT"));
     if (!title) return;
-    const daysRaw = askName("عدد الأيام (مثال: ٣٠):");
-    const target = Math.min(
-      365,
-      Math.max(
-        2,
-        parseInt(
-          (daysRaw ?? "").replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d).toString()),
-          10,
-        ) || 30,
-      ),
-    );
+    const daysRaw = askName(tr(lang, "ch.askD"));
+    const target = Math.min(365, Math.max(2, parseInt(parseArDigits(daysRaw ?? ""), 10) || 30));
     setChallenges((current) => [
       ...current,
       { id: `chl-${Date.now()}`, title, target, start: dayId(), checks: [] },

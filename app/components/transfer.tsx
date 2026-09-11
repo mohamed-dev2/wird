@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import jsQR from "jsqr";
+import { copyText } from "../lib/clipboard";
 import { collectBackup, decryptBackup, encryptBackup, restoreBackup } from "../lib/crypto";
 import {
   assembleChunks,
@@ -286,11 +287,7 @@ function LanSend() {
     }
   };
 
-  const copy = (text: string) => {
-    try {
-      void navigator.clipboard?.writeText(text);
-    } catch {}
-  };
+  const copy = copyText;
 
   return (
     <div className="transfer-pane">
@@ -394,11 +391,7 @@ function LanReceive() {
     }
   };
 
-  const copy = (text: string) => {
-    try {
-      void navigator.clipboard?.writeText(text);
-    } catch {}
-  };
+  const copy = copyText;
 
   return (
     <div className="transfer-pane">

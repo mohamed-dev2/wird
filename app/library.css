@@ -276,6 +276,17 @@
   margin-right: 6px;
 }
 
+@media (pointer: fine) {
+  .ayah-tools {
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+  .ayah:hover .ayah-tools,
+  .ayah:focus-within .ayah-tools {
+    opacity: 1;
+  }
+}
+
 .ayah-tools button {
   border: 0;
   background: transparent;
@@ -381,6 +392,39 @@
 .hadith-tools button[aria-pressed="true"] {
   opacity: 1;
   color: var(--gold-deep);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 14px 0 4px;
+}
+
+.pager button {
+  font: inherit;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+.pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.pager span {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.hadith-full .lib-toolbar input {
+  min-width: 120px;
 }
 
 .book-head {

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useT } from "../../lib/i18n";
+import { askPrompt } from "../../lib/wird";
 import { EditModal } from "../edit-modal";
 
 import type { Dispatch, SetStateAction } from "react";
@@ -13,15 +14,6 @@ export type Dream = {
   steps: { text: string; done: boolean }[];
 };
 
-function ask(msg: string): string | null {
-  try {
-    const v = window.prompt(msg)?.trim();
-    return v ? v : null;
-  } catch {
-    return null;
-  }
-}
-
 export function DreamsBoard({
   dreams,
   setDreams,
@@ -32,10 +24,10 @@ export function DreamsBoard({
   const t = useT();
   const [editingId, setEditingId] = useState<string | null>(null);
   const addDream = () => {
-    const title = ask(t("dr.askT"));
+    const title = askPrompt(t("dr.askT"));
     if (!title) return;
-    const target = ask(t("dr.askTar")) ?? "";
-    const step = ask(t("dr.askFirst"));
+    const target = askPrompt(t("dr.askTar")) ?? "";
+    const step = askPrompt(t("dr.askFirst"));
     setDreams((cur) => [
       ...cur,
       {
@@ -47,7 +39,7 @@ export function DreamsBoard({
     ]);
   };
   const addStep = (id: string) => {
-    const text = ask(t("dr.askStep"));
+    const text = askPrompt(t("dr.askStep"));
     if (!text) return;
     setDreams((cur) =>
       cur.map((d) => (d.id === id ? { ...d, steps: [...d.steps, { text, done: false }] } : d)),

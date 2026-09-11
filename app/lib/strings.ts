@@ -535,6 +535,18 @@ const AR: Record<string, string> = {
   "rc.newPin": "رقم سري جديد",
   "rc.reset": "تعيين الرقم",
   "rc.done": "تم ✓ سجّل دخولك",
+  "hf.curated": "مختارات",
+  "hf.full": "الكتب الكاملة",
+  "hf.loading": "جارٍ تحميل الكتاب…",
+  "hf.failT": "تعذر التحميل",
+  "hf.failS": "تحقق من الاتصال — يُحفظ الكتاب بعدها للاستعمال دون إنترنت.",
+  "hf.count": "حديث",
+  "hf.search": "ابحث في الكتاب…",
+  "hf.section": "الباب",
+  "hf.sectionAll": "كل الأبواب",
+  "hf.jump": "رقم الحديث",
+  "hf.go": "انتقال",
+  "hf.num": "حديث",
 };
 
 const EN: Record<string, string> = {
@@ -1072,6 +1084,18 @@ const EN: Record<string, string> = {
   "rc.newPin": "New PIN",
   "rc.reset": "Set PIN",
   "rc.done": "Done ✓ log in",
+  "hf.curated": "Selections",
+  "hf.full": "Full books",
+  "hf.loading": "Loading book…",
+  "hf.failT": "Load failed",
+  "hf.failS": "Check connection — book caches for offline use.",
+  "hf.count": "hadiths",
+  "hf.search": "Search this book…",
+  "hf.section": "Chapter",
+  "hf.sectionAll": "All chapters",
+  "hf.jump": "Hadith #",
+  "hf.go": "Go",
+  "hf.num": "Hadith",
 };
 
 export function tr(lang: Lang, key: string, vars?: Record<string, string | number>): string {

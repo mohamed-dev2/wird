@@ -11,6 +11,7 @@ import {
   sections,
   extras,
   adhkar,
+  askPrompt,
   duas,
   QURAN_GOAL_PAGES,
   PRAYER_NAMES,
@@ -192,14 +193,7 @@ export default function TodayPage() {
 
   const KID_QUESTS = ["q1", "q2", "q3", "q4", "q5"];
   const INTENT_KEYS = ["job", "craft", "benefit", "learn", "family"];
-  const askName = (message: string) => {
-    try {
-      const v = window.prompt(message)?.trim();
-      return v ? v : null;
-    } catch {
-      return null;
-    }
-  };
+  const askName = askPrompt;
   const addKid = () => {
     const name = askName(t("kd.ask"));
     if (name) {

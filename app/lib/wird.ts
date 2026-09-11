@@ -294,6 +294,21 @@ export function saveToStorage(key: string, value: unknown): void {
   }
 }
 
+/** window.prompt wrapper shared by all add/edit flows (null-safe). */
+export function askPrompt(message: string): string | null {
+  try {
+    const v = window.prompt(message)?.trim();
+    return v ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Convert Arabic-Indic digits to Latin (for numeric inputs). */
+export function parseArDigits(s: string): string {
+  return s.replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d).toString());
+}
+
 type DailyList = { day: string; ids: string[] };
 
 export function loadDailyList(key: string, fallback: string[], today: string): string[] {

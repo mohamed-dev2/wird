@@ -11,7 +11,7 @@ import {
 } from "../../lib/crypto";
 import { DEFAULT_REMINDERS, ensurePermission, fireNotification } from "../../lib/notify";
 import { buildDemo, clearDemoData, mergeHistoryDemo, saveDemoReviews } from "../../lib/demo";
-import { dayId } from "../../lib/wird";
+import { askPrompt, dayId } from "../../lib/wird";
 import { PRAYER_AR, PRAYER_ORDER, type PrayerTimes } from "../../lib/prayer";
 import { useStoredState } from "../../lib/use-stored-state";
 import { useT } from "../../lib/i18n";
@@ -129,25 +129,12 @@ export function AccountView({ onReset }: { onReset: () => void }) {
     customs,
   } = useWird();
   const [openRow, setOpenRow] = useState<string | null>(null);
-  const askName = (message: string) => {
-    try {
-      const v = window.prompt(message)?.trim();
-      return v ? v : null;
-    } catch {
-      return null;
-    }
-  };
+  const askName = askPrompt;
   const [reminders, setReminders] = useStoredState("wird-reminders-v1", DEFAULT_REMINDERS);
   const [prayerTimes, setPrayerTimes] = useStoredState<PrayerTimes>("wird-prayer-times-v1", {});
   const [remindMsg, setRemindMsg] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
-  const askPass = (msg: string) => {
-    try {
-      return window.prompt(msg)?.trim() || null;
-    } catch {
-      return null;
-    }
-  };
+  const askPass = askPrompt;
   const stamp = () => new Date().toISOString().slice(0, 10);
   const onExportPlain = () => {
     try {
