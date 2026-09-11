@@ -32,6 +32,44 @@ export function Shell({ children }: { children: ReactNode }) {
     setVoiceOn(isVoiceSupported());
   }, []);
   useEffect(() => {
+    // Subtle pointer tilt for [data-tilt] cards: desktop pointers only,
+    // disabled with reduced motion. Delegated — survives route changes.
+    let last: HTMLElement | null = null;
+    try {
+      if (!window.matchMedia("(pointer: fine)").matches) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    } catch {
+      return;
+    }
+    const clear = () => {
+      if (last) {
+        last.style.setProperty("--rx", "0deg");
+        last.style.setProperty("--ry", "0deg");
+        last = null;
+      }
+    };
+    const move = (e: PointerEvent) => {
+      const el = document
+        .elementFromPoint(e.clientX, e.clientY)
+        ?.closest?.("[data-tilt]") as HTMLElement | null;
+      if (last && last !== el) clear();
+      last = el;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) return;
+      const px = (e.clientX - r.left) / r.width - 0.5;
+      const py = (e.clientY - r.top) / r.height - 0.5;
+      el.style.setProperty("--ry", `${(px * 7).toFixed(2)}deg`);
+      el.style.setProperty("--rx", `${(-py * 7).toFixed(2)}deg`);
+    };
+    document.addEventListener("pointermove", move, { passive: true });
+    document.addEventListener("pointerleave", clear);
+    return () => {
+      document.removeEventListener("pointermove", move);
+      document.removeEventListener("pointerleave", clear);
+    };
+  }, []);
+  useEffect(() => {
     if (!heard) return;
     const id = window.setTimeout(() => setHeard(""), 4000);
     return () => window.clearTimeout(id);

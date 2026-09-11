@@ -862,6 +862,81 @@ footer {
   outline-offset: 2px;
 }
 
+/* Subtle 3D: pointer tilt (JS sets --rx/--ry), layered hero ring, medal pops */
+@media (pointer: fine) {
+  [data-tilt] {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition:
+      transform 0.18s var(--ease-out),
+      box-shadow 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease;
+  }
+  article.card[data-tilt]:hover,
+  button.extra[data-tilt]:hover,
+  .goal-grid article[data-tilt]:hover,
+  .metric-row article[data-tilt]:hover {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-tilt] {
+    transform: none !important;
+  }
+}
+
+.hero {
+  perspective: 900px;
+}
+
+.hero-ring {
+  transform: translateZ(28px);
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.28),
+    0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.hero-copy {
+  transform: translateZ(12px);
+}
+
+.goal-grid article:hover .goal-icon {
+  transform: scale(1.12) rotate(-6deg);
+}
+
+.goal-icon {
+  transition: transform 0.2s var(--ease-out);
+}
+
+.badge-row span {
+  transition:
+    transform 0.2s var(--ease-out),
+    border-color 0.2s ease;
+}
+
+.badge-row span:hover {
+  transform: translateY(-2px) rotate(-1deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .zikr-popover,
+  .focus-card {
+    animation: pop 0.18s var(--ease-out) both;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Print: monthly/weekly report cards */
 @media print {
   .sidebar,

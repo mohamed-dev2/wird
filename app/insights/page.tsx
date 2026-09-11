@@ -190,22 +190,22 @@ export default function InsightsPage() {
         </div>
       </div>
       <div className="metric-row">
-        <article>
+        <article data-tilt>
           <span>{metrics.avg}٪</span>
           <p>{t("ins.avg")}</p>
           <small>{t("ins.avgS")}</small>
         </article>
-        <article>
+        <article data-tilt>
           <span>{metrics.witr}</span>
           <p>{t("ins.witr")}</p>
           <small>{t("ins.witrS")}</small>
         </article>
-        <article>
+        <article data-tilt>
           <span>{metrics.pages}</span>
           <p>{t("ins.pages")}</p>
           <small>{t("ins.pagesS")}</small>
         </article>
-        <article>
+        <article data-tilt>
           <span>🔥 {metrics.streak}</span>
           <p>{t("ins.streak")}</p>
           <small>{t("ins.streakS")}</small>
@@ -257,22 +257,22 @@ export default function InsightsPage() {
             {t("yr.title")} · {yearStats.year}هـ
           </p>
           <div className="metric-row">
-            <article>
+            <article data-tilt>
               <span>{yearStats.days}</span>
               <p>{t("yr.days")}</p>
             </article>
-            <article>
+            <article data-tilt>
               <span>{yearStats.pages}</span>
               <p>{t("yr.pages")}</p>
             </article>
-            <article>
+            <article data-tilt>
               <span>
                 {yearStats.avg ?? "—"}
                 {yearStats.avg != null ? "٪" : ""}
               </span>
               <p>{t("yr.score")}</p>
             </article>
-            <article>
+            <article data-tilt>
               <span>{yearStats.best}</span>
               <p>{t("yr.streak")}</p>
             </article>

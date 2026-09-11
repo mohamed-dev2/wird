@@ -57,3 +57,13 @@ test("theme and language persist", async ({ page }) => {
   await page.getByRole("button", { name: "العربية" }).click();
   await expect.poll(() => page.evaluate(() => document.documentElement.dir)).toBe("rtl");
 });
+
+test("card tilt sets 3d vars on hover", async ({ page }) => {
+  await page.goto("/");
+  const card = page.locator(".card[data-tilt]").first();
+  await card.scrollIntoViewIfNeeded();
+  await card.hover();
+  await expect
+    .poll(() => card.evaluate((el) => (el as HTMLElement).style.getPropertyValue("--rx") !== ""))
+    .toBe(true);
+});

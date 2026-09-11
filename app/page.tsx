@@ -907,7 +907,7 @@ export default function TodayPage() {
       </div>
       <div className="cards">
         {orderedSections.map((section) => (
-          <article key={section.id} className={`card ${section.accent}`}>
+          <article key={section.id} className={`card ${section.accent}`} data-tilt>
             <div className="card-top">
               <div className="prayer-icon">{section.icon}</div>
               <div>
@@ -960,6 +960,7 @@ export default function TodayPage() {
                 aria-pressed={done.includes(habit.id)}
                 className={done.includes(habit.id) ? "extra done" : "extra"}
                 key={habit.id}
+                data-tilt
               >
                 <span className="extra-check">{done.includes(habit.id) ? "✓" : "+"}</span>
                 <div>
@@ -1091,7 +1092,7 @@ export default function TodayPage() {
           </button>
         </div>
         <div className="goal-grid">
-          <article>
+          <article data-tilt>
             <span className="goal-icon">☾</span>
             <div>
               <b>{t("goals.witr")}</b>
@@ -1102,7 +1103,7 @@ export default function TodayPage() {
             </div>
             <strong>٤ / ٧</strong>
           </article>
-          <article>
+          <article data-tilt>
             <span className="goal-icon quran-goal">۝</span>
             <div>
               <b>{t("goals.quran")}</b>
@@ -1113,7 +1114,7 @@ export default function TodayPage() {
             </div>
             <strong>٤٠٪</strong>
           </article>
-          <article>
+          <article data-tilt>
             <span className="goal-icon heart-goal">♡</span>
             <div>
               <b>{t("goals.kin")}</b>
@@ -1125,7 +1126,7 @@ export default function TodayPage() {
             <strong>١ / ٢</strong>
           </article>
           {customGoals.map((g) => (
-            <article key={g.title}>
+            <article key={g.title} data-tilt>
               <span className="goal-icon">✦</span>
               <div>
                 <b>{g.title}</b>
@@ -1141,7 +1142,7 @@ export default function TodayPage() {
             const pct = Math.min(100, Math.round((c.checks.length / c.target) * 100));
             const todayDone = c.checks.includes(dayId());
             return (
-              <article key={c.id}>
+              <article key={c.id} data-tilt>
                 <span className="goal-icon">🏆</span>
                 <div>
                   <b>{c.title}</b>
@@ -1180,7 +1181,7 @@ export default function TodayPage() {
           {pledges.map((p) => {
             const pdone = p.checks.includes(dayId());
             return (
-              <article key={p.id}>
+              <article key={p.id} data-tilt>
                 <span className="goal-icon heart-goal">🤝</span>
                 <div>
                   <b>{p.text}</b>
