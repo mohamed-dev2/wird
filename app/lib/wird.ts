@@ -266,6 +266,8 @@ export function diffDays(fromId: string, toId: string): number {
   return Number.isFinite(ms) ? Math.max(0, Math.round(ms / 86400000)) : 0;
 }
 
+import { nsKey } from "./profiles";
+
 export function dayId(d = new Date()): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -276,7 +278,7 @@ export function dayId(d = new Date()): string {
 export function loadFromStorage<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
-    const raw = window.localStorage.getItem(key);
+    const raw = window.localStorage.getItem(nsKey(key));
     if (raw == null) return fallback;
     return JSON.parse(raw) as T;
   } catch {
@@ -286,7 +288,7 @@ export function loadFromStorage<T>(key: string, fallback: T): T {
 
 export function saveToStorage(key: string, value: unknown): void {
   try {
-    window.localStorage.setItem(key, JSON.stringify(value));
+    window.localStorage.setItem(nsKey(key), JSON.stringify(value));
   } catch {
     // storage unavailable (private mode) — ignore, app still works in-memory
   }

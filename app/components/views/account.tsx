@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Link from "next/link";
 import {
   collectBackup,
   decryptBackup,
@@ -99,6 +100,28 @@ function DemoCard() {
 export function AccountView({ onReset }: { onReset: () => void }) {
   const [backupMsg, setBackupMsg] = useState("");
   const t = useT();
+  const {
+    activeProfile,
+    profiles,
+    switchProfile,
+    deleteProfile,
+    logout,
+    profileName,
+    intention,
+    setIntention,
+    toggle,
+    done,
+    customs,
+  } = useWird();
+  const [openRow, setOpenRow] = useState<string | null>(null);
+  const askName = (message: string) => {
+    try {
+      const v = window.prompt(message)?.trim();
+      return v ? v : null;
+    } catch {
+      return null;
+    }
+  };
   const [reminders, setReminders] = useStoredState("wird-reminders-v1", DEFAULT_REMINDERS);
   const [prayerTimes, setPrayerTimes] = useStoredState<PrayerTimes>("wird-prayer-times-v1", {});
   const [remindMsg, setRemindMsg] = useState("");
@@ -162,20 +185,138 @@ export function AccountView({ onReset }: { onReset: () => void }) {
   return (
     <section className="destination-view">
       <div className="profile-hero">
-        <span>م</span>
+        <span>{activeProfile?.avatar ?? "م"}</span>
         <div>
           <p className="eyebrow">{t("ac.account")}</p>
-          <h2>محمد عبدالله</h2>
+          <h2>{profileName}</h2>
           <p>{t("side.profileSub")}</p>
         </div>
       </div>
+      <article className="new-day">
+        <span>👥</span>
+        <div>
+          <b>{t("auth.manage")}</b>
+          <div className="kid-tabs">
+            {profiles.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  if (p.id !== activeProfile?.id) switchProfile(p.id);
+                }}
+                aria-pressed={p.id === activeProfile?.id}
+                className={p.id === activeProfile?.id ? "selected" : ""}
+              >
+                {p.avatar} {p.name} {p.pinHash ? "🔒" : ""}
+              </button>
+            ))}
+          </div>
+          <div className="backup-actions">
+            <button type="button" onClick={logout}>
+              {t("auth.logout")}
+            </button>
+            {activeProfile && (
+              <button
+                type="button"
+                className="danger"
+                onClick={() => {
+                  try {
+                    if (window.confirm(t("auth.deleteAsk"))) deleteProfile(activeProfile.id);
+                  } catch {}
+                }}
+              >
+                {t("auth.delete")}
+              </button>
+            )}
+          </div>
+        </div>
+      </article>
       <div className="account-list">
-        {["ac.niyyah", "ac.customize", "ac.qiyam", "ac.remind", "ac.privacy"].map((item, i) => (
-          <button type="button" key={item}>
-            <span>{["♡", "☷", "☾", "◌", "⌘"][i]}</span>
-            {item}
-            <i>‹</i>
-          </button>
+        {(
+          [
+            ["ac.niyyah", "♡"],
+            ["ac.customize", "☷"],
+            ["ac.qiyam", "☾"],
+            ["ac.remind", "◌"],
+            ["ac.privacy", "⌘"],
+          ] as const
+        ).map(([item, icon]) => (
+          <div key={item} className="acc-row">
+            <button
+              type="button"
+              onClick={() => setOpenRow((cur) => (cur === item ? null : item))}
+              aria-expanded={openRow === item}
+            >
+              <span>{icon}</span>
+              {t(item)}
+              <i>‹</i>
+            </button>
+            {openRow === item && (
+              <div className="row-detail">
+                {item === "ac.niyyah" && (
+                  <>
+                    <p>{intention}</p>
+                    <button
+                      type="button"
+                      className="linklike"
+                      onClick={() => {
+                        const v = askName(t("intent.ask"));
+                        if (v) setIntention(v);
+                      }}
+                    >
+                      {t("intent.edit")}
+                    </button>
+                  </>
+                )}
+                {item === "ac.customize" && (
+                  <>
+                    <p>
+                      {customs.length} · {t("tools.custom")}
+                    </p>
+                    <Link href="/">{t("tools.customSub")}</Link>
+                  </>
+                )}
+                {item === "ac.qiyam" && (
+                  <>
+                    <p>{t("focus.q")}</p>
+                    <button type="button" className="linklike" onClick={() => toggle("witr")}>
+                      {done.includes("witr") ? t("focus.logged") : t("focus.cta")}
+                    </button>
+                  </>
+                )}
+                {item === "ac.remind" && (
+                  <>
+                    <p>{reminders.enabled ? t("rm.on") : t("rm.off")}</p>
+                    <button
+                      type="button"
+                      className="linklike"
+                      onClick={() => setReminders((r) => ({ ...r, enabled: !r.enabled }))}
+                    >
+                      {reminders.enabled ? t("rm.off") : t("rm.on")}
+                    </button>
+                  </>
+                )}
+                {item === "ac.privacy" && (
+                  <>
+                    <p>{t("bk.s")}</p>
+                    <button
+                      type="button"
+                      className="linklike"
+                      onClick={() => {
+                        try {
+                          document
+                            .getElementById("backup-card")
+                            ?.scrollIntoView({ behavior: "smooth", block: "center" });
+                        } catch {}
+                      }}
+                    >
+                      {t("bk.t")}
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         ))}
       </div>
       <article className="new-day">
@@ -188,7 +329,7 @@ export function AccountView({ onReset }: { onReset: () => void }) {
           {t("ac.newdayB")}
         </button>
       </article>
-      <article className="new-day backup-card">
+      <article className="new-day backup-card" id="backup-card">
         <span>🛡</span>
         <div>
           <b>{t("bk.t")}</b>

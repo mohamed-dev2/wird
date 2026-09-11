@@ -14,14 +14,17 @@ export function CalendarView({
   const t = useT();
   const { lang } = useWird();
   const [calDay, setCalDay] = useState<number | null>(null);
+  const [monthOff, setMonthOff] = useState(0);
   const dates = Array.from({ length: 30 }, (_, i) => i + 1);
   const now = new Date();
+  const refMonth = new Date(now.getFullYear(), now.getMonth() + monthOff, 1);
+  const shift = ((monthOff % 7) + 7) % 7;
   const hijriHead = (() => {
     try {
       return new Intl.DateTimeFormat(lang === "ar" ? "ar-SA-u-ca-islamic" : "en-u-ca-islamic", {
         month: "long",
         year: "numeric",
-      }).format(now);
+      }).format(refMonth);
     } catch {
       return "";
     }
@@ -31,7 +34,7 @@ export function CalendarView({
       return new Intl.DateTimeFormat(lang === "ar" ? "ar-EG" : "en", {
         month: "long",
         year: "numeric",
-      }).format(now);
+      }).format(refMonth);
     } catch {
       return "";
     }
@@ -46,9 +49,17 @@ export function CalendarView({
           <h2>{t("cal.title")}</h2>
           <p>{t("cal.sub")}</p>
         </div>
-        <button type="button" suppressHydrationWarning>
-          ‹ {gregHead} ›
-        </button>
+        <div className="calendar-nav">
+          <button type="button" onClick={() => setMonthOff((m) => m - 1)} aria-label="‹">
+            ›
+          </button>
+          <button type="button" suppressHydrationWarning>
+            {gregHead}
+          </button>
+          <button type="button" onClick={() => setMonthOff((m) => m + 1)} aria-label="›">
+            ‹
+          </button>
+        </div>
       </div>
       <div className="calendar-legend">
         <span>
@@ -81,11 +92,11 @@ export function CalendarView({
             className={[
               day === 15
                 ? "season"
-                : day % 7 === 0
+                : (day + shift) % 7 === 0
                   ? "excellent"
-                  : day % 5 === 0
+                  : (day + shift) % 5 === 0
                     ? "good"
-                    : day % 4 === 0
+                    : (day + shift) % 4 === 0
                       ? "partial"
                       : "",
               calDay === day ? "selected" : "",

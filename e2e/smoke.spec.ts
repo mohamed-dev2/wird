@@ -1,4 +1,14 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+async function ensureProfile(page: Page) {
+  await page.goto("/");
+  const start = page.getByRole("button", { name: /ابدأ رحلتك|إضافة حساب/ });
+  if (await start.isVisible({ timeout: 8000 }).catch(() => false)) {
+    await page.getByPlaceholder("الاسم الكريم…").fill("اختبار");
+    await start.click();
+    await expect(page.locator("aside.sidebar")).toBeVisible({ timeout: 20000 });
+  }
+}
 
 test("today loads, toggles persist, no hydration errors", async ({ page }) => {
   const badLogs: string[] = [];
@@ -7,6 +17,7 @@ test("today loads, toggles persist, no hydration errors", async ({ page }) => {
   });
   page.on("pageerror", (err) => badLogs.push(String(err)));
 
+  await ensureProfile(page);
   await page.goto("/");
   // wait for client hydration (mount effect fills the Hijri date line)
   await page.waitForFunction(() => {
@@ -33,6 +44,7 @@ test("today loads, toggles persist, no hydration errors", async ({ page }) => {
 });
 
 test("routes render: calendar, review, insights, library", async ({ page }) => {
+  await ensureProfile(page);
   await page.goto("/calendar");
   await expect(page.getByRole("heading", { name: /تقويم رحلتك/ })).toBeVisible();
   await page.goto("/review");
@@ -44,6 +56,7 @@ test("routes render: calendar, review, insights, library", async ({ page }) => {
 });
 
 test("theme and language persist", async ({ page }) => {
+  await ensureProfile(page);
   await page.goto("/account");
   await page.getByRole("button", { name: "ليلي", exact: true }).click();
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe("dark");
@@ -59,6 +72,7 @@ test("theme and language persist", async ({ page }) => {
 });
 
 test("card tilt sets 3d vars on hover", async ({ page }) => {
+  await ensureProfile(page);
   await page.goto("/");
   const card = page.locator(".card[data-tilt]").first();
   await card.scrollIntoViewIfNeeded();

@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useT } from "../../lib/i18n";
+import { EditModal } from "../edit-modal";
 
 import type { Dispatch, SetStateAction } from "react";
 
@@ -28,6 +30,7 @@ export function DreamsBoard({
   setDreams: Dispatch<SetStateAction<Dream[]>>;
 }) {
   const t = useT();
+  const [editingId, setEditingId] = useState<string | null>(null);
   const addDream = () => {
     const title = ask(t("dr.askT"));
     if (!title) return;
@@ -86,14 +89,24 @@ export function DreamsBoard({
           <article key={d.id} className="dream-card">
             <div className="path-head">
               <b>🌟 {d.title}</b>
-              <button
-                type="button"
-                className="linklike"
-                onClick={() => removeDream(d.id)}
-                aria-label={t("dr.delAria")}
-              >
-                ✕
-              </button>
+              <span>
+                <button
+                  type="button"
+                  className="mini-edit"
+                  aria-label={t("modal.edit")}
+                  onClick={() => setEditingId(d.id)}
+                >
+                  ✎
+                </button>
+                <button
+                  type="button"
+                  className="linklike"
+                  onClick={() => removeDream(d.id)}
+                  aria-label={t("dr.delAria")}
+                >
+                  ✕
+                </button>
+              </span>
             </div>
             {d.target && <small className="dream-target">🎯 {d.target}</small>}
             <div className="tiny-progress">
@@ -122,6 +135,37 @@ export function DreamsBoard({
       <button type="button" className="goal-add" onClick={addDream}>
         {t("dr.new")}
       </button>
+      {(() => {
+        const d = dreams.find((x) => x.id === editingId);
+        if (!d) return null;
+        return (
+          <EditModal
+            title={t("modal.dreamT")}
+            fields={[
+              { key: "title", label: t("modal.customL"), value: d.title },
+              { key: "target", label: t("modal.dreamTar"), value: d.target },
+            ]}
+            onClose={() => setEditingId(null)}
+            onDelete={() => {
+              removeDream(d.id);
+              setEditingId(null);
+            }}
+            onSave={(vals) =>
+              setDreams((cur) =>
+                cur.map((x) =>
+                  x.id === d.id
+                    ? {
+                        ...x,
+                        title: vals.title?.trim() || x.title,
+                        target: vals.target?.trim() ?? x.target,
+                      }
+                    : x,
+                ),
+              )
+            }
+          />
+        );
+      })()}
     </div>
   );
 }

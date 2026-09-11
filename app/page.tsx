@@ -3,6 +3,8 @@
 import { useWird } from "./components/wird-store";
 import { modeLabel, MODES, prayerName, useT } from "./lib/i18n";
 import { fastLabel, PRAYER_ID } from "./lib/daymode";
+import { EditModal } from "./components/edit-modal";
+import { nsKey } from "./lib/profiles";
 import { NowView } from "./components/views/now";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
@@ -29,6 +31,7 @@ import { useStoredState } from "./lib/use-stored-state";
 export default function TodayPage() {
   const {
     done,
+    setDone,
     toggle,
     dayMode,
     setDayMode,
@@ -49,8 +52,11 @@ export default function TodayPage() {
     tasbeeh,
     setTasbeeh,
     customs,
+    setCustoms,
     customDuas,
+    setCustomDuas,
     customGoals,
+    setCustomGoals,
     intention,
     setIntention,
     remindPrayer,
@@ -79,6 +85,7 @@ export default function TodayPage() {
     logSlip,
     breakerCleanDays,
     challenges,
+    setChallenges,
     addChallenge,
     toggleChallengeDay,
     removeChallenge,
@@ -123,7 +130,7 @@ export default function TodayPage() {
     const t = dayId();
     if (lastSeen !== t) {
       try {
-        localStorage.setItem("wird-lastseen-v1", t);
+        localStorage.setItem(nsKey("wird-lastseen-v1"), t);
       } catch {}
     }
   }, [lastSeen]);
@@ -150,7 +157,7 @@ export default function TodayPage() {
     const t = dayId();
     let capped = false;
     try {
-      capped = localStorage.getItem("wird-notify-day-v1") === t;
+      capped = localStorage.getItem(nsKey("wird-notify-day-v1")) === t;
     } catch {}
     if (capped) return;
     const hit = evaluateLadder(new Date(), lastSeen, t, reminders);
@@ -159,7 +166,7 @@ export default function TodayPage() {
       if (!ok) return;
       fireNotification(hit.title, hit.body);
       try {
-        localStorage.setItem("wird-notify-day-v1", t);
+        localStorage.setItem(nsKey("wird-notify-day-v1"), t);
       } catch {}
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -241,6 +248,88 @@ export default function TodayPage() {
       if (!window.confirm(t("pg.del"))) return;
     } catch {}
     setPledges((cur) => cur.filter((p) => p.id !== id));
+  };
+  type EditTarget =
+    | { kind: "custom"; id: string; title: string }
+    | { kind: "dua"; index: number; text: string }
+    | { kind: "goal"; index: number; title: string; detail: string }
+    | { kind: "challenge"; id: string; title: string }
+    | { kind: "pledge"; id: string; text: string; stake: string }
+    | { kind: "kid"; index: number; name: string }
+    | null;
+  const [editing, setEditing] = useState<EditTarget>(null);
+  const editBtn = (target: Exclude<EditTarget, null>) => (
+    <span
+      className="mini-edit"
+      role="button"
+      tabIndex={0}
+      aria-label={t("modal.edit")}
+      onClick={(e) => {
+        e.stopPropagation();
+        setEditing(target);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          e.stopPropagation();
+          setEditing(target);
+        }
+      }}
+    >
+      ✎
+    </span>
+  );
+  const saveEdit = (vals: Record<string, string>) => {
+    const ed = editing;
+    if (!ed) return;
+    if (ed.kind === "custom" && vals.title?.trim())
+      setCustoms((cur) =>
+        cur.map((h) => (h.id === ed.id ? { ...h, title: (vals.title ?? "").trim() } : h)),
+      );
+    else if (ed.kind === "dua" && vals.text?.trim())
+      setCustomDuas((cur) => cur.map((d, i) => (i === ed.index ? (vals.text ?? "").trim() : d)));
+    else if (ed.kind === "goal" && vals.title?.trim())
+      setCustomGoals((cur) =>
+        cur.map((g, i) =>
+          i === ed.index
+            ? { ...g, title: (vals.title ?? "").trim(), detail: vals.detail?.trim() || g.detail }
+            : g,
+        ),
+      );
+    else if (ed.kind === "challenge" && vals.title?.trim())
+      setChallenges((cur) =>
+        cur.map((c) => (c.id === ed.id ? { ...c, title: (vals.title ?? "").trim() } : c)),
+      );
+    else if (ed.kind === "pledge")
+      setPledges((cur) =>
+        cur.map((p) =>
+          p.id === ed.id
+            ? {
+                ...p,
+                text: vals.text?.trim() || p.text,
+                stake: vals.stake?.trim() ?? p.stake,
+              }
+            : p,
+        ),
+      );
+    else if (ed.kind === "kid" && vals.name?.trim())
+      setKids((cur) =>
+        cur.map((k, i) => (i === ed.index ? { ...k, name: (vals.name ?? "").trim() } : k)),
+      );
+    setEditing(null);
+  };
+  const deleteEditing = () => {
+    const ed = editing;
+    if (!ed) return;
+    if (ed.kind === "custom") {
+      setCustoms((cur) => cur.filter((h) => h.id !== ed.id));
+      setDone((cur) => cur.filter((id) => id !== ed.id));
+    } else if (ed.kind === "dua") setCustomDuas((cur) => cur.filter((_, i) => i !== ed.index));
+    else if (ed.kind === "goal") setCustomGoals((cur) => cur.filter((_, i) => i !== ed.index));
+    else if (ed.kind === "challenge") setChallenges((cur) => cur.filter((c) => c.id !== ed.id));
+    else if (ed.kind === "pledge") setPledges((cur) => cur.filter((p) => p.id !== ed.id));
+    else if (ed.kind === "kid") setKids((cur) => cur.filter((_, i) => i !== ed.index));
+    setEditing(null);
   };
 
   if (stage > 0 && !returnGone) {
@@ -778,6 +867,19 @@ export default function TodayPage() {
                     <button type="button" className="linklike" onClick={addKid}>
                       +
                     </button>
+                    {kids[kidSel] && (
+                      <button
+                        type="button"
+                        className="linklike"
+                        aria-label={t("modal.edit")}
+                        onClick={() => {
+                          const k = kids[kidSel];
+                          if (k) setEditing({ kind: "kid", index: kidSel, name: k.name });
+                        }}
+                      >
+                        ✎
+                      </button>
+                    )}
                   </div>
                   {kids[kidSel] && (
                     <div className="kid-quests">
@@ -968,6 +1070,8 @@ export default function TodayPage() {
                   <small>{habit.detail || t("sec.moreDetail")}</small>
                 </div>
                 <span>+{habit.points}</span>
+                {habit.id.startsWith("custom-") &&
+                  editBtn({ kind: "custom", id: habit.id, title: habit.title })}
               </button>
             ))}
         </div>
@@ -1054,6 +1158,7 @@ export default function TodayPage() {
               >
                 {done.includes(`dua-custom-${i}`) ? "✓ " : ""}
                 {dua}
+                {editBtn({ kind: "dua", index: i, text: dua })}
               </button>
             ))}
           </div>
@@ -1125,7 +1230,7 @@ export default function TodayPage() {
             </div>
             <strong>١ / ٢</strong>
           </article>
-          {customGoals.map((g) => (
+          {customGoals.map((g, gi) => (
             <article key={g.title} data-tilt>
               <span className="goal-icon">✦</span>
               <div>
@@ -1136,6 +1241,7 @@ export default function TodayPage() {
                 </div>
               </div>
               <strong>{t("goals.new")}</strong>
+              {editBtn({ kind: "goal", index: gi, title: g.title, detail: g.detail })}
             </article>
           ))}
           {challenges.map((c) => {
@@ -1163,6 +1269,7 @@ export default function TodayPage() {
                   >
                     {todayDone ? "✓" : "+"}
                   </button>
+                  {editBtn({ kind: "challenge", id: c.id, title: c.title })}
                   <button
                     type="button"
                     className="linklike"
@@ -1203,6 +1310,7 @@ export default function TodayPage() {
                   >
                     {pdone ? "✓" : "+"}
                   </button>
+                  {editBtn({ kind: "pledge", id: p.id, text: p.text, stake: p.stake })}
                   <button
                     type="button"
                     className="linklike"
@@ -1242,6 +1350,66 @@ export default function TodayPage() {
           <span>{t("night.journalNote")}</span>
         </div>
       </section>
+      {editing?.kind === "custom" && (
+        <EditModal
+          title={t("modal.customT")}
+          fields={[{ key: "title", label: t("modal.customL"), value: editing.title }]}
+          onSave={saveEdit}
+          onClose={() => setEditing(null)}
+          onDelete={deleteEditing}
+        />
+      )}
+      {editing?.kind === "dua" && (
+        <EditModal
+          title={t("modal.duaT")}
+          fields={[{ key: "text", label: t("dua.title"), value: editing.text }]}
+          onSave={saveEdit}
+          onClose={() => setEditing(null)}
+          onDelete={deleteEditing}
+        />
+      )}
+      {editing?.kind === "goal" && (
+        <EditModal
+          title={t("modal.goalT")}
+          fields={[
+            { key: "title", label: t("modal.customL"), value: editing.title },
+            { key: "detail", label: t("modal.goalD"), value: editing.detail },
+          ]}
+          onSave={saveEdit}
+          onClose={() => setEditing(null)}
+          onDelete={deleteEditing}
+        />
+      )}
+      {editing?.kind === "challenge" && (
+        <EditModal
+          title={t("modal.chT")}
+          fields={[{ key: "title", label: t("modal.customL"), value: editing.title }]}
+          onSave={saveEdit}
+          onClose={() => setEditing(null)}
+          onDelete={deleteEditing}
+        />
+      )}
+      {editing?.kind === "pledge" && (
+        <EditModal
+          title={t("modal.plgT")}
+          fields={[
+            { key: "text", label: t("modal.customL"), value: editing.text },
+            { key: "stake", label: t("modal.plgS"), value: editing.stake },
+          ]}
+          onSave={saveEdit}
+          onClose={() => setEditing(null)}
+          onDelete={deleteEditing}
+        />
+      )}
+      {editing?.kind === "kid" && (
+        <EditModal
+          title={t("modal.kidT")}
+          fields={[{ key: "name", label: t("modal.customL"), value: editing.name }]}
+          onSave={saveEdit}
+          onClose={() => setEditing(null)}
+          onDelete={deleteEditing}
+        />
+      )}
       <footer>{t("footer.verse")}</footer>
     </>
   );

@@ -32,9 +32,21 @@ import {
 import { emptyDay, recordDay, type DayRecord, type History } from "../lib/history";
 import { normalizeDayMode } from "../lib/daymode";
 import type { PrayerTimes } from "../lib/prayer";
+import {
+  adoptKeys,
+  getActiveProfileId,
+  isUnlocked,
+  loadProfiles,
+  markUnlocked,
+  saveProfiles,
+  setActiveProfileId,
+  sha256Hex,
+  type Profile,
+} from "../lib/profiles";
 
 export type WirdStore = {
   done: string[];
+  setDone: Dispatch<SetStateAction<string[]>>;
   toggle: (id: string) => void;
   dayMode: string;
   setDayMode: Dispatch<SetStateAction<string>>;
@@ -61,8 +73,11 @@ export type WirdStore = {
   tasbeeh: number;
   setTasbeeh: Dispatch<SetStateAction<number>>;
   customs: Habit[];
+  setCustoms: Dispatch<SetStateAction<Habit[]>>;
   customDuas: string[];
+  setCustomDuas: Dispatch<SetStateAction<string[]>>;
   customGoals: { title: string; detail: string }[];
+  setCustomGoals: Dispatch<SetStateAction<{ title: string; detail: string }[]>>;
   intention: string;
   setIntention: Dispatch<SetStateAction<string>>;
   remindPrayer: boolean;
@@ -101,6 +116,7 @@ export type WirdStore = {
   logSlip: () => void;
   breakerCleanDays: number;
   challenges: Challenge[];
+  setChallenges: Dispatch<SetStateAction<Challenge[]>>;
   addChallenge: () => void;
   toggleChallengeDay: (id: string) => void;
   removeChallenge: (id: string) => void;
@@ -126,6 +142,17 @@ export type WirdStore = {
   resetDay: () => void;
   history: History;
   saveReview: (rec: DayRecord) => void;
+  profiles: Profile[];
+  activeProfile: Profile | null;
+  authReady: boolean;
+  unlocked: boolean;
+  profileName: string;
+  greeting: string;
+  createProfile: (name: string, avatar: string, pin: string | null) => Promise<void>;
+  switchProfile: (id: string) => void;
+  deleteProfile: (id: string) => void;
+  unlockProfile: (pin: string) => Promise<boolean>;
+  logout: () => void;
 };
 
 export type Theme = "light" | "dark" | "oled";
@@ -178,11 +205,27 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const [breaker, setBreaker] = useState<Breaker | null>(null);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [today, setToday] = useState<Date | null>(null);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
+  const [authReady, setAuthReady] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
   useEffect(() => {
     // Mount-once hydration: stored values are client-only, so they load here
     // (after mount) to keep the first client render identical to SSR HTML.
     const t = dayId();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // Profiles first: namespacing depends on the active id.
+    const list = loadProfiles();
+    const storedActive = getActiveProfileId();
+    const active = list.find((p) => p.id === storedActive) ?? null;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-once hydration (see above)
+    setProfiles(list);
+    setActiveProfile(active);
+    if (active) {
+      setActiveProfileId(active.id);
+      setUnlocked(!active.pinHash || isUnlocked(active.id));
+    } else {
+      setActiveProfileId(null);
+    }
     setDone(loadDailyList("wird-done-v2", DEFAULT_DONE, t));
     setDayMode(normalizeDayMode(loadFromStorage("wird-daymode-v1", "عادي")));
     setQuranPages(loadDailyNumber("wird-quran-pages-v2", 0, t));
@@ -216,6 +259,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     setHistory(loadFromStorage("wird-history-v1", {}));
     setToday(new Date());
     setMounted(true);
+    setAuthReady(true);
   }, []);
   const quranRunning = quranSeconds > 0;
   useEffect(() => {
@@ -474,6 +518,90 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     setChallenges((current) => current.filter((c) => c.id !== id));
   };
   const ramadan = today != null && isRamadanDay(today);
+  const profileName = activeProfile?.name ?? "محمد";
+  const greeting = useMemo(() => {
+    const h = today ? today.getHours() : 9;
+    const word =
+      h >= 5 && h < 12
+        ? lang === "ar"
+          ? "صباح النور"
+          : "Good morning"
+        : h >= 12 && h < 17
+          ? lang === "ar"
+            ? "طاب يومك"
+            : "Good day"
+          : h >= 17 && h < 23
+            ? lang === "ar"
+              ? "مساء النور"
+              : "Good evening"
+            : lang === "ar"
+              ? "ليلة هادئة"
+              : "Quiet night";
+    return lang === "ar" ? `${word}، ${profileName}` : `${word}, ${profileName}`;
+  }, [today, lang, profileName]);
+  const createProfile = async (name: string, avatar: string, pin: string | null) => {
+    const existing = loadProfiles();
+    const first = existing.length === 0;
+    const id = `u-${Date.now()}`;
+    const pinHash = pin ? await sha256Hex(pin) : null;
+    const p: Profile = { id, name, avatar, pinHash, created: dayId() };
+    const list = [...existing, p];
+    saveProfiles(list);
+    if (first) adoptKeys(id);
+    setProfiles(list);
+    setActiveProfileId(id);
+    setActiveProfile(p);
+    setUnlocked(true);
+    markUnlocked(id);
+    try {
+      window.location.reload();
+    } catch {}
+  };
+  const switchProfile = (id: string) => {
+    setActiveProfileId(id);
+    try {
+      window.location.reload();
+    } catch {}
+  };
+  const logout = () => {
+    setActiveProfileId(null);
+    try {
+      window.location.reload();
+    } catch {}
+  };
+  const deleteProfile = (id: string) => {
+    const list = loadProfiles().filter((p) => p.id !== id);
+    saveProfiles(list);
+    try {
+      const drop: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(`p_${id}_`)) drop.push(k);
+      }
+      for (const k of drop) localStorage.removeItem(k);
+    } catch {}
+    if (getActiveProfileId() === id) {
+      setActiveProfileId(null);
+      try {
+        window.location.reload();
+      } catch {}
+    } else {
+      setProfiles(list);
+    }
+  };
+  const unlockProfile = async (pin: string): Promise<boolean> => {
+    const p = activeProfile;
+    if (!p?.pinHash) {
+      setUnlocked(true);
+      return true;
+    }
+    const ok = (await sha256Hex(pin)) === p.pinHash;
+    if (ok) {
+      markUnlocked(p.id);
+      setUnlocked(true);
+    }
+    return ok;
+  };
   const cycleFilter = () =>
     setFilter((f) => (f === "all" ? "done" : f === "done" ? "todo" : "all"));
   const passFilter = (id: string) =>
@@ -508,6 +636,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   }, [mounted, done, quranPages]);
   const value: WirdStore = {
     done,
+    setDone,
     toggle,
     dayMode,
     setDayMode,
@@ -534,8 +663,11 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     tasbeeh,
     setTasbeeh,
     customs,
+    setCustoms,
     customDuas,
+    setCustomDuas,
     customGoals,
+    setCustomGoals,
     intention,
     setIntention,
     remindPrayer,
@@ -574,6 +706,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     logSlip,
     breakerCleanDays,
     challenges,
+    setChallenges,
     addChallenge,
     toggleChallengeDay,
     removeChallenge,
@@ -599,6 +732,17 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     resetDay,
     history,
     saveReview,
+    profiles,
+    activeProfile,
+    authReady,
+    unlocked,
+    profileName,
+    greeting,
+    createProfile,
+    switchProfile,
+    deleteProfile,
+    unlockProfile,
+    logout,
   };
   return <WirdContext.Provider value={value}>{children}</WirdContext.Provider>;
 }

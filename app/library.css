@@ -45,6 +45,121 @@
   display: flex;
   gap: 8px;
   margin: 4px 0 12px;
+  flex-wrap: wrap;
+}
+
+.lib-toolbar select {
+  font: inherit;
+  font-size: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 10px;
+  background: var(--surface);
+  color: var(--ink);
+  max-width: 100%;
+}
+
+.lib-toolbar > button {
+  font: inherit;
+  font-size: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.lib-toolbar > button.selected {
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+  border-color: var(--brand);
+}
+
+.audio-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 220px;
+  background: var(--brand-soft);
+  border: 1px solid var(--brand);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 10px;
+  color: var(--brand-ink);
+}
+
+.audio-bar button {
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--brand-ink);
+  padding: 2px 4px;
+}
+
+.audio-bar span {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ayah-en {
+  display: block;
+  font-size: 0.72em;
+  line-height: 1.9;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.ayah.playing {
+  background: var(--gold-soft);
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+
+.tafsir-sheet {
+  position: fixed;
+  inset-inline: 12px;
+  bottom: 12px;
+  z-index: 40;
+  max-height: 62vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-pop);
+  padding: 16px;
+}
+
+.tafsir-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.tafsir-head b {
+  font-size: 13px;
+}
+
+.tafsir-head button {
+  border: 0;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.tafsir-text {
+  font-size: 13px;
+  line-height: 2.2;
+  color: var(--ink);
+  margin: 10px 0 0;
+  white-space: pre-wrap;
 }
 
 .lib-toolbar input {
@@ -189,6 +304,113 @@
   border-radius: 13px;
   padding: 14px 15px;
   margin-bottom: 9px;
+  transition:
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.hadith-card.read {
+  opacity: 0.75;
+  border-color: var(--brand);
+}
+
+.hadith-card > p {
+  font-size: 14px;
+  line-height: 2.2;
+  margin: 0;
+  color: var(--ink);
+}
+
+.hadith-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 9px;
+  font-size: 9px;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+
+.hadith-meta > span:first-child {
+  border-radius: 12px;
+  padding: 3px 8px;
+  font-weight: 700;
+}
+
+.grade-sahih {
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+}
+
+.grade-hasan {
+  background: var(--surface-2);
+  color: var(--brand-ink);
+}
+
+.grade-muttafaq {
+  background: var(--gold-soft);
+  color: var(--gold-deep);
+}
+
+.grade-other {
+  background: var(--surface-2);
+  color: var(--muted);
+}
+
+.hadith-tools {
+  margin-right: auto;
+  display: flex;
+  gap: 2px;
+}
+
+.hadith-tools button {
+  border: 0;
+  background: transparent;
+  font-size: 15px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  opacity: 0.65;
+}
+
+.hadith-tools button:hover {
+  opacity: 1;
+  background: var(--brand-soft);
+}
+
+.hadith-tools button[aria-pressed="true"] {
+  opacity: 1;
+  color: var(--gold-deep);
+}
+
+.book-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.book-head > div {
+  flex: 1;
+}
+
+.book-head b {
+  font-size: 15px;
+}
+
+.book-head .chart-caption {
+  margin: 4px 0 0;
+}
+
+.book-progress {
+  font:
+    700 12px DM Sans,
+    sans-serif;
+  color: var(--brand-ink);
+  background: var(--brand-soft);
+  border-radius: 12px;
+  padding: 6px 10px;
+  white-space: nowrap;
 }
 
 .hadith-card > p {

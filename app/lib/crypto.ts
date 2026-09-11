@@ -1,8 +1,6 @@
 const ENC = new TextEncoder();
 const DEC = new TextDecoder();
 
-const BACKUP_PREFIX = "wird-";
-
 function bufToB64(buf: ArrayBuffer): string {
   const bytes = new Uint8Array(buf);
   let s = "";
@@ -60,11 +58,15 @@ export async function decryptBackup(passphrase: string, payload: string): Promis
   return JSON.parse(DEC.decode(plain));
 }
 
+function isBackupKey(k: string): boolean {
+  return k.startsWith("wird-") || (k.startsWith("p_") && k.includes("_wird-"));
+}
+
 export function collectBackup(): Record<string, string> {
   const out: Record<string, string> = {};
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
-    if (k && k.startsWith(BACKUP_PREFIX)) {
+    if (k && isBackupKey(k)) {
       const v = localStorage.getItem(k);
       if (v != null) out[k] = v;
     }
@@ -76,7 +78,7 @@ export function restoreBackup(data: unknown): number {
   if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("bad backup data");
   let n = 0;
   for (const [k, v] of Object.entries(data as Record<string, unknown>)) {
-    if (k.startsWith(BACKUP_PREFIX) && typeof v === "string") {
+    if (isBackupKey(k) && typeof v === "string") {
       localStorage.setItem(k, v);
       n++;
     }

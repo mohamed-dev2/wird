@@ -1,21 +1,38 @@
 export type Ayah = { surah: number; ayah: number; text: string };
 
 let cache: Promise<Ayah[]> | null = null;
+let enCache: Promise<Map<string, string>> | null = null;
+
+function loadBundle(file: string): Promise<Ayah[]> {
+  return fetch(`/${file}`)
+    .then((r) => {
+      if (!r.ok) throw new Error("bundle missing");
+      return r.json() as Promise<{ v: number; ayahs: [number, number, string][] }>;
+    })
+    .then((d) => d.ayahs.map(([surah, ayah, text]) => ({ surah, ayah, text })));
+}
 
 export function loadQuran(): Promise<Ayah[]> {
   if (!cache) {
-    cache = fetch("/data/quran-uthmani.min.json")
-      .then((r) => {
-        if (!r.ok) throw new Error("quran bundle missing");
-        return r.json() as Promise<{ v: number; ayahs: [number, number, string][] }>;
-      })
-      .then((d) => d.ayahs.map(([surah, ayah, text]) => ({ surah, ayah, text })))
+    cache = loadBundle("data/quran-uthmani.min.json").catch((e) => {
+      cache = null;
+      throw e;
+    });
+  }
+  return cache;
+}
+
+/** English translation map "surah:ayah" -> text (Clear Quran). */
+export function loadEnglish(): Promise<Map<string, string>> {
+  if (!enCache) {
+    enCache = loadBundle("data/en-clear.min.json")
+      .then((list) => new Map(list.map((a) => [`${a.surah}:${a.ayah}`, a.text])))
       .catch((e) => {
-        cache = null;
+        enCache = null;
         throw e;
       });
   }
-  return cache;
+  return enCache;
 }
 
 export function ayahCounts(ayahs: Ayah[]): number[] {

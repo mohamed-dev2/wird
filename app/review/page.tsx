@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { dayId, QURAN_GOAL_PAGES } from "../lib/wird";
+import { nsKey } from "../lib/profiles";
 import { useT } from "../lib/i18n";
 import { useWird } from "../components/wird-store";
 
@@ -38,7 +39,7 @@ function statusLabel(t: (k: string) => string, s: Status): string {
 
 function loadReviews(): Record<string, SavedReview> {
   try {
-    const raw = localStorage.getItem("wird-reviews-v1");
+    const raw = localStorage.getItem(nsKey("wird-reviews-v1"));
     if (!raw) return {};
     const v = JSON.parse(raw) as unknown;
     return v && typeof v === "object" ? (v as Record<string, SavedReview>) : {};
@@ -112,7 +113,7 @@ export default function ReviewPage() {
     try {
       const all = loadReviews();
       all[todayId] = rec;
-      localStorage.setItem("wird-reviews-v1", JSON.stringify(all));
+      localStorage.setItem(nsKey("wird-reviews-v1"), JSON.stringify(all));
     } catch {}
     saveReview({ day: todayId, ids: done, pages: quranPages, score, mood: mood ?? undefined });
     setLoadedScore(score);

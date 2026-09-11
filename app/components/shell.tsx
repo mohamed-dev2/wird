@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { NAV_HREFS, NAV_ITEMS } from "../lib/wird";
 import { useT } from "../lib/i18n";
+import { LoginGate } from "./login-gate";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -27,6 +28,11 @@ export function Shell({ children }: { children: ReactNode }) {
     toggle,
     setTasbeeh,
     setFastType,
+    activeProfile,
+    authReady,
+    unlocked,
+    profileName,
+    greeting,
   } = useWird();
   const t = useT();
   const [voiceOn, setVoiceOn] = useState(false);
@@ -65,8 +71,10 @@ export function Shell({ children }: { children: ReactNode }) {
       if (r.width === 0 || r.height === 0) return;
       const px = (e.clientX - r.left) / r.width - 0.5;
       const py = (e.clientY - r.top) / r.height - 0.5;
-      el.style.setProperty("--ry", `${(px * 7).toFixed(2)}deg`);
-      el.style.setProperty("--rx", `${(-py * 7).toFixed(2)}deg`);
+      el.style.setProperty("--ry", `${(px * 11).toFixed(2)}deg`);
+      el.style.setProperty("--rx", `${(-py * 11).toFixed(2)}deg`);
+      el.style.setProperty("--mx", `${((px + 0.5) * 100).toFixed(1)}%`);
+      el.style.setProperty("--my", `${((py + 0.5) * 100).toFixed(1)}%`);
     };
     document.addEventListener("pointermove", move, { passive: true });
     document.addEventListener("pointerleave", clear);
@@ -114,6 +122,9 @@ export function Shell({ children }: { children: ReactNode }) {
     const href = NAV_HREFS[id] ?? "/";
     return href === "/" ? pathname === "/" : (pathname?.startsWith(href) ?? false);
   };
+  if (!authReady || !activeProfile || (activeProfile.pinHash && !unlocked)) {
+    return <LoginGate />;
+  }
   return (
     <main>
       <aside className="sidebar">
@@ -142,9 +153,10 @@ export function Shell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <Link href="/account" className="profile">
-            <span>م</span>
+            <span>{activeProfile.avatar}</span>
             <div>
-              محمد عبدالله<small>{t("side.profileSub")}</small>
+              {profileName}
+              <small>{t("side.profileSub")}</small>
             </div>
             <i>⌄</i>
           </Link>
@@ -155,7 +167,7 @@ export function Shell({ children }: { children: ReactNode }) {
           <div>
             <p className="eyebrow">{hijriLabel || t("header.newDay")}</p>
             <h1>
-              {t("header.greet")} <span>☀</span>
+              {greeting} <span>☀</span>
             </h1>
             <p className="subhead">{t("header.sub")}</p>
           </div>
