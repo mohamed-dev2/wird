@@ -3,6 +3,8 @@ import "./styles.css";
 import "./additions.css";
 import "./views.css";
 import "./rescue.css";
+import { Shell } from "./components/shell";
+import { WirdProvider } from "./components/wird-store";
 
 export const metadata: Metadata = {
   title: "وِرد | رفيقك اليومي",
@@ -18,7 +20,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body>{children}</body>
+      <body>
+        <WirdProvider>
+          <Shell>{children}</Shell>
+        </WirdProvider>
+      </body>
     </html>
   );
 }

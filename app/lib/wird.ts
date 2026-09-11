@@ -209,9 +209,19 @@ export const NAV_ITEMS: [string, string, string][] = [
   ["today", "⌂", "اليوم"],
   ["calendar", "▦", "التقويم"],
   ["insights", "↗", "التقدّم"],
+  ["review", "☾", "الحصاد"],
   ["library", "◈", "الأذكار"],
   ["account", "◌", "حسابي"],
 ];
+
+export const NAV_HREFS: Record<string, string> = {
+  today: "/",
+  calendar: "/calendar",
+  insights: "/insights",
+  review: "/review",
+  library: "/library",
+  account: "/account",
+};
 
 export const DEFAULT_DONE = ["fajr-sunnah", "fajr-jamaa", "morning", "dhuhr-before", "dhuhr-jamaa"];
 

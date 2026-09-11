@@ -78,6 +78,7 @@ main {
   gap: 13px;
   align-items: center;
   transition: all 0.2s ease;
+  text-decoration: none;
 }
 
 .nav-item:hover {
@@ -145,6 +146,8 @@ main {
   gap: 9px;
   font: inherit;
   cursor: pointer;
+  text-decoration: none;
+  color: inherit;
 }
 
 .profile > span {
@@ -221,6 +224,7 @@ h1 span {
   align-items: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-decoration: none;
 }
 
 .date-button:hover,
