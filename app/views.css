@@ -196,6 +196,154 @@
   padding: 7px 9px;
 }
 
+.login-wrap {
+  display: grid;
+  place-items: center;
+  min-height: 70vh;
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+.login-card {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: var(--shadow-pop);
+  padding: 28px 24px;
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--brand), var(--gold));
+}
+
+.login-card h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.login-card p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.9;
+}
+
+.login-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 22px;
+  background: var(--brand-soft);
+  display: grid;
+  place-items: center;
+  font-size: 32px;
+}
+
+.login-card input {
+  width: 100%;
+  font: inherit;
+  font-size: 13px;
+  text-align: center;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 11px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.login-card textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 12px;
+  direction: ltr;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 11px;
+  background: var(--surface);
+  color: var(--ink);
+  resize: vertical;
+}
+
+.login-card input:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+  border-color: var(--brand);
+}
+
+.avatar-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+
+.avatar-pick button {
+  font-size: 20px;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.avatar-pick button.selected {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+  transform: scale(1.08);
+}
+
+.profile-pick {
+  width: 100%;
+  display: grid;
+  gap: 6px;
+}
+
+.profile-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.profile-row > button:first-child {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: inherit;
+  font-size: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.profile-row > button:first-child:hover {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .login-card {
+    animation: pop 0.25s var(--ease-out) both;
+  }
+}
+
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1042,8 +1190,81 @@
 
 .backup-msg {
   font-size: 9px;
-  color: var(--brand-ink);
+  color: #4a6b5e;
   margin: 8px 0 0 !important;
+}
+
+.transfer-pane {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+  border-top: 1px dashed var(--line);
+  padding-top: 10px;
+}
+
+.transfer-pane textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 9px;
+  direction: ltr;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px;
+  background: var(--surface);
+  color: var(--ink);
+  resize: vertical;
+  word-break: break-all;
+}
+
+.qr-stage {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.qr-stage canvas {
+  border: 8px solid #fff;
+  border-radius: 12px;
+  max-width: 100%;
+}
+
+.qr-stage p {
+  font-size: 10px;
+  color: var(--muted);
+  margin: 0;
+}
+
+.scan-video {
+  width: 100%;
+  border-radius: 12px;
+  background: #000;
+  max-height: 260px;
+}
+
+.words-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.words-grid span {
+  font-size: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px 8px;
+}
+
+.words-grid b {
+  color: var(--brand-ink);
+  margin-right: 4px;
+}
+
+.soft-hr {
+  border: 0;
+  border-top: 1px dashed var(--line);
+  margin: 4px 0;
 }
 
 .backup-actions button.selected {

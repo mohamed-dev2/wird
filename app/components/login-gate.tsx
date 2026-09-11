@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useT } from "../lib/i18n";
-import { AVATARS } from "../lib/profiles";
+import { AVATARS, loadProfiles, saveProfiles, sha256Hex } from "../lib/profiles";
+import { loadVerifiers, recoveryVerifier, verifyPhrase } from "../lib/recovery";
 import { useWird } from "./wird-store";
 
 export function LoginGate() {
@@ -23,6 +24,89 @@ export function LoginGate() {
   const [pinTry, setPinTry] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const [lockLeft, setLockLeft] = useState(0);
+  const [forgot, setForgot] = useState(false);
+  const [words, setWords] = useState("");
+  const [newPin, setNewPin] = useState("");
+
+  const doResetPin = async () => {
+    if (!activeProfile) return;
+    setErr("");
+    setBusy(true);
+    try {
+      const entropy = await verifyPhrase(words);
+      if (!entropy) {
+        setErr(t("rc.badWords"));
+        return;
+      }
+      const verifier = await recoveryVerifier(words.trim().split(/\s+/));
+      const saved = loadVerifiers()[activeProfile.id];
+      if (!saved || saved !== verifier) {
+        setErr(t("rc.badWords"));
+        return;
+      }
+      const pinV = newPin.replace(/\D/g, "");
+      if (pinV.length < 4) {
+        setErr(t("auth.pin"));
+        return;
+      }
+      const pinHash = await sha256Hex(pinV);
+      const list = loadProfiles().map((p) => (p.id === activeProfile.id ? { ...p, pinHash } : p));
+      saveProfiles(list);
+      try {
+        localStorage.removeItem(`wird-pinlock-${activeProfile.id}`);
+      } catch {}
+      setForgot(false);
+      setWords("");
+      setNewPin("");
+      setErr(t("rc.done"));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const pinLockKey = activeProfile ? `wird-pinlock-${activeProfile.id}` : "wird-pinlock";
+  const checkLock = (): number => {
+    try {
+      const raw = localStorage.getItem(pinLockKey);
+      if (!raw) return 0;
+      const v = JSON.parse(raw) as { count?: number; until?: number };
+      if (v.until && v.until > Date.now()) return Math.ceil((v.until - Date.now()) / 1000);
+      return 0;
+    } catch {
+      return 0;
+    }
+  };
+  const noteFail = () => {
+    try {
+      const raw = localStorage.getItem(pinLockKey);
+      const v = raw ? (JSON.parse(raw) as { count?: number; until?: number }) : {};
+      const count = (v.count ?? 0) + 1;
+      if (count >= 5) {
+        localStorage.setItem(pinLockKey, JSON.stringify({ count: 0, until: Date.now() + 30000 }));
+        setLockLeft(30);
+      } else {
+        localStorage.setItem(pinLockKey, JSON.stringify({ count, until: 0 }));
+      }
+    } catch {}
+  };
+  const tryUnlock = (v: string) => {
+    const left = checkLock();
+    if (left > 0) {
+      setLockLeft(left);
+      setErr(t("auth.locked"));
+      return;
+    }
+    setBusy(true);
+    void unlockProfile(v)
+      .then((ok) => {
+        if (!ok) {
+          noteFail();
+          setErr(t("auth.wrongPin"));
+        }
+      })
+      .finally(() => setBusy(false));
+  };
 
   if (!authReady) {
     return (
@@ -56,13 +140,16 @@ export function LoginGate() {
                 if (e.key === "Enter") {
                   const v = pinTry;
                   setPinTry("");
-                  void unlockProfile(v).then((ok) => {
-                    if (!ok) setErr(t("auth.wrongPin"));
-                  });
+                  tryUnlock(v);
                 }
               }}
             />
             {err && <p className="backup-msg">{err}</p>}
+            {lockLeft > 0 && (
+              <p className="backup-msg">
+                {t("auth.locked")} ({lockLeft})
+              </p>
+            )}
             <button
               type="button"
               className="review-submit"
@@ -70,12 +157,7 @@ export function LoginGate() {
               onClick={() => {
                 const v = pinTry;
                 setPinTry("");
-                setBusy(true);
-                void unlockProfile(v)
-                  .then((ok) => {
-                    if (!ok) setErr(t("auth.wrongPin"));
-                  })
-                  .finally(() => setBusy(false));
+                tryUnlock(v);
               }}
             >
               {t("auth.unlock")}
@@ -83,6 +165,44 @@ export function LoginGate() {
             <button type="button" className="linklike" onClick={() => switchProfile("")}>
               {t("auth.switch")}
             </button>
+            <button
+              type="button"
+              className="linklike"
+              onClick={() => {
+                setForgot((f) => !f);
+                setErr("");
+              }}
+            >
+              {t("rc.forgot")}
+            </button>
+            {forgot && (
+              <>
+                <textarea
+                  value={words}
+                  onChange={(e) => setWords(e.target.value)}
+                  placeholder={t("rc.enterWords")}
+                  aria-label={t("rc.enterWords")}
+                  rows={3}
+                />
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={8}
+                  value={newPin}
+                  onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
+                  placeholder={t("rc.newPin")}
+                  aria-label={t("rc.newPin")}
+                />
+                <button
+                  type="button"
+                  className="review-submit"
+                  disabled={busy}
+                  onClick={() => void doResetPin()}
+                >
+                  {t("rc.reset")}
+                </button>
+              </>
+            )}
           </div>
         </section>
       </main>

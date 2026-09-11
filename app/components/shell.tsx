@@ -33,6 +33,8 @@ export function Shell({ children }: { children: ReactNode }) {
     unlocked,
     profileName,
     greeting,
+    autoLock,
+    lock,
   } = useWird();
   const t = useT();
   const [voiceOn, setVoiceOn] = useState(false);
@@ -88,6 +90,22 @@ export function Shell({ children }: { children: ReactNode }) {
     const id = window.setTimeout(() => setHeard(""), 4000);
     return () => window.clearTimeout(id);
   }, [heard]);
+  useEffect(() => {
+    if (!autoLock || autoLock <= 0) return;
+    let id: number | undefined;
+    const arm = () => {
+      window.clearTimeout(id);
+      id = window.setTimeout(() => lock(), autoLock * 60000);
+    };
+    const evts = ["pointerdown", "keydown", "touchstart"] as const;
+    evts.forEach((e) => window.addEventListener(e, arm, { passive: true }));
+    arm();
+    return () => {
+      window.clearTimeout(id);
+      evts.forEach((e) => window.removeEventListener(e, arm));
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- lock is stable in practice (storage + stable setter)
+  }, [autoLock]);
   useEffect(() => {
     const onPrompt = (e: Event) => {
       e.preventDefault();

@@ -16,10 +16,11 @@ import { PRAYER_AR, PRAYER_ORDER, type PrayerTimes } from "../../lib/prayer";
 import { useStoredState } from "../../lib/use-stored-state";
 import { useT } from "../../lib/i18n";
 import { useWird } from "../wird-store";
+import { Transfer } from "../transfer";
 
 function AppearanceCard() {
   const t = useT();
-  const { theme, setTheme, lang, setLang } = useWird();
+  const { theme, setTheme, lang, setLang, autoLock, setAutoLock } = useWird();
   return (
     <article className="new-day">
       <span>🎨</span>
@@ -53,6 +54,20 @@ function AppearanceCard() {
           >
             {lang === "ar" ? "English" : "العربية"}
           </button>
+        </div>
+        <div className="backup-actions">
+          <span className="time-label">{t("auth.autolock")}</span>
+          {[0, 5, 15, 30, 60].map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setAutoLock(m)}
+              aria-pressed={autoLock === m}
+              className={autoLock === m ? "selected" : ""}
+            >
+              {m === 0 ? t("auth.never") : `${m}`}
+            </button>
+          ))}
         </div>
       </div>
     </article>
@@ -420,6 +435,7 @@ export function AccountView({ onReset }: { onReset: () => void }) {
         </div>
       </article>
       <AppearanceCard />
+      <Transfer />
       <DemoCard />
       <article className="new-day">
         <span>🕌</span>

@@ -33,6 +33,7 @@ function loadJalalayn(): Promise<Map<string, string>> {
 }
 
 export function stripHtml(html: string): string {
+  // Security: detached node, only textContent is read — never inserted into the DOM.
   try {
     const div = document.createElement("div");
     div.innerHTML = html;

@@ -153,6 +153,9 @@ export type WirdStore = {
   deleteProfile: (id: string) => void;
   unlockProfile: (pin: string) => Promise<boolean>;
   logout: () => void;
+  autoLock: number;
+  setAutoLock: Dispatch<SetStateAction<number>>;
+  lock: () => void;
 };
 
 export type Theme = "light" | "dark" | "oled";
@@ -209,6 +212,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
+  const [autoLock, setAutoLock] = useState(15);
   useEffect(() => {
     // Mount-once hydration: stored values are client-only, so they load here
     // (after mount) to keep the first client render identical to SSR HTML.
@@ -252,6 +256,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     }
     setPrayerTimes(loadFromStorage("wird-prayer-times-v1", {}));
     setMosque(loadFromStorage("wird-mosque-v1", false));
+    setAutoLock(loadFromStorage("wird-autolock-v1", 15));
     setQada(loadFromStorage("wird-qada-v1", []));
     setFastType(loadDailyText("wird-fast-v2", "", t) || null);
     setBreaker(loadFromStorage("wird-breaker-v1", null));
@@ -353,6 +358,10 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     if (!mounted) return;
     saveToStorage("wird-mosque-v1", mosque);
   }, [mounted, mosque]);
+  useEffect(() => {
+    if (!mounted) return;
+    saveToStorage("wird-autolock-v1", autoLock);
+  }, [mounted, autoLock]);
   useEffect(() => {
     if (!mounted) return;
     saveToStorage("wird-qada-v1", qada);
@@ -602,6 +611,12 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     }
     return ok;
   };
+  const lock = () => {
+    try {
+      sessionStorage.removeItem("wird-unlocked");
+    } catch {}
+    setUnlocked(false);
+  };
   const cycleFilter = () =>
     setFilter((f) => (f === "all" ? "done" : f === "done" ? "todo" : "all"));
   const passFilter = (id: string) =>
@@ -743,6 +758,9 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     deleteProfile,
     unlockProfile,
     logout,
+    autoLock,
+    setAutoLock,
+    lock,
   };
   return <WirdContext.Provider value={value}>{children}</WirdContext.Provider>;
 }
