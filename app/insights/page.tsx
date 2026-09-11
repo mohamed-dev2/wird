@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { dataStreak, lastNDays } from "../lib/history";
 import { buildBrief, buildCatalog, categoryBalance, type Category } from "../lib/coach";
-import { dayId } from "../lib/wird";
+import { dayId, hijriParts } from "../lib/wird";
 import { useT } from "../lib/i18n";
 import { useWird } from "../components/wird-store";
 
@@ -123,6 +123,52 @@ export default function InsightsPage() {
     [history, deeds, todayId, lang],
   );
 
+  const yearStats = useMemo(() => {
+    const curH = hijriParts(new Date(`${todayId}T12:00:00Z`));
+    if (!curH) return null;
+    const recs = Object.values(history).filter(
+      (d) => hijriParts(new Date(`${d.day}T12:00:00Z`))?.year === curH.year,
+    );
+    if (recs.length === 0) return null;
+    const active = recs.filter((d) => d.ids.length > 0);
+    const pages = recs.reduce((s, d) => s + d.pages, 0);
+    const scored = recs.filter((d) => d.score != null);
+    const avg = scored.length
+      ? Math.round(scored.reduce((s, d) => s + (d.score ?? 0), 0) / scored.length)
+      : null;
+    const witr = recs.filter((d) => d.ids.includes("witr")).length;
+    const sortedDays = recs.map((d) => d.day).sort();
+    let best = 0;
+    let run = 0;
+    let prev = "";
+    for (const day of sortedDays) {
+      const rec = history[day];
+      const on = !!rec && rec.ids.length > 0;
+      const cont = prev !== "" && Date.parse(day) - Date.parse(prev) === 86400000;
+      run = on ? (cont ? run + 1 : 1) : 0;
+      best = Math.max(best, run);
+      prev = day;
+    }
+    const byMonth = new Map<string, { sum: number; n: number }>();
+    for (const d of active) {
+      const m = d.day.slice(0, 7);
+      const e = byMonth.get(m) ?? { sum: 0, n: 0 };
+      e.sum += d.ids.length / Math.max(1, allHabits.length);
+      e.n += 1;
+      byMonth.set(m, e);
+    }
+    let bestMonth: string | null = null;
+    let bestAvg = -1;
+    for (const [m, e] of byMonth) {
+      const a = e.sum / e.n;
+      if (a > bestAvg) {
+        bestAvg = a;
+        bestMonth = m;
+      }
+    }
+    return { year: curH.year, days: active.length, pages, avg, witr, best, bestMonth };
+  }, [history, todayId, allHabits.length]);
+
   return (
     <section className="destination-view">
       <div className="view-hero">
@@ -205,6 +251,38 @@ export default function InsightsPage() {
           </ul>
         )}
       </div>
+      {yearStats && (
+        <div className="brief-card year-card">
+          <p className="eyebrow">
+            {t("yr.title")} · {yearStats.year}هـ
+          </p>
+          <div className="metric-row">
+            <article>
+              <span>{yearStats.days}</span>
+              <p>{t("yr.days")}</p>
+            </article>
+            <article>
+              <span>{yearStats.pages}</span>
+              <p>{t("yr.pages")}</p>
+            </article>
+            <article>
+              <span>
+                {yearStats.avg ?? "—"}
+                {yearStats.avg != null ? "٪" : ""}
+              </span>
+              <p>{t("yr.score")}</p>
+            </article>
+            <article>
+              <span>{yearStats.best}</span>
+              <p>{t("yr.streak")}</p>
+            </article>
+          </div>
+          <p className="year-line">
+            🌙 {yearStats.witr} {t("yr.witr")}
+            {yearStats.bestMonth ? ` · 🏆 ${t("yr.best")}: ${yearStats.bestMonth}` : ""}
+          </p>
+        </div>
+      )}
       <div className="insight-grid">
         <article className="weekly-chart">
           <div>
