@@ -7,6 +7,7 @@ import { copyText } from "../../lib/clipboard";
 import { useStoredState } from "../../lib/use-stored-state";
 import { useT } from "../../lib/i18n";
 import { HadithFull } from "./hadith-full";
+import type { FullBookId } from "../../lib/hadith-full";
 
 function gradeClass(grade: string): string {
   if (grade.includes("متفق")) return "grade-muttafaq";
@@ -33,6 +34,9 @@ function EntryCard({
   return (
     <article className={`hadith-card${read ? " read" : ""}`}>
       <p>{entry.text}</p>
+      <p className="hadith-en" dir="ltr">
+        {entry.en}
+      </p>
       <div className="hadith-meta">
         <span className={gradeClass(entry.grade)}>{entry.grade}</span>
         <span>{entry.ref}</span>
@@ -63,17 +67,7 @@ export function HadithLibrary() {
   const toggleRead = (id: string) =>
     setReadIds((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
   const [mode, setMode] = useState<"curated" | "full">("curated");
-  const [fullBook, setFullBook] = useState<
-    | "bukhari"
-    | "muslim"
-    | "abudawud"
-    | "tirmidhi"
-    | "nasai"
-    | "ibnmajah"
-    | "malik"
-    | "nawawi"
-    | "qudsi"
-  >("bukhari");
+  const [fullBook, setFullBook] = useState<FullBookId>("bukhari");
 
   const FULL_OF: Record<string, typeof fullBook | null> = {
     bukhari: "bukhari",
@@ -86,6 +80,8 @@ export function HadithLibrary() {
     musnad: null,
     darimi: null,
     nawawi: "nawawi",
+    qudsi: "qudsi",
+    dehlawi: "dehlawi",
   };
 
   const openFull = (curatedId: string) => {
@@ -104,8 +100,11 @@ export function HadithLibrary() {
 
   const results = useMemo(() => {
     const q = normalizeAr(query);
-    if (q.length < 2) return null;
-    return all.filter((e) => normalizeAr(e.text).includes(q)).slice(0, 30);
+    const qEn = query.trim().toLowerCase();
+    if (q.length < 2 && qEn.length < 2) return null;
+    return all
+      .filter((e) => normalizeAr(e.text).includes(q) || e.en.toLowerCase().includes(qEn))
+      .slice(0, 30);
   }, [all, query]);
 
   return (

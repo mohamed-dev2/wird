@@ -24,6 +24,7 @@ export const FULL_BOOKS = [
   { id: "malik", ar: "موطأ مالك", en: "Muwatta Malik" },
   { id: "nawawi", ar: "الأربعون النووية", en: "Forty Nawawi" },
   { id: "qudsi", ar: "الأحاديث القدسية", en: "Qudsi Hadiths" },
+  { id: "dehlawi", ar: "جوامع الكلم", en: "Concise Wisdoms" },
 ] as const;
 
 export type FullBookId = (typeof FULL_BOOKS)[number]["id"];

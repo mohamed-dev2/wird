@@ -332,6 +332,13 @@
   color: var(--ink);
 }
 
+.hadith-en {
+  font-size: 11px !important;
+  line-height: 1.9 !important;
+  color: var(--muted) !important;
+  margin-top: 6px !important;
+}
+
 .hadith-meta {
   display: flex;
   align-items: center;
