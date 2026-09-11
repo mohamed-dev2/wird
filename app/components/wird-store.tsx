@@ -30,6 +30,7 @@ import {
   type Habit,
 } from "../lib/wird";
 import { emptyDay, recordDay, type DayRecord, type History } from "../lib/history";
+import type { PrayerTimes } from "../lib/prayer";
 
 export type WirdStore = {
   done: string[];
@@ -77,6 +78,10 @@ export type WirdStore = {
   setRampReduced: Dispatch<SetStateAction<boolean>>;
   fridayAdded: boolean;
   setFridayAdded: Dispatch<SetStateAction<boolean>>;
+  prayerTimes: PrayerTimes;
+  setPrayerTimes: Dispatch<SetStateAction<PrayerTimes>>;
+  mosque: boolean;
+  setMosque: Dispatch<SetStateAction<boolean>>;
   qada: QadaItem[];
   setQada: Dispatch<SetStateAction<QadaItem[]>>;
   addQada: (label: string) => void;
@@ -156,6 +161,8 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const [snoozed, setSnoozed] = useState<string[]>([]);
   const [rampReduced, setRampReduced] = useState(false);
   const [fridayAdded, setFridayAdded] = useState(false);
+  const [prayerTimes, setPrayerTimes] = useState<PrayerTimes>({});
+  const [mosque, setMosque] = useState(false);
   const [qada, setQada] = useState<QadaItem[]>([]);
   const [fastType, setFastType] = useState<string | null>(null);
   const [breaker, setBreaker] = useState<Breaker | null>(null);
@@ -181,6 +188,8 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     setSnoozed(loadDailyList("wird-snoozed-v2", [], t));
     setRampReduced(loadFromStorage("wird-ramp-v1", false));
     setFridayAdded(loadFromStorage("wird-friday-plan-v1", false));
+    setPrayerTimes(loadFromStorage("wird-prayer-times-v1", {}));
+    setMosque(loadFromStorage("wird-mosque-v1", false));
     setQada(loadFromStorage("wird-qada-v1", []));
     setFastType(loadDailyText("wird-fast-v2", "", t) || null);
     setBreaker(loadFromStorage("wird-breaker-v1", null));
@@ -258,6 +267,14 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     if (!mounted) return;
     saveToStorage("wird-friday-plan-v1", fridayAdded);
   }, [mounted, fridayAdded]);
+  useEffect(() => {
+    if (!mounted) return;
+    saveToStorage("wird-prayer-times-v1", prayerTimes);
+  }, [mounted, prayerTimes]);
+  useEffect(() => {
+    if (!mounted) return;
+    saveToStorage("wird-mosque-v1", mosque);
+  }, [mounted, mosque]);
   useEffect(() => {
     if (!mounted) return;
     saveToStorage("wird-qada-v1", qada);
@@ -502,6 +519,10 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     setRampReduced,
     fridayAdded,
     setFridayAdded,
+    prayerTimes,
+    setPrayerTimes,
+    mosque,
+    setMosque,
     qada,
     setQada,
     addQada,

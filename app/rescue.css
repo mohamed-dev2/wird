@@ -722,6 +722,178 @@
   text-decoration: underline;
 }
 
+.return-screen {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+  padding: 34px 22px;
+  border-radius: 18px;
+  color: #f1ece0;
+  background: radial-gradient(circle at 50% 0%, #2c5a50, #0d2b26 78%);
+  border: 1px solid #2a5a4f;
+}
+
+.return-moon {
+  font-size: 40px;
+}
+
+.return-screen h2 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.return-screen blockquote {
+  margin: 0;
+  max-width: 560px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.return-screen blockquote p {
+  font-size: 15px;
+  line-height: 2.1;
+  margin: 0;
+}
+
+.return-screen blockquote cite {
+  display: block;
+  font-style: normal;
+  font-size: 9px;
+  color: #c9ddd4;
+  margin-top: 6px;
+}
+
+.return-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.return-actions .linklike {
+  color: #c9ddd4;
+}
+
+.kids-card {
+  margin-top: 13px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border: 1px solid #f0e3c8;
+  border-radius: 14px;
+  padding: 15px;
+  background: linear-gradient(135deg, #fffaf0, #fff);
+}
+
+.kids-card > span {
+  font-size: 26px;
+}
+
+.kids-card > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.kids-card h3 {
+  font-size: 12px;
+  margin: 0 0 4px;
+}
+
+.kids-card p {
+  font-size: 9px;
+  color: #857966;
+  margin: 0;
+}
+
+.kids-card > button {
+  font: inherit;
+  font-size: 9px;
+  border: 0;
+  border-radius: 8px;
+  background: #966d2f;
+  color: #fff;
+  padding: 9px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.kid-tabs {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin: 8px 0;
+}
+
+.kid-tabs button {
+  font: inherit;
+  font-size: 9px;
+  border: 1px solid #e5ddc8;
+  background: #fff;
+  color: #61746c;
+  border-radius: 15px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.kid-tabs button.selected {
+  background: #e8f5ed;
+  color: #14705b;
+  border-color: #b8dcca;
+}
+
+.kid-quests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.kid-quests button {
+  font: inherit;
+  font-size: 10px;
+  border: 1px solid #e5ddc8;
+  background: #fff;
+  color: #61746c;
+  border-radius: 12px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.kid-quests button.kid-done {
+  background: #e8f5ed;
+  color: #14705b;
+  border-color: #b8dcca;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.mic-btn {
+  border: 1px solid #e2e9e4;
+  border-radius: 10px;
+  background: #fff;
+  padding: 11px 13px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.mic-btn[aria-pressed="true"] {
+  background: #e2f3e9;
+  border-color: #9dceb9;
+}
+
+.heard-msg {
+  font-size: 10px;
+  color: #14705b;
+  margin: 6px 0 0;
+}
+
 @media (max-width: 750px) {
   .rescue-plan {
     padding: 16px;

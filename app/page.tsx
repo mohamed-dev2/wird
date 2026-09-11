@@ -2,7 +2,7 @@
 
 import { useWird } from "./components/wird-store";
 import { NowView } from "./components/views/now";
-import { type CSSProperties } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
   sections,
   extras,
@@ -12,7 +12,17 @@ import {
   PRAYER_NAMES,
   FAST_TYPES,
   dayId,
+  diffDays,
 } from "./lib/wird";
+import { returnStage, versesForStage } from "./lib/data/verses";
+import {
+  DEFAULT_REMINDERS,
+  evaluateLadder,
+  ensurePermission,
+  fireNotification,
+} from "./lib/notify";
+import { arDuration, nextPrayer, PRAYER_AR } from "./lib/prayer";
+import { useStoredState } from "./lib/use-stored-state";
 
 export default function TodayPage() {
   const {
@@ -86,7 +96,174 @@ export default function TodayPage() {
     filterLabel,
     passFilter,
     scrollToQuran,
+    prayerTimes,
+    mosque,
+    setMosque,
   } = useWird();
+  // ---- M5 local features (hydration-safe stored state) ----
+  const [lastSeen] = useStoredState<string | null>("wird-lastseen-v1", null);
+  const [reminders] = useStoredState("wird-reminders-v1", DEFAULT_REMINDERS);
+  const [returnGone, setReturnGone] = useState(false);
+  const [ladderTick, setLadderTick] = useState(0);
+  const [nowTick, setNowTick] = useState(0);
+  const [kids, setKids] = useStoredState<{ name: string; checks: Record<string, string[]> }[]>(
+    "wird-kids-v1",
+    [],
+  );
+  const [kidSel, setKidSel] = useState(0);
+  const [pledges, setPledges] = useStoredState<
+    { id: string; text: string; stake: string; checks: string[] }[]
+  >("wird-pledges-v1", []);
+
+  useEffect(() => {
+    const t = dayId();
+    if (lastSeen !== t) {
+      try {
+        localStorage.setItem("wird-lastseen-v1", t);
+      } catch {}
+    }
+  }, [lastSeen]);
+  useEffect(() => {
+    const id = window.setInterval(() => setNowTick((t) => t + 1), 30000);
+    return () => window.clearInterval(id);
+  }, []);
+  useEffect(() => {
+    const id = window.setInterval(() => setLadderTick((t) => t + 1), 3600000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const absentDays = lastSeen ? diffDays(lastSeen, dayId()) : 0;
+  const stage =
+    reminders.tone === "gentle"
+      ? Math.min(returnStage(absentDays), 1)
+      : reminders.tone === "strict"
+        ? Math.max(returnStage(absentDays), absentDays >= 3 ? 2 : 0)
+        : returnStage(absentDays);
+  const returnVerses = useMemo(() => versesForStage(stage as 0 | 1 | 2 | 3), [stage]);
+
+  useEffect(() => {
+    if (!lastSeen || mosque) return;
+    const t = dayId();
+    let capped = false;
+    try {
+      capped = localStorage.getItem("wird-notify-day-v1") === t;
+    } catch {}
+    if (capped) return;
+    const hit = evaluateLadder(new Date(), lastSeen, t, reminders);
+    if (!hit) return;
+    void ensurePermission().then((ok) => {
+      if (!ok) return;
+      fireNotification(hit.title, hit.body);
+      try {
+        localStorage.setItem("wird-notify-day-v1", t);
+      } catch {}
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastSeen, mosque, ladderTick]);
+
+  const nowDate = useMemo(() => {
+    void nowTick;
+    return new Date();
+  }, [nowTick]);
+  const upcoming = useMemo(() => nextPrayer(prayerTimes, nowDate), [prayerTimes, nowDate]);
+  const orderedSections = useMemo(() => {
+    const hasTimes = Object.values(prayerTimes).some(Boolean);
+    if (!hasTimes) return sections;
+    const order = ["fajr", "dhuhr", "asr", "maghrib", "isha", "night"];
+    const rank = (id: string) => {
+      if (!upcoming) return order.indexOf(id);
+      const ui = order.indexOf(upcoming.id);
+      const si = order.indexOf(id);
+      return si < 0 ? 99 : (si - ui + order.length) % order.length;
+    };
+    return [...sections].sort((a, b) => rank(a.id) - rank(b.id));
+  }, [prayerTimes, upcoming]);
+
+  const KID_QUESTS = ["صلاة الفجر", "صفحة قرآن", "٣٣ تسبيحة", "عمل طيب", "نوم مبكر"];
+  const askName = (message: string) => {
+    try {
+      const v = window.prompt(message)?.trim();
+      return v ? v : null;
+    } catch {
+      return null;
+    }
+  };
+  const addKid = () => {
+    const name = askName("اسم الصغير؟");
+    if (name) {
+      setKids((cur) => [...cur, { name, checks: {} }]);
+      setKidSel(kids.length);
+    }
+  };
+  const toggleKidQuest = (qi: number) => {
+    const t = dayId();
+    setKids((cur) =>
+      cur.map((k, i) => {
+        if (i !== kidSel) return k;
+        const day = k.checks[t] ?? [];
+        const qid = `q${qi}`;
+        return {
+          ...k,
+          checks: {
+            ...k.checks,
+            [t]: day.includes(qid) ? day.filter((x) => x !== qid) : [...day, qid],
+          },
+        };
+      }),
+    );
+  };
+  const addPledge = () => {
+    const text = askName("عهدك؟ (مثال: الفجر في المسجد ٧ أيام)");
+    if (!text) return;
+    const stake = askName("الجزاء عند التقصير؟ (مثال: ٥ صدقة)") ?? "";
+    setPledges((cur) => [...cur, { id: `plg-${Date.now()}`, text, stake, checks: [] }]);
+  };
+  const togglePledge = (id: string) => {
+    const t = dayId();
+    setPledges((cur) =>
+      cur.map((p) =>
+        p.id === id
+          ? {
+              ...p,
+              checks: p.checks.includes(t) ? p.checks.filter((d) => d !== t) : [...p.checks, t],
+            }
+          : p,
+      ),
+    );
+  };
+  const removePledge = (id: string) => {
+    try {
+      if (!window.confirm("حذف هذا العهد؟")) return;
+    } catch {}
+    setPledges((cur) => cur.filter((p) => p.id !== id));
+  };
+
+  if (stage > 0 && !returnGone) {
+    return (
+      <>
+        <section className="return-screen">
+          <span className="return-moon">🌙</span>
+          <p className="eyebrow">اشتقنا إليك · غبت {absentDays} أيام</p>
+          <h2>الباب مفتوح — ارجع الآن</h2>
+          {returnVerses.map((v, i) => (
+            <blockquote key={i}>
+              <p>﴿{v.text}﴾</p>
+              <cite>{v.ref}</cite>
+            </blockquote>
+          ))}
+          <div className="return-actions">
+            <button type="button" className="review-submit" onClick={() => setReturnGone(true)}>
+              ابدأ من جديد 🤍
+            </button>
+            <button type="button" className="linklike" onClick={() => setReturnGone(true)}>
+              أكمل يومك عادي
+            </button>
+          </div>
+        </section>
+      </>
+    );
+  }
+
   return (
     <>
       {ramadan && (
@@ -326,10 +503,10 @@ export default function TodayPage() {
               <button
                 type="button"
                 className="record-prayer"
-                onClick={() => toggle("dhuhr-jamaa")}
-                aria-pressed={done.includes("dhuhr-jamaa")}
+                onClick={() => toggle(`${upcoming?.id ?? "dhuhr"}-jamaa`)}
+                aria-pressed={done.includes(`${upcoming?.id ?? "dhuhr"}-jamaa`)}
               >
-                {done.includes("dhuhr-jamaa") ? "✓ سُجّلت" : "سجل الصلاة"}
+                {done.includes(`${upcoming?.id ?? "dhuhr"}-jamaa`) ? "✓ سُجّلت" : "سجل الصلاة"}
               </button>
             </div>
           </section>
@@ -567,6 +744,62 @@ export default function TodayPage() {
               )}
             </article>
           </section>
+          <section className="kids-card">
+            <span>🧒</span>
+            <div>
+              <p className="eyebrow">ركن الصغار</p>
+              {kids.length === 0 ? (
+                <>
+                  <h3>تحديات ممتعة لأبنائك</h3>
+                  <p>٥ مهام يومية بالنجوم — سجّل اسم الصغير وابدأ.</p>
+                </>
+              ) : (
+                <>
+                  <div className="kid-tabs">
+                    {kids.map((k, i) => (
+                      <button
+                        key={k.name + i}
+                        type="button"
+                        onClick={() => setKidSel(i)}
+                        aria-pressed={kidSel === i}
+                        className={kidSel === i ? "selected" : ""}
+                      >
+                        {k.name}
+                      </button>
+                    ))}
+                    <button type="button" className="linklike" onClick={addKid}>
+                      +
+                    </button>
+                  </div>
+                  {kids[kidSel] && (
+                    <div className="kid-quests">
+                      {KID_QUESTS.map((q, qi) => {
+                        const qid = `q${qi}`;
+                        const dayChecks = kids[kidSel]?.checks[dayId()] ?? [];
+                        const on = dayChecks.includes(qid);
+                        return (
+                          <button
+                            key={qid}
+                            type="button"
+                            onClick={() => toggleKidQuest(qi)}
+                            aria-pressed={on}
+                            className={on ? "kid-done" : ""}
+                          >
+                            {on ? "★" : "☆"} {q}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+            {kids.length === 0 && (
+              <button type="button" onClick={addKid}>
+                + أضف صغيرًا
+              </button>
+            )}
+          </section>
           {showNow && (
             <NowView
               done={done}
@@ -597,10 +830,19 @@ export default function TodayPage() {
           <span className="mini-icon">◐</span>
           <div>
             <p className="eyebrow">الصلاة القادمة</p>
-            <h3>
-              الظهر <b>١٢:٠٨</b>
-            </h3>
-            <p>باقي ساعة و ٤٧ دقيقة</p>
+            {upcoming ? (
+              <>
+                <h3>
+                  {PRAYER_AR[upcoming.id] ?? upcoming.id} <b>{upcoming.at}</b>
+                </h3>
+                <p>{arDuration(upcoming.inMs)}</p>
+              </>
+            ) : (
+              <>
+                <h3>اضبط مواقيتك</h3>
+                <p>من صفحة حسابي ← مواقيت الصلاة</p>
+              </>
+            )}
           </div>
           <button
             type="button"
@@ -608,6 +850,15 @@ export default function TodayPage() {
             aria-pressed={remindPrayer}
           >
             {remindPrayer ? "✓ سيتم تنبيهك" : "تنبيه قبل الأذان"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMosque((v) => !v)}
+            aria-pressed={mosque}
+            className={mosque ? "counter on" : "counter"}
+            title="وضع المسجد: يكتم التذكيرات"
+          >
+            🕌
           </button>
         </article>
         <article className="intention">
@@ -647,7 +898,7 @@ export default function TodayPage() {
         </button>
       </div>
       <div className="cards">
-        {sections.map((section) => (
+        {orderedSections.map((section) => (
           <article key={section.id} className={`card ${section.accent}`}>
             <div className="card-top">
               <div className="prayer-icon">{section.icon}</div>
@@ -917,6 +1168,46 @@ export default function TodayPage() {
           })}
           <button type="button" className="goal-add" onClick={addChallenge}>
             + تحدٍ جديد
+          </button>
+          {pledges.map((p) => {
+            const pdone = p.checks.includes(dayId());
+            return (
+              <article key={p.id}>
+                <span className="goal-icon heart-goal">🤝</span>
+                <div>
+                  <b>{p.text}</b>
+                  <small>
+                    {p.stake ? `الجزاء: ${p.stake} · ` : ""}
+                    {p.checks.length} يوم وفاء
+                  </small>
+                  <div className="tiny-progress">
+                    <i style={{ width: pdone ? "100%" : "5%" }} />
+                  </div>
+                </div>
+                <div className="chl-actions">
+                  <button
+                    type="button"
+                    className="mini-check"
+                    onClick={() => togglePledge(p.id)}
+                    aria-pressed={pdone}
+                    aria-label="وفاء اليوم"
+                  >
+                    {pdone ? "✓" : "+"}
+                  </button>
+                  <button
+                    type="button"
+                    className="linklike"
+                    onClick={() => removePledge(p.id)}
+                    aria-label="حذف العهد"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </article>
+            );
+          })}
+          <button type="button" className="goal-add" onClick={addPledge}>
+            + عهد جديد
           </button>
         </div>
       </section>

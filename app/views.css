@@ -884,6 +884,37 @@
   margin: 8px 0 0 !important;
 }
 
+.backup-actions button.selected {
+  background: #e2f3e9;
+  color: #126b55;
+  border-color: #badeca;
+}
+
+.time-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  color: #61746c;
+}
+
+.time-label input {
+  font: inherit;
+  font-size: 10px;
+  border: 1px solid #dfe8e2;
+  border-radius: 7px;
+  padding: 5px 7px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.prayer-times-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
 .bottom-nav {
   display: none;
 }

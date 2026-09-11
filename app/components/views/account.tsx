@@ -8,9 +8,15 @@ import {
   encryptBackup,
   restoreBackup,
 } from "../../lib/crypto";
+import { DEFAULT_REMINDERS, ensurePermission, fireNotification } from "../../lib/notify";
+import { PRAYER_AR, PRAYER_ORDER, type PrayerTimes } from "../../lib/prayer";
+import { useStoredState } from "../../lib/use-stored-state";
 
 export function AccountView({ onReset }: { onReset: () => void }) {
   const [backupMsg, setBackupMsg] = useState("");
+  const [reminders, setReminders] = useStoredState("wird-reminders-v1", DEFAULT_REMINDERS);
+  const [prayerTimes, setPrayerTimes] = useStoredState<PrayerTimes>("wird-prayer-times-v1", {});
+  const [remindMsg, setRemindMsg] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const askPass = (msg: string) => {
     try {
@@ -133,6 +139,79 @@ export function AccountView({ onReset }: { onReset: () => void }) {
               e.target.value = "";
             }}
           />
+        </div>
+      </article>
+      <article className="new-day">
+        <span>⏰</span>
+        <div>
+          <b>التذكيرات المحلية</b>
+          <p>تعمل على جهازك فقط — بلا خوادم. تُكتم تلقائيًا في وضع المسجد.</p>
+          <div className="backup-actions">
+            <button
+              type="button"
+              onClick={() => setReminders((r) => ({ ...r, enabled: !r.enabled }))}
+              aria-pressed={reminders.enabled}
+              className={reminders.enabled ? "selected" : ""}
+            >
+              {reminders.enabled ? "✓ مفعّلة" : "تفعيل"}
+            </button>
+            <label className="time-label">
+              الحصاد
+              <input
+                type="time"
+                value={reminders.bedtime}
+                onChange={(e) =>
+                  setReminders((r) => ({ ...r, bedtime: e.target.value || "22:00" }))
+                }
+              />
+            </label>
+            {(["gentle", "balanced", "strict"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setReminders((r) => ({ ...r, tone: t }))}
+                aria-pressed={reminders.tone === t}
+                className={reminders.tone === t ? "selected" : ""}
+              >
+                {t === "gentle" ? "لطيف" : t === "balanced" ? "متوازن" : "صارم"}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                void ensurePermission().then((ok) => {
+                  if (ok) {
+                    fireNotification("تجربة ناجحة 🔔", "هكذا ستصلك تذكيرات وردك.");
+                    setRemindMsg("أُرسل إشعار تجريبي.");
+                  } else {
+                    setRemindMsg("فعّل إذن الإشعارات من المتصفح أولًا.");
+                  }
+                });
+              }}
+            >
+              تجربة
+            </button>
+          </div>
+          {remindMsg && <p className="backup-msg">{remindMsg}</p>}
+        </div>
+      </article>
+      <article className="new-day">
+        <span>🕌</span>
+        <div>
+          <b>مواقيت الصلاة (يدوي)</b>
+          <p>تُستخدم للعد التنازلي وترتيب البطاقات الذكي. اتركها فارغة للوضع الحالي.</p>
+          <div className="prayer-times-grid">
+            {PRAYER_ORDER.map((p) => (
+              <label key={p} className="time-label">
+                {PRAYER_AR[p] ?? p}
+                <input
+                  type="time"
+                  value={prayerTimes[p] ?? ""}
+                  onChange={(e) => setPrayerTimes((cur) => ({ ...cur, [p]: e.target.value }))}
+                />
+              </label>
+            ))}
+          </div>
         </div>
       </article>
     </section>

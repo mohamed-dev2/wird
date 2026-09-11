@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { NAV_HREFS, NAV_ITEMS } from "../lib/wird";
+import { isVoiceSupported, listenOnce, matchCommand } from "../lib/voice";
 import { useWird } from "./wird-store";
 
 export function Shell({ children }: { children: ReactNode }) {
@@ -17,7 +18,44 @@ export function Shell({ children }: { children: ReactNode }) {
     setZikrCount,
     zikrName,
     setZikrName,
+    toggle,
+    setTasbeeh,
+    setFastType,
   } = useWird();
+  const [voiceOn, setVoiceOn] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [heard, setHeard] = useState("");
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- feature-detect once after mount (SSR has no window)
+    setVoiceOn(isVoiceSupported());
+  }, []);
+  useEffect(() => {
+    if (!heard) return;
+    const id = window.setTimeout(() => setHeard(""), 4000);
+    return () => window.clearTimeout(id);
+  }, [heard]);
+  const runVoice = async () => {
+    if (listening) return;
+    setListening(true);
+    try {
+      const text = await listenOnce();
+      if (!text) {
+        setHeard("لم أسمع شيئًا — حاول مجددًا");
+        return;
+      }
+      const cmd = matchCommand(text);
+      if (!cmd) {
+        setHeard(`سمعت: «${text}» — جرّب: سجلت الفجر`);
+        return;
+      }
+      if (cmd === "tasbeeh-plus") setTasbeeh((c) => Math.min(33, c + 1));
+      else if (cmd === "fast-log") setFastType((cur) => cur ?? "نافلة");
+      else toggle(cmd);
+      setHeard(`✓ سُجّل: ${text}`);
+    } finally {
+      setListening(false);
+    }
+  };
   const isActive = (id: string) => {
     const href = NAV_HREFS[id] ?? "/";
     return href === "/" ? pathname === "/" : (pathname?.startsWith(href) ?? false);
@@ -67,9 +105,24 @@ export function Shell({ children }: { children: ReactNode }) {
             </h1>
             <p className="subhead">كل خطوة صغيرة تقرّبك. جعل الله يومك عامرًا بذكره.</p>
           </div>
-          <Link href="/calendar" className="date-button">
-            ‹ <span>اليوم</span> {gregLabel} ›
-          </Link>
+          <div className="header-actions">
+            <Link href="/calendar" className="date-button">
+              ‹ <span>اليوم</span> {gregLabel} ›
+            </Link>
+            {voiceOn && (
+              <button
+                type="button"
+                className="mic-btn"
+                onClick={() => void runVoice()}
+                aria-pressed={listening}
+                aria-label="تسجيل صوتي"
+                title="قل: سجلت الفجر"
+              >
+                {listening ? "…" : "🎙"}
+              </button>
+            )}
+          </div>
+          {heard && <p className="heard-msg">{heard}</p>}
         </header>
         {children}
       </section>
