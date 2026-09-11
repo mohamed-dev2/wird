@@ -1,0 +1,55 @@
+export type Ayah = { surah: number; ayah: number; text: string };
+
+let cache: Promise<Ayah[]> | null = null;
+
+export function loadQuran(): Promise<Ayah[]> {
+  if (!cache) {
+    cache = fetch("/data/quran-uthmani.min.json")
+      .then((r) => {
+        if (!r.ok) throw new Error("quran bundle missing");
+        return r.json() as Promise<{ v: number; ayahs: [number, number, string][] }>;
+      })
+      .then((d) => d.ayahs.map(([surah, ayah, text]) => ({ surah, ayah, text })))
+      .catch((e) => {
+        cache = null;
+        throw e;
+      });
+  }
+  return cache;
+}
+
+export function ayahCounts(ayahs: Ayah[]): number[] {
+  const counts = new Array<number>(115).fill(0);
+  for (const a of ayahs) counts[a.surah] = (counts[a.surah] ?? 0) + 1;
+  return counts;
+}
+
+/** Arabic search normalization: strip tashkeel, unify alef/hamza forms. */
+export function normalizeAr(s: string): string {
+  return s
+    .replace(/[ً-ٰٟ]/g, "")
+    .replace(/[أإآٱ]/g, "ا")
+    .replace(/ى/g, "ي")
+    .replace(/ؤ/g, "و")
+    .replace(/ئ/g, "ي")
+    .replace(/ة/g, "ه")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+export function searchAyahs(ayahs: Ayah[], query: string, limit = 40): Ayah[] {
+  const q = normalizeAr(query);
+  if (q.length < 2) return [];
+  const out: Ayah[] = [];
+  for (const a of ayahs) {
+    if (normalizeAr(a.text).includes(q)) {
+      out.push(a);
+      if (out.length >= limit) break;
+    }
+  }
+  return out;
+}
+
+export function ayahKey(surah: number, ayah: number): string {
+  return `${surah}:${ayah}`;
+}
