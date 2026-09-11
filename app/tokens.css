@@ -1,0 +1,77 @@
+/* Design tokens — single source of truth. Themes override via [data-theme]. */
+:root {
+  --bg: #fbfcfa;
+  --surface: #ffffff;
+  --surface-2: #f4f8f5;
+  --surface-warm: #fffdf6;
+  --ink: #172422;
+  --muted: #75847e;
+  --faint: #9aa7a0;
+  --line: #e6ece8;
+  --line-soft: #eef2ef;
+  --brand: #14725d;
+  --brand-deep: #0e5a49;
+  --brand-soft: #e8f5ed;
+  --brand-ink: #126b55;
+  --gold: #b08b37;
+  --gold-deep: #8a6c2c;
+  --gold-soft: #fff8e8;
+  --danger: #a33e3e;
+  --shadow-sm: 0 2px 3px rgba(17, 46, 38, 0.05);
+  --shadow-md: 0 8px 18px rgba(17, 46, 38, 0.08);
+  --shadow-pop: 0 14px 40px rgba(28, 63, 52, 0.18);
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-1: 0.15s;
+  --dur-2: 0.25s;
+  --dur-3: 0.45s;
+}
+
+[data-theme="dark"] {
+  --bg: #101614;
+  --surface: #18211c;
+  --surface-2: #1c2621;
+  --surface-warm: #1e2018;
+  --ink: #e9f1ec;
+  --muted: #93a39c;
+  --faint: #6f7f78;
+  --line: #26322c;
+  --line-soft: #1f2924;
+  --brand: #3aa184;
+  --brand-deep: #2c7f68;
+  --brand-soft: #14332a;
+  --brand-ink: #7fd0b4;
+  --gold: #d9a94f;
+  --gold-deep: #e3c07c;
+  --gold-soft: #2a2415;
+  --danger: #e08080;
+  --shadow-sm: 0 2px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 18px rgba(0, 0, 0, 0.45);
+  --shadow-pop: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="oled"] {
+  --bg: #000000;
+  --surface: #0b0d0c;
+  --surface-2: #101312;
+  --surface-warm: #12100b;
+  --ink: #f0f4f1;
+  --muted: #8b9993;
+  --faint: #5d6b65;
+  --line: #1e2421;
+  --line-soft: #141817;
+  --brand: #3aa184;
+  --brand-deep: #2c7f68;
+  --brand-soft: #0f2a22;
+  --brand-ink: #7fd0b4;
+  --gold: #d9a94f;
+  --gold-deep: #e3c07c;
+  --gold-soft: #1d190e;
+  --danger: #e08080;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-pop: 0 14px 40px rgba(0, 0, 0, 0.8);
+}

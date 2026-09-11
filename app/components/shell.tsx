@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { NAV_HREFS, NAV_ITEMS } from "../lib/wird";
+import { useT } from "../lib/i18n";
 import { isVoiceSupported, listenOnce, matchCommand } from "../lib/voice";
 import { useWird } from "./wird-store";
 
@@ -22,6 +23,7 @@ export function Shell({ children }: { children: ReactNode }) {
     setTasbeeh,
     setFastType,
   } = useWird();
+  const t = useT();
   const [voiceOn, setVoiceOn] = useState(false);
   const [listening, setListening] = useState(false);
   const [heard, setHeard] = useState("");
@@ -40,18 +42,18 @@ export function Shell({ children }: { children: ReactNode }) {
     try {
       const text = await listenOnce();
       if (!text) {
-        setHeard("لم أسمع شيئًا — حاول مجددًا");
+        setHeard(t("header.heardFail"));
         return;
       }
       const cmd = matchCommand(text);
       if (!cmd) {
-        setHeard(`سمعت: «${text}» — جرّب: سجلت الفجر`);
+        setHeard(t("header.heardTry", { t: text }));
         return;
       }
       if (cmd === "tasbeeh-plus") setTasbeeh((c) => Math.min(33, c + 1));
       else if (cmd === "fast-log") setFastType((cur) => cur ?? "نافلة");
       else toggle(cmd);
-      setHeard(`✓ سُجّل: ${text}`);
+      setHeard(t("header.heardOk", { t: text }));
     } finally {
       setListening(false);
     }
@@ -68,14 +70,14 @@ export function Shell({ children }: { children: ReactNode }) {
           <span>وِرد</span>
         </div>
         <nav>
-          {NAV_ITEMS.map(([id, icon, label]) => (
+          {NAV_ITEMS.map(([id, icon]) => (
             <Link
               key={id}
               href={NAV_HREFS[id] ?? "/"}
               className={isActive(id) ? "nav-item active" : "nav-item"}
             >
               <span>{icon}</span>
-              {label}
+              {t(`nav.${id}`)}
             </Link>
           ))}
         </nav>
@@ -83,14 +85,14 @@ export function Shell({ children }: { children: ReactNode }) {
           <div className="streak-small">
             <span>🔥</span>
             <div>
-              <b>٣ أيام متتالية</b>
-              <small>واصل هذا النور</small>
+              <b>{t("side.streak")}</b>
+              <small>{t("side.streakSub")}</small>
             </div>
           </div>
           <Link href="/account" className="profile">
             <span>م</span>
             <div>
-              محمد عبدالله<small>الحمدلله دائمًا</small>
+              محمد عبدالله<small>{t("side.profileSub")}</small>
             </div>
             <i>⌄</i>
           </Link>
@@ -99,15 +101,15 @@ export function Shell({ children }: { children: ReactNode }) {
       <section className="content">
         <header>
           <div>
-            <p className="eyebrow">{hijriLabel || "يوم جديد"}</p>
+            <p className="eyebrow">{hijriLabel || t("header.newDay")}</p>
             <h1>
-              صباح النور، محمد <span>☀</span>
+              {t("header.greet")} <span>☀</span>
             </h1>
-            <p className="subhead">كل خطوة صغيرة تقرّبك. جعل الله يومك عامرًا بذكره.</p>
+            <p className="subhead">{t("header.sub")}</p>
           </div>
           <div className="header-actions">
             <Link href="/calendar" className="date-button">
-              ‹ <span>اليوم</span> {gregLabel} ›
+              ‹ <span>{t("header.today")}</span> {gregLabel} ›
             </Link>
             {voiceOn && (
               <button
@@ -115,8 +117,8 @@ export function Shell({ children }: { children: ReactNode }) {
                 className="mic-btn"
                 onClick={() => void runVoice()}
                 aria-pressed={listening}
-                aria-label="تسجيل صوتي"
-                title="قل: سجلت الفجر"
+                aria-label={t("header.voice")}
+                title={t("header.voice")}
               >
                 {listening ? "…" : "🎙"}
               </button>
@@ -128,10 +130,15 @@ export function Shell({ children }: { children: ReactNode }) {
       </section>
       {showZikr && (
         <aside className="zikr-popover">
-          <button type="button" className="close-zikr" onClick={() => setShowZikr(false)}>
+          <button
+            type="button"
+            className="close-zikr"
+            onClick={() => setShowZikr(false)}
+            aria-label={t("zk.close")}
+          >
             ×
           </button>
-          <p className="eyebrow">اذكر الله</p>
+          <p className="eyebrow">{t("zk.title")}</p>
           <div className="zikr-current">
             <b>{zikrName}</b>
             <strong>{zikrCount}</strong>
@@ -164,13 +171,13 @@ export function Shell({ children }: { children: ReactNode }) {
         </aside>
       )}
       <button type="button" className="zikr-fab" onClick={() => setShowZikr(!showZikr)}>
-        ☷ <span>اذكر الله</span>
+        ☷ <span>{t("zk.title")}</span>
       </button>
       <nav className="bottom-nav">
-        {NAV_ITEMS.map(([id, icon, label]) => (
+        {NAV_ITEMS.map(([id, icon]) => (
           <Link href={NAV_HREFS[id] ?? "/"} className={isActive(id) ? "active" : ""} key={id}>
             <span>{icon}</span>
-            {label}
+            {t(`nav.${id}`)}
           </Link>
         ))}
       </nav>

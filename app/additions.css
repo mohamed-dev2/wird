@@ -6,7 +6,7 @@
 }
 
 .moment-grid article {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   min-height: 84px;
   border-radius: 14px;
@@ -37,13 +37,13 @@
     DM Sans,
     sans-serif;
   font-size: 11px;
-  color: #15725e;
+  color: var(--brand);
   margin-right: 6px;
 }
 
 .moment-grid p:not(.eyebrow) {
   margin: 4px 0 0;
-  color: #84918c;
+  color: var(--muted);
   font-size: 9px;
 }
 
@@ -58,7 +58,7 @@
 
 .next-prayer button {
   margin-right: auto;
-  background: #edf8f3;
+  background: var(--brand-soft);
   color: #14735e;
   border-radius: 8px;
   padding: 8px;
@@ -71,7 +71,7 @@
 
 .intention > span {
   background: #fff4e6;
-  color: #de9a40;
+  color: var(--gold);
   width: 32px;
   height: 32px;
   display: grid;
@@ -98,7 +98,7 @@
 }
 
 .counter {
-  background: #187760;
+  background: var(--brand);
   color: #fff;
   border-radius: 9px;
   padding: 9px 11px;
@@ -111,7 +111,7 @@
 
 .counter.on {
   background: #e4f4ec;
-  color: #167359;
+  color: var(--brand);
 }
 
 .quran-callout {
@@ -147,7 +147,7 @@
 
 .quran-copy p:not(.eyebrow) {
   margin: 0;
-  color: #8c8170;
+  color: var(--muted);
   font-size: 10px;
 }
 
@@ -192,8 +192,8 @@
 }
 
 .quran-actions .soft-button {
-  background: #fff;
-  color: #725d3b;
+  background: var(--surface);
+  color: var(--gold-deep);
   border: 1px solid #e7dccb;
 }
 
@@ -213,7 +213,7 @@
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 21px;
-  background: #fff;
+  background: var(--surface);
 }
 
 .dua-card .section-heading {
@@ -228,7 +228,7 @@
 .dua-feature {
   font-size: 12px;
   line-height: 2;
-  color: #446059;
+  color: var(--brand-ink);
   background: #f2f8f5;
   border-radius: 10px;
   padding: 11px;
@@ -245,16 +245,16 @@
   margin-top: 15px;
   background: transparent;
   border: 1px dashed #aac7ba;
-  color: #17715c;
+  color: var(--brand);
   padding: 8px 11px;
 }
 
 .add-dua:hover {
-  background: #f4faf8;
+  background: var(--brand-soft);
 }
 
 .gentle-card {
-  background: linear-gradient(135deg, #fff8e9, #fffdf7);
+  background: linear-gradient(135deg, var(--gold-soft), #fffdf7);
   border-color: #f0e3c8;
   position: relative;
   overflow: hidden;
@@ -276,7 +276,7 @@
   left: 23px;
   top: 16px;
   font-size: 20px;
-  color: #e0aa45;
+  color: var(--gold);
 }
 
 .gentle-card h2 {
@@ -286,7 +286,7 @@
 
 .gentle-card > p:not(.eyebrow) {
   font-size: 10px;
-  color: #887b67;
+  color: var(--muted);
   line-height: 1.9;
   margin: 0;
 }
@@ -302,7 +302,7 @@
 
 .weekly span {
   font-size: 9px;
-  color: #8f816a;
+  color: var(--muted);
 }
 
 .weekly b {
@@ -320,7 +320,7 @@
 .weekly i {
   width: 23px;
   height: 4px;
-  background: #dba83d;
+  background: var(--gold);
   border-radius: 5px;
 }
 
@@ -381,7 +381,7 @@
 
 .mode-bar small {
   font-size: 8px;
-  color: #84918c;
+  color: var(--muted);
   margin-top: 4px;
 }
 
@@ -394,9 +394,9 @@
 .mode-bar button {
   font: inherit;
   font-size: 9px;
-  border: 1px solid #dfe8e2;
-  background: #fff;
-  color: #718077;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
   border-radius: 15px;
   padding: 7px 9px;
   cursor: pointer;
@@ -404,18 +404,18 @@
 }
 
 .mode-bar button:hover {
-  background: #f5f8f6;
-  border-color: #cbd5d0;
+  background: var(--brand-soft);
+  border-color: var(--line);
 }
 
 .mode-bar button.selected {
-  background: #e2f3e9;
-  color: #126b55;
-  border-color: #badeca;
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+  border-color: var(--line);
 }
 
 .mode-bar .focus-trigger {
-  color: #765d2c;
+  color: var(--gold-deep);
   background: #fff8e8;
   border-color: #ecddbd;
 }
@@ -474,7 +474,7 @@
 .focus-card .focus-action {
   font: inherit;
   font-size: 10px;
-  color: #1d5144;
+  color: var(--brand-ink);
   background: #f1ca73;
   border: 0;
   border-radius: 9px;
@@ -507,10 +507,10 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  border: 1px solid #e6ece8;
+  border: 1px solid var(--line);
   border-radius: 13px;
   padding: 12px;
-  background: #fff;
+  background: var(--surface);
   transition: transform 0.2s ease;
 }
 
@@ -557,7 +557,7 @@
 
 .goal-grid small {
   font-size: 8px;
-  color: #86938d;
+  color: var(--muted);
   margin-top: 4px;
 }
 
@@ -565,7 +565,7 @@
   font:
     600 10px DM Sans,
     sans-serif;
-  color: #38715f;
+  color: var(--brand-ink);
 }
 
 .chl-actions {
@@ -579,8 +579,8 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  border: 1.5px solid #c5d0ca;
-  background: #fff;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
   color: #178268;
   font-size: 13px;
   font-weight: 700;
@@ -600,7 +600,7 @@
   border: 1px dashed #aac7ba;
   border-radius: 13px;
   background: transparent;
-  color: #17715c;
+  color: var(--brand);
   font: inherit;
   font-size: 10px;
   padding: 12px;
@@ -608,7 +608,7 @@
 }
 
 .goal-add:hover {
-  background: #f4faf8;
+  background: var(--brand-soft);
 }
 
 .tiny-progress {
@@ -680,7 +680,7 @@
   font-size: 10px;
   background: #f0ca73;
   border: 0;
-  color: #294c43;
+  color: var(--brand-ink);
   border-radius: 8px;
   padding: 9px 11px;
   margin-top: 5px;
@@ -703,7 +703,7 @@
 }
 
 .reflection textarea::placeholder {
-  color: #a0aca6;
+  color: var(--faint);
 }
 
 .reflection > span {
@@ -743,20 +743,20 @@
 }
 
 .quick-tools button {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid #e4ebe6;
   border-radius: 12px;
   padding: 10px;
   text-align: right;
   font: inherit;
-  color: #334a42;
+  color: var(--brand-ink);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .quick-tools button:hover {
-  border-color: #cbd5d0;
-  background: #f8faf9;
+  border-color: var(--line);
+  background: var(--brand-soft);
 }
 
 .quick-tools button span,
@@ -777,17 +777,17 @@
 
 .quick-tools button small {
   font-size: 8px;
-  color: #8b9892;
+  color: var(--muted);
   margin-top: 3px;
 }
 
 .quick-tools button.active {
   border-color: #9dceb9;
-  background: #eff8f3;
+  background: var(--brand-soft);
 }
 
 .quick-tools button.minimum span {
-  color: #c28c2e;
+  color: var(--gold);
 }
 
 .minimum-note {
@@ -796,14 +796,14 @@
   gap: 10px;
   margin-top: 11px;
   padding: 11px 13px;
-  background: #fff8e9;
+  background: var(--gold-soft);
   border: 1px solid #f1dfb8;
   border-radius: 11px;
 }
 
 .minimum-note > span {
   font-size: 18px;
-  color: #d19a36;
+  color: var(--gold);
 }
 
 .minimum-note div {
@@ -816,25 +816,25 @@
 
 .minimum-note p {
   margin: 4px 0 0;
-  color: #857966;
+  color: var(--muted);
   font-size: 9px;
 }
 
 .minimum-note button {
   font: inherit;
   font-size: 9px;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid #ead8b6;
   border-radius: 7px;
-  color: #896c36;
+  color: var(--gold-deep);
   padding: 6px 8px;
   cursor: pointer;
 }
 
 .now-view {
   margin-top: 13px;
-  border: 1px solid #d9e9df;
-  background: #fbfefc;
+  border: 1px solid var(--line);
+  background: var(--brand-soft);
   border-radius: 16px;
   overflow: hidden;
 }
@@ -853,13 +853,13 @@
 
 .now-header p:not(.eyebrow) {
   font-size: 10px;
-  color: #708179;
+  color: var(--muted);
   margin: 0;
 }
 
 .now-header > span {
   font-size: 26px;
-  color: #dca446;
+  color: var(--gold);
 }
 
 .now-list {
@@ -871,7 +871,7 @@
   align-items: center;
   gap: 10px;
   padding: 11px 0;
-  border-bottom: 1px solid #ebf0ed;
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .now-list article:last-child {
@@ -881,23 +881,23 @@
 .now-check {
   width: 21px;
   height: 21px;
-  border: 1px solid #c7d6ce;
+  border: 1px solid var(--line);
   border-radius: 7px;
-  background: #fff;
+  background: var(--surface);
   color: #fff;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .now-check.ready {
-  background: #19755f;
-  border-color: #19755f;
+  background: var(--brand);
+  border-color: var(--brand);
 }
 
 .now-check.partial {
   background: #f4e9cf;
-  border-color: #d9a13c;
-  color: #8a672f;
+  border-color: var(--gold);
+  color: var(--gold-deep);
 }
 
 .now-list article > div:nth-child(2) {
@@ -915,7 +915,7 @@
 
 .now-list small {
   font-size: 8px;
-  color: #899790;
+  color: var(--muted);
   margin-top: 3px;
 }
 
@@ -927,9 +927,9 @@
 .quick-status button {
   font: inherit;
   font-size: 8px;
-  color: #75847c;
-  border: 1px solid #e1e9e4;
-  background: #fff;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  background: var(--surface);
   padding: 5px 6px;
   border-radius: 6px;
   cursor: pointer;
@@ -937,17 +937,17 @@
 
 .quick-status button:first-child {
   color: #19745e;
-  background: #eff8f3;
+  background: var(--brand-soft);
 }
 
 .now-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f2f8f4;
+  background: var(--brand-soft);
   padding: 10px 16px;
   font-size: 9px;
-  color: #74837b;
+  color: var(--muted);
 }
 
 .now-footer button {
@@ -955,7 +955,7 @@
   font-size: 9px;
   border: 0;
   color: #fff;
-  background: #17735e;
+  background: var(--brand);
   border-radius: 7px;
   padding: 7px 9px;
   cursor: pointer;

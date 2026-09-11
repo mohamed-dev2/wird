@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "../../lib/i18n";
+
 export function NowView({
   done,
   toggle,
@@ -17,19 +19,20 @@ export function NowView({
   onSnooze: (id: string) => void;
   onAdd: () => void;
 }) {
+  const t = useT();
   const items = [
-    { id: "fajr-jamaa", title: "صلاة الفجر", detail: "في وقتها · جماعة" },
-    { id: "after-fajr", title: "أذكار بعد الصلاة", detail: "دقيقتان بهدوء" },
-    { id: "morning", title: "أذكار الصباح", detail: "٦ من ١٠" },
-    { id: "quran", title: "ورد القرآن", detail: "صفحتان من ٤" },
+    { id: "fajr-jamaa", title: t("nw.i1t"), detail: t("nw.i1d") },
+    { id: "after-fajr", title: t("nw.i2t"), detail: t("nw.i2d") },
+    { id: "morning", title: t("nw.i3t"), detail: t("nw.i3d") },
+    { id: "quran", title: t("nw.i4t"), detail: t("nw.i4d") },
   ].filter((item) => !snoozed.includes(item.id));
   return (
     <section className="now-view">
       <div className="now-header">
         <div>
-          <p className="eyebrow">ما يناسب وقتك الآن</p>
-          <h2>بعد الفجر، بداية مباركة</h2>
-          <p>أربع خطوات فقط. خذ منها ما تيسر لك.</p>
+          <p className="eyebrow">{t("now.eyebrow")}</p>
+          <h2>{t("now.title")}</h2>
+          <p>{t("now.sub")}</p>
         </div>
         <span>☀</span>
       </div>
@@ -56,22 +59,22 @@ export function NowView({
             </div>
             <div className="quick-status">
               <button type="button" onClick={() => toggle(item.id)}>
-                ✅ تم
+                {t("now.done")}
               </button>
               <button type="button" onClick={() => onPartial(item.id)}>
-                ◐ جزئيًا
+                {t("now.partial")}
               </button>
               <button type="button" onClick={() => onSnooze(item.id)}>
-                ↷ لاحقًا
+                {t("now.later")}
               </button>
             </div>
           </article>
         ))}
       </div>
       <div className="now-footer">
-        <span>ما زال في اليوم خير كثير.</span>
+        <span>{t("now.foot")}</span>
         <button type="button" onClick={onAdd}>
-          + أضف عبادة
+          {t("now.add")}
         </button>
       </div>
     </section>

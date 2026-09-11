@@ -4,28 +4,21 @@ import { useMemo, useState } from "react";
 import { dataStreak, lastNDays } from "../lib/history";
 import { buildBrief, buildCatalog, categoryBalance, type Category } from "../lib/coach";
 import { dayId } from "../lib/wird";
+import { useT } from "../lib/i18n";
 import { useWird } from "../components/wird-store";
 
-const PERIODS: [string, number][] = [
-  ["اليوم", 1],
-  ["آخر ٧ أيام", 7],
-  ["أسبوعان", 14],
-  ["الشهر الحالي", 30],
-  ["٣ أشهر", 90],
-  ["الموسم", 180],
-  ["السنة", 365],
+const PERIODS: { k: string; n: number }[] = [
+  { k: "ins.p0", n: 1 },
+  { k: "ins.p1", n: 7 },
+  { k: "ins.p2", n: 14 },
+  { k: "ins.p3", n: 30 },
+  { k: "ins.p4", n: 90 },
+  { k: "ins.p5", n: 180 },
+  { k: "ins.p6", n: 365 },
 ];
 
-const CAT_LABEL: Record<Category, string> = {
-  salah: "صلاة",
-  quran: "قرآن",
-  dhikr: "ذكر",
-  knowledge: "علم",
-  character: "خلق",
-  family: "أسرة",
-};
-
 function Radar({ values }: { values: { category: Category; pct: number }[] }) {
+  const t = useT();
   const C = 75;
   const R = 52;
   const pt = (i: number, frac: number) => {
@@ -62,7 +55,7 @@ function Radar({ values }: { values: { category: Category; pct: number }[] }) {
               fontSize="9"
               fill="#718077"
             >
-              {CAT_LABEL[v.category]} {v.pct}٪
+              {t(`cat.${v.category}`)} {v.pct}٪
             </text>
           </g>
         );
@@ -73,7 +66,8 @@ function Radar({ values }: { values: { category: Category; pct: number }[] }) {
 }
 
 export default function InsightsPage() {
-  const { history, customs, allHabits } = useWird();
+  const t = useT();
+  const { history, customs, allHabits, lang } = useWird();
   const todayId = useMemo(() => dayId(), []);
   const [periodDays, setPeriodDays] = useState(7);
   const deeds = useMemo(() => buildCatalog(customs), [customs]);
@@ -124,24 +118,27 @@ export default function InsightsPage() {
     () => categoryBalance(history, deeds, todayId, 7),
     [history, deeds, todayId],
   );
-  const brief = useMemo(() => buildBrief(history, deeds, todayId), [history, deeds, todayId]);
+  const brief = useMemo(
+    () => buildBrief(history, deeds, todayId, lang),
+    [history, deeds, todayId, lang],
+  );
 
   return (
     <section className="destination-view">
       <div className="view-hero">
-        <p className="eyebrow">تقدّمك من بياناتك — لا تخمين</p>
-        <h2>خطواتك الهادئة تصنع أثرًا</h2>
-        <p>اختر الفترة التي تود أن تتأملها، بلا مقارنة ولا لوم.</p>
+        <p className="eyebrow">{t("ins.heroE")}</p>
+        <h2>{t("ins.heroT")}</h2>
+        <p>{t("ins.heroS")}</p>
         <div className="periods">
-          {PERIODS.map(([label, n]) => (
+          {PERIODS.map((p) => (
             <button
               type="button"
-              key={label}
-              onClick={() => setPeriodDays(n)}
-              aria-pressed={periodDays === n}
-              className={periodDays === n ? "selected" : ""}
+              key={p.k}
+              onClick={() => setPeriodDays(p.n)}
+              aria-pressed={periodDays === p.n}
+              className={periodDays === p.n ? "selected" : ""}
             >
-              {label}
+              {t(p.k)}
             </button>
           ))}
         </div>
@@ -149,55 +146,59 @@ export default function InsightsPage() {
       <div className="metric-row">
         <article>
           <span>{metrics.avg}٪</span>
-          <p>متوسط إنجازك</p>
-          <small>في الفترة المختارة</small>
+          <p>{t("ins.avg")}</p>
+          <small>{t("ins.avgS")}</small>
         </article>
         <article>
           <span>{metrics.witr}</span>
-          <p>ليالي الوتر</p>
-          <small>عادة ثابتة وجميلة</small>
+          <p>{t("ins.witr")}</p>
+          <small>{t("ins.witrS")}</small>
         </article>
         <article>
           <span>{metrics.pages}</span>
-          <p>صفحة قرآن</p>
-          <small>مجموع الفترة</small>
+          <p>{t("ins.pages")}</p>
+          <small>{t("ins.pagesS")}</small>
         </article>
         <article>
           <span>🔥 {metrics.streak}</span>
-          <p>سلسلة الالتزام</p>
-          <small>يومًا متتاليًا</small>
+          <p>{t("ins.streak")}</p>
+          <small>{t("ins.streakS")}</small>
         </article>
       </div>
       <div className="brief-card">
-        <p className="eyebrow">مدربك الخاص ✦</p>
+        <p className="eyebrow">{t("ins.coach")}</p>
         {brief.risks.length === 0 &&
         brief.neglect.length === 0 &&
         !brief.pace &&
         !brief.topLift &&
         !brief.praise ? (
-          <p>سجّل أيامًا أكثر ليبدأ التحليل الخبير — نحتاج ١٤ يومًا على الأقل.</p>
+          <p>{t("ins.warm")}</p>
         ) : (
           <ul>
             {brief.risks.map((r) => (
               <li key={r.id}>
-                🛡 <b>{r.title}</b> معرّض الليلة — {r.reason}
+                🛡 <b>{r.title}</b> {t("br.risk")} — {r.reason}
               </li>
             ))}
             {brief.neglect.map((n) => (
               <li key={n.id}>
-                📉 <b>{n.title}</b> فاتك {n.miss} أيام متتالية
+                📉 <b>{n.title}</b> {t("br.neglect", { n: n.miss })}
               </li>
             ))}
             {brief.pace && (
               <li>
-                🐢 سرعة القرآن نزلت {brief.pace.dropPct}٪ عن معتادك ({brief.pace.now.toFixed(1)}{" "}
-                مقابل {brief.pace.prev.toFixed(1)} صفحة/يوم)
+                🐢{" "}
+                {t("br.pace", {
+                  d: brief.pace.dropPct,
+                  n: brief.pace.now.toFixed(1),
+                  p: brief.pace.prev.toFixed(1),
+                })}
               </li>
             )}
             {brief.topLift && (
               <li>
-                💪 أيام <b>{brief.topLift.title}</b> ترفع بقية يومك +{brief.topLift.lift.toFixed(1)}{" "}
-                — احمِ هذه أولًا
+                💪 {t("br.liftA")} <b>{brief.topLift.title}</b>{" "}
+                {t("br.liftB", { n: brief.topLift.lift.toFixed(1) })} — {t("br.protect")}
               </li>
             )}
             {brief.praise && <li>🌟 {brief.praise}</li>}
@@ -207,13 +208,11 @@ export default function InsightsPage() {
       <div className="insight-grid">
         <article className="weekly-chart">
           <div>
-            <p className="eyebrow">نظرة على الفترة</p>
-            <h2>إنجازك اليومي</h2>
+            <p className="eyebrow">{t("ins.chartE")}</p>
+            <h2>{t("ins.chartT")}</h2>
           </div>
           <div className="chart">
-            {bars.length === 0 && (
-              <p className="chart-caption">لا بيانات بعد — ابدأ التسجيل اليوم.</p>
-            )}
+            {bars.length === 0 && <p className="chart-caption">{t("ins.chartEmpty")}</p>}
             {bars.map((b, i) => (
               <div key={i}>
                 <i style={{ height: `${Math.max(4, b.pct)}%` }} />
@@ -223,13 +222,13 @@ export default function InsightsPage() {
           </div>
         </article>
         <article className="soft-insight radar-card">
-          <p className="eyebrow">توازن الأسبوع</p>
-          <h2>أين يقف كل باب؟</h2>
+          <p className="eyebrow">{t("ins.radarE")}</p>
+          <h2>{t("ins.radarT")}</h2>
           <Radar values={balance} />
         </article>
       </div>
       <div className="badge-row">
-        <p>آخر ٣٠ يومًا</p>
+        <p>{t("ins.stripT")}</p>
         <div className="day-strip">
           {strip.map((d) => {
             const pct =

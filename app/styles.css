@@ -1,13 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=DM+Sans:wght@500;600;700&display=swap");
 
-:root {
-  --ink: #172422;
-  --muted: #7c8986;
-  --line: #e9eeeb;
-  --green: #14725d;
-  --cream: #f8faf7;
-  --mint: #e8f5ef;
-}
+/* Design tokens live in tokens.css (:root + [data-theme] overrides). */
 
 * {
   box-sizing: border-box;
@@ -15,7 +8,7 @@
 
 body {
   margin: 0;
-  background: #fbfcfa;
+  background: var(--bg);
   color: var(--ink);
   font-family: Alexandria, Arial, sans-serif;
   font-size: 13px;
@@ -28,7 +21,7 @@ main {
 
 /* Sidebar */
 .sidebar {
-  background: #fff;
+  background: var(--surface);
   border-left: 1px solid var(--line);
   width: 248px;
   padding: 29px 17px;
@@ -52,7 +45,7 @@ main {
   width: 34px;
   height: 34px;
   border-radius: 12px;
-  background: var(--green);
+  background: var(--brand);
   color: #fff;
   display: grid;
   place-items: center;
@@ -67,7 +60,7 @@ main {
 .nav-item {
   border: 0;
   background: transparent;
-  color: #6f7d79;
+  color: var(--muted);
   font: inherit;
   font-weight: 600;
   padding: 13px 15px;
@@ -82,7 +75,7 @@ main {
 }
 
 .nav-item:hover {
-  background: #f5f8f6;
+  background: var(--brand-soft);
 }
 
 .nav-item span {
@@ -92,8 +85,8 @@ main {
 }
 
 .nav-item.active {
-  background: #e9f5ef;
-  color: #146a58;
+  background: var(--brand-soft);
+  color: var(--brand);
 }
 
 .sidebar-bottom {
@@ -101,8 +94,8 @@ main {
 }
 
 .streak-small {
-  background: #fff8e9;
-  border: 1px solid #ffebbd;
+  background: var(--gold-soft);
+  border: 1px solid var(--line);
   border-radius: 13px;
   padding: 12px;
   display: flex;
@@ -128,7 +121,7 @@ main {
 .streak-small small,
 .profile small {
   font-size: 9px;
-  color: #8d8270;
+  color: var(--muted);
   margin-top: 4px;
 }
 
@@ -138,7 +131,7 @@ main {
   border-left: 0;
   border-right: 0;
   padding: 16px 4px 0;
-  background: #fff;
+  background: var(--surface);
   width: 100%;
   text-align: right;
   display: flex;
@@ -152,7 +145,7 @@ main {
 
 .profile > span {
   background: #ead8bf;
-  color: #835e36;
+  color: var(--gold-deep);
   width: 31px;
   height: 31px;
   border-radius: 50%;
@@ -169,7 +162,7 @@ main {
 .profile i {
   font-style: normal;
   margin-right: auto;
-  color: #97a39f;
+  color: var(--faint);
 }
 
 /* Content Area */
@@ -188,7 +181,7 @@ header {
 }
 
 .eyebrow {
-  color: #87938f;
+  color: var(--faint);
   font-size: 10px;
   font-weight: 700;
   margin: 0 0 8px;
@@ -212,11 +205,11 @@ h1 span {
 
 .date-button,
 .filter {
-  border: 1px solid #e2e9e4;
+  border: 1px solid var(--line);
   border-radius: 10px;
-  background: #fff;
+  background: var(--surface);
   padding: 11px 13px;
-  color: #50605a;
+  color: var(--muted);
   font: inherit;
   font-size: 11px;
   display: flex;
@@ -229,13 +222,13 @@ h1 span {
 
 .date-button:hover,
 .filter:hover {
-  border-color: #cbd5d0;
+  border-color: var(--line);
   background: #fcfdfc;
 }
 
 .date-button span {
   font-weight: 700;
-  color: #253832;
+  color: var(--brand-ink);
 }
 
 /* Hero Section */
@@ -400,7 +393,7 @@ h1 span {
 }
 
 .card {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 16px 16px 13px;
@@ -420,7 +413,7 @@ h1 span {
   align-items: center;
   gap: 10px;
   padding-bottom: 13px;
-  border-bottom: 1px solid #eef1ef;
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .prayer-icon {
@@ -476,8 +469,8 @@ h1 span {
 .card-count {
   margin-right: auto;
   border-radius: 12px;
-  color: #6e8279;
-  background: #f0f6f3;
+  color: var(--muted);
+  background: var(--line-soft);
   padding: 4px 7px;
   font: 600 9px "DM Sans";
 }
@@ -502,13 +495,13 @@ h1 span {
 }
 
 .habit:hover {
-  background: #f8fbf9;
+  background: var(--brand-soft);
 }
 
 .check {
   width: 17px;
   height: 17px;
-  border: 1.5px solid #c5d0ca;
+  border: 1.5px solid var(--line);
   border-radius: 6px;
   display: grid;
   place-items: center;
@@ -539,17 +532,17 @@ h1 span {
 
 .habit-text small {
   font-size: 8px;
-  color: #8c9893;
+  color: var(--muted);
 }
 
 .points {
   font: 600 9px "DM Sans";
-  color: #b08b37;
+  color: var(--gold);
 }
 
 .habit em {
   font-style: normal;
-  color: #aab6b1;
+  color: var(--faint);
   border: 1px solid #e3eae6;
   border-radius: 50%;
   width: 14px;
@@ -565,7 +558,7 @@ h1 span {
 
 .spark {
   font-size: 22px;
-  color: #d8a13e;
+  color: var(--gold);
 }
 
 .extra-grid {
@@ -576,8 +569,8 @@ h1 span {
 
 .extra {
   font-family: inherit;
-  background: #fff;
-  border: 1px solid #e6ece8;
+  background: var(--surface);
+  border: 1px solid var(--line);
   border-radius: 13px;
   padding: 13px;
   text-align: right;
@@ -591,7 +584,7 @@ h1 span {
 
 .extra:hover {
   border-color: #9ecdbc;
-  background: #f9fbf9;
+  background: var(--brand-soft);
 }
 
 .extra-check {
@@ -599,7 +592,7 @@ h1 span {
   height: 25px;
   border-radius: 8px;
   background: #f1f7f4;
-  color: #498b75;
+  color: var(--brand-ink);
   display: grid;
   place-items: center;
   font-weight: 700;
@@ -607,7 +600,7 @@ h1 span {
 }
 
 .extra.done {
-  background: #f4fbf7;
+  background: var(--brand-soft);
   border-color: #b7ddcb;
 }
 
@@ -631,13 +624,13 @@ h1 span {
 
 .extra small {
   font-size: 8px;
-  color: #899692;
+  color: var(--muted);
   margin-top: 4px;
 }
 
 .extra > span:last-child {
   font: 600 9px "DM Sans";
-  color: #b08b37;
+  color: var(--gold);
 }
 
 /* Adhkar Section */
@@ -663,7 +656,7 @@ h1 span {
   height: 42px;
   border-radius: 13px;
   background: #d9ede1;
-  color: #14725d;
+  color: var(--brand);
   font-size: 23px;
   display: grid;
   place-items: center;
@@ -676,7 +669,7 @@ h1 span {
 
 .adhkar p:not(.eyebrow) {
   font-size: 10px;
-  color: #71817a;
+  color: var(--muted);
   margin: 0;
 }
 
@@ -690,18 +683,18 @@ h1 span {
 .tag {
   font: inherit;
   font-size: 9px;
-  background: #fff;
-  border: 1px solid #dce8e0;
+  background: var(--surface);
+  border: 1px solid var(--line);
   padding: 7px 9px;
   border-radius: 7px;
-  color: #52645d;
+  color: var(--muted);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .tag:hover {
-  background: #f5f8f6;
-  border-color: #c9d6cf;
+  background: var(--brand-soft);
+  border-color: var(--line);
 }
 
 .tag.tagged {
@@ -712,7 +705,7 @@ h1 span {
 
 footer {
   text-align: center;
-  color: #82918b;
+  color: var(--muted);
   font-size: 10px;
   padding: 40px 0 4px;
 }
@@ -768,5 +761,133 @@ footer {
   }
   h1 {
     font-size: 22px;
+  }
+}
+
+/* LTR (English) layout mirrors */
+[dir="ltr"] .sidebar {
+  border-left: 0;
+  border-right: 1px solid var(--line);
+  inset: 0 auto 0 0;
+}
+
+[dir="ltr"] .content {
+  margin-right: 0;
+  margin-left: 248px;
+}
+
+[dir="ltr"] .nav-item,
+[dir="ltr"] .profile,
+[dir="ltr"] .habit,
+[dir="ltr"] .extra,
+[dir="ltr"] .tag,
+[dir="ltr"] .date-button {
+  text-align: left;
+}
+
+[dir="ltr"] .profile i,
+[dir="ltr"] .card-count,
+[dir="ltr"] .account-list i {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+[dir="ltr"] .next-prayer button {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+[dir="ltr"] .calendar {
+  direction: ltr;
+}
+
+[dir="ltr"] .hero-ring {
+  left: auto;
+  right: 120px;
+}
+
+[dir="ltr"] .hero-deco {
+  left: auto;
+  right: 66px;
+}
+
+[dir="ltr"] .hero:before {
+  left: auto;
+  right: -50px;
+}
+
+@media (max-width: 1100px) {
+  [dir="ltr"] .hero-ring {
+    right: 45px;
+  }
+}
+
+@media (max-width: 750px) {
+  [dir="ltr"] .content {
+    margin: 0;
+  }
+}
+
+/* Motion language: calm entrances, press feedback, visible focus */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .destination-view > *,
+  .content > header {
+    animation: rise var(--dur-3) var(--ease-out) both;
+  }
+  .destination-view > *:nth-child(2),
+  .content > section:nth-of-type(2) {
+    animation-delay: 0.05s;
+  }
+  .destination-view > *:nth-child(3) {
+    animation-delay: 0.1s;
+  }
+  button:active {
+    transform: scale(0.98);
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* Print: monthly/weekly report cards */
+@media print {
+  .sidebar,
+  .bottom-nav,
+  .zikr-fab,
+  .zikr-popover,
+  .quick-tools,
+  .mode-bar,
+  .header-actions {
+    display: none !important;
+  }
+  .content {
+    margin: 0;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+  }
+  body {
+    background: var(--surface);
+    color: #000;
+  }
+  .hero,
+  .night-copy,
+  .focus-card,
+  .counter-feature,
+  .brief-card {
+    break-inside: avoid;
   }
 }

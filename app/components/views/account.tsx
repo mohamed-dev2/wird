@@ -11,9 +11,54 @@ import {
 import { DEFAULT_REMINDERS, ensurePermission, fireNotification } from "../../lib/notify";
 import { PRAYER_AR, PRAYER_ORDER, type PrayerTimes } from "../../lib/prayer";
 import { useStoredState } from "../../lib/use-stored-state";
+import { useT } from "../../lib/i18n";
+import { useWird } from "../wird-store";
+
+function AppearanceCard() {
+  const t = useT();
+  const { theme, setTheme, lang, setLang } = useWird();
+  return (
+    <article className="new-day">
+      <span>🎨</span>
+      <div>
+        <b>{t("ap.t")}</b>
+        <p>
+          {lang === "ar" ? "اختر مظهرك ولغتك — تُحفظ على جهازك." : "Pick your theme and language."}
+        </p>
+        <div className="backup-actions">
+          {(
+            [
+              ["light", t("ap.light")],
+              ["dark", t("ap.dark")],
+              ["oled", t("ap.oled")],
+            ] as const
+          ).map(([v, label]) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setTheme(v)}
+              aria-pressed={theme === v}
+              className={theme === v ? "selected" : ""}
+            >
+              {label}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setLang(lang === "ar" ? "en" : "ar")}
+            aria-pressed={lang === "en"}
+          >
+            {lang === "ar" ? "English" : "العربية"}
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
 
 export function AccountView({ onReset }: { onReset: () => void }) {
   const [backupMsg, setBackupMsg] = useState("");
+  const t = useT();
   const [reminders, setReminders] = useStoredState("wird-reminders-v1", DEFAULT_REMINDERS);
   const [prayerTimes, setPrayerTimes] = useStoredState<PrayerTimes>("wird-prayer-times-v1", {});
   const [remindMsg, setRemindMsg] = useState("");
@@ -30,20 +75,20 @@ export function AccountView({ onReset }: { onReset: () => void }) {
     try {
       const data = collectBackup();
       downloadFile(`wird-backup-${stamp()}.json`, JSON.stringify({ v: 1, plain: true, data }));
-      setBackupMsg(`تم التصدير (${Object.keys(data).length} عنصرًا). احفظ الملف في مكان آمن.`);
+      setBackupMsg(t("bk.count", { n: Object.keys(data).length }));
     } catch {
-      setBackupMsg("تعذر التصدير. تحقق من مساحة التخزين.");
+      setBackupMsg(t("bk.fail"));
     }
   };
   const onExportEnc = async () => {
-    const pass = askPass("كلمة سر التشفير (احفظها — لا يمكن الاستعادة بدونها):");
+    const pass = askPass(t("bk.passAsk"));
     if (!pass) return;
     try {
       const payload = await encryptBackup(pass, collectBackup());
       downloadFile(`wird-backup-enc-${stamp()}.json`, payload);
-      setBackupMsg("تم تصدير نسخة مشفرة (AES-GCM).");
+      setBackupMsg(t("bk.okEnc"));
     } catch {
-      setBackupMsg("تعذر التشفير على هذا المتصفح.");
+      setBackupMsg(t("bk.noenc"));
     }
   };
   const onImportFile = async (f: File | undefined) => {
@@ -52,26 +97,26 @@ export function AccountView({ onReset }: { onReset: () => void }) {
       const text = await f.text();
       let data: unknown = JSON.parse(text);
       if (data && typeof data === "object" && "enc" in (data as Record<string, unknown>)) {
-        const pass = askPass("كلمة سر النسخة المشفرة:");
+        const pass = askPass(t("bk.impAsk"));
         if (!pass) return;
         data = await decryptBackup(pass, text);
       } else if (data && typeof data === "object" && "data" in (data as Record<string, unknown>)) {
         data = (data as { data: unknown }).data;
       }
       const n = restoreBackup(data);
-      setBackupMsg(`تمت الاستعادة (${n} عنصرًا). حدّث الصفحة لرؤية بياناتك.`);
+      setBackupMsg(t("bk.restored", { n }));
     } catch {
-      setBackupMsg("ملف غير صالح أو كلمة سر خاطئة.");
+      setBackupMsg(t("bk.bad"));
     }
   };
   const onWipe = () => {
     try {
-      if (!window.confirm("مسح كل بيانات ورد من هذا الجهاز نهائيًا؟")) return;
+      if (!window.confirm(t("bk.wipeAsk"))) return;
       const data = collectBackup();
       for (const k of Object.keys(data)) localStorage.removeItem(k);
-      setBackupMsg("مُسحت كل البيانات. حدّث الصفحة للبدء من جديد.");
+      setBackupMsg(t("bk.wiped"));
     } catch {
-      setBackupMsg("تعذر المسح.");
+      setBackupMsg(t("bk.wipeFail"));
     }
   };
   return (
@@ -79,19 +124,13 @@ export function AccountView({ onReset }: { onReset: () => void }) {
       <div className="profile-hero">
         <span>م</span>
         <div>
-          <p className="eyebrow">حسابي</p>
+          <p className="eyebrow">{t("ac.account")}</p>
           <h2>محمد عبدالله</h2>
-          <p>الحمدلله دائمًا</p>
+          <p>{t("side.profileSub")}</p>
         </div>
       </div>
       <div className="account-list">
-        {[
-          "نيّتي لهذا الأسبوع",
-          "تخصيص عباداتي",
-          "وضع قيام الليل",
-          "تذكيرات رحيمة",
-          "خصوصيتي وبياناتي",
-        ].map((item, i) => (
+        {["ac.niyyah", "ac.customize", "ac.qiyam", "ac.remind", "ac.privacy"].map((item, i) => (
           <button type="button" key={item}>
             <span>{["♡", "☷", "☾", "◌", "⌘"][i]}</span>
             {item}
@@ -102,30 +141,30 @@ export function AccountView({ onReset }: { onReset: () => void }) {
       <article className="new-day">
         <span>☀</span>
         <div>
-          <b>يوم جديد، بداية جديدة</b>
-          <p>يمكنك بدء صفحة جديدة بلطف متى احتجت.</p>
+          <b>{t("ac.newdayT")}</b>
+          <p>{t("ac.newdayS")}</p>
         </div>
         <button type="button" onClick={onReset}>
-          يوم جديد
+          {t("ac.newdayB")}
         </button>
       </article>
       <article className="new-day backup-card">
         <span>🛡</span>
         <div>
-          <b>النسخ الاحتياطي والخصوصية</b>
+          <b>{t("bk.t")}</b>
           <p>بياناتك على جهازك فقط — لا خوادم ولا حسابات. صدّر نسخة مشفرة أو استعدها متى شئت.</p>
           <div className="backup-actions">
             <button type="button" onClick={onExportEnc}>
-              تصدير مشفر
+              {t("bk.enc")}
             </button>
             <button type="button" onClick={onExportPlain}>
-              تصدير عادي
+              {t("bk.plain")}
             </button>
             <button type="button" onClick={() => fileRef.current?.click()}>
-              استيراد
+              {t("bk.imp")}
             </button>
             <button type="button" className="danger" onClick={onWipe}>
-              مسح الكل
+              {t("bk.wipe")}
             </button>
           </div>
           {backupMsg && <p className="backup-msg">{backupMsg}</p>}
@@ -144,8 +183,8 @@ export function AccountView({ onReset }: { onReset: () => void }) {
       <article className="new-day">
         <span>⏰</span>
         <div>
-          <b>التذكيرات المحلية</b>
-          <p>تعمل على جهازك فقط — بلا خوادم. تُكتم تلقائيًا في وضع المسجد.</p>
+          <b>{t("rm.t")}</b>
+          <p>{t("rm.s")}</p>
           <div className="backup-actions">
             <button
               type="button"
@@ -153,10 +192,10 @@ export function AccountView({ onReset }: { onReset: () => void }) {
               aria-pressed={reminders.enabled}
               className={reminders.enabled ? "selected" : ""}
             >
-              {reminders.enabled ? "✓ مفعّلة" : "تفعيل"}
+              {reminders.enabled ? t("rm.on") : t("rm.off")}
             </button>
             <label className="time-label">
-              الحصاد
+              {t("rm.bed")}
               <input
                 type="time"
                 value={reminders.bedtime}
@@ -165,15 +204,19 @@ export function AccountView({ onReset }: { onReset: () => void }) {
                 }
               />
             </label>
-            {(["gentle", "balanced", "strict"] as const).map((t) => (
+            {(["gentle", "balanced", "strict"] as const).map((tone) => (
               <button
-                key={t}
+                key={tone}
                 type="button"
-                onClick={() => setReminders((r) => ({ ...r, tone: t }))}
-                aria-pressed={reminders.tone === t}
-                className={reminders.tone === t ? "selected" : ""}
+                onClick={() => setReminders((r) => ({ ...r, tone }))}
+                aria-pressed={reminders.tone === tone}
+                className={reminders.tone === tone ? "selected" : ""}
               >
-                {t === "gentle" ? "لطيف" : t === "balanced" ? "متوازن" : "صارم"}
+                {tone === "gentle"
+                  ? t("rm.gentle")
+                  : tone === "balanced"
+                    ? t("rm.bal")
+                    : t("rm.strict")}
               </button>
             ))}
             <button
@@ -181,25 +224,26 @@ export function AccountView({ onReset }: { onReset: () => void }) {
               onClick={() => {
                 void ensurePermission().then((ok) => {
                   if (ok) {
-                    fireNotification("تجربة ناجحة 🔔", "هكذا ستصلك تذكيرات وردك.");
-                    setRemindMsg("أُرسل إشعار تجريبي.");
+                    fireNotification(t("rm.testT"), t("rm.testB"));
+                    setRemindMsg(t("rm.sent"));
                   } else {
-                    setRemindMsg("فعّل إذن الإشعارات من المتصفح أولًا.");
+                    setRemindMsg(t("rm.noperm"));
                   }
                 });
               }}
             >
-              تجربة
+              {t("rm.test")}
             </button>
           </div>
           {remindMsg && <p className="backup-msg">{remindMsg}</p>}
         </div>
       </article>
+      <AppearanceCard />
       <article className="new-day">
         <span>🕌</span>
         <div>
-          <b>مواقيت الصلاة (يدوي)</b>
-          <p>تُستخدم للعد التنازلي وترتيب البطاقات الذكي. اتركها فارغة للوضع الحالي.</p>
+          <b>{t("pt.t")}</b>
+          <p>{t("pt.s")}</p>
           <div className="prayer-times-grid">
             {PRAYER_ORDER.map((p) => (
               <label key={p} className="time-label">

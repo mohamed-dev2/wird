@@ -11,8 +11,10 @@ import {
   type Ayah,
 } from "../../lib/quran";
 import { useStoredState } from "../../lib/use-stored-state";
+import { useT } from "../../lib/i18n";
 
 export function QuranReader() {
+  const t = useT();
   const [ayahs, setAyahs] = useState<Ayah[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [surah, setSurah] = useState(1);
@@ -64,14 +66,14 @@ export function QuranReader() {
   if (failed)
     return (
       <article className="lib-card">
-        <h3>تعذر تحميل المصحف</h3>
-        <p>تحقق من الاتصال أول مرة — يُحفظ بعدها للاستعمال دون إنترنت.</p>
+        <h3>{t("qr.failT")}</h3>
+        <p>{t("qr.failS")}</p>
         <button type="button" onClick={() => window.location.reload()}>
-          إعادة المحاولة
+          {t("qr.retry")}
         </button>
       </article>
     );
-  if (!ayahs) return <p className="chart-caption">جارٍ فتح المصحف…</p>;
+  if (!ayahs) return <p className="chart-caption">{t("qr.loading")}</p>;
 
   return (
     <div className="quran-reader">
@@ -79,21 +81,21 @@ export function QuranReader() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="ابحث في الآيات أو السور…"
-          aria-label="البحث في القرآن"
+          placeholder={t("qr.search")}
+          aria-label={t("qr.searchAria")}
         />
         <div className="font-ctl">
           <button
             type="button"
             onClick={() => setFontSize((f) => Math.max(14, f - 2))}
-            aria-label="تصغير الخط"
+            aria-label={t("qr.fontDown")}
           >
             −
           </button>
           <button
             type="button"
             onClick={() => setFontSize((f) => Math.min(28, f + 2))}
-            aria-label="تكبير الخط"
+            aria-label={t("qr.fontUp")}
           >
             +
           </button>
@@ -117,7 +119,7 @@ export function QuranReader() {
               ))}
             </div>
           )}
-          {results.length === 0 && <p className="chart-caption">لا نتائج — جرّب كلمة أخرى.</p>}
+          {results.length === 0 && <p className="chart-caption">{t("qr.noRes")}</p>}
           {results.map((a) => (
             <button
               key={ayahKey(a.surah, a.ayah)}
@@ -142,7 +144,7 @@ export function QuranReader() {
             <select
               value={surah}
               onChange={(e) => setSurah(Number(e.target.value))}
-              aria-label="اختر السورة"
+              aria-label={t("qr.surahAria")}
             >
               {SURAH_NAMES.map((n, i) => (
                 <option key={i + 1} value={i + 1}>
@@ -151,8 +153,8 @@ export function QuranReader() {
               ))}
             </select>
             <span className="lib-hint">
-              علامتك: {SURAH_NAMES[(bookmark.surah ?? 1) - 1]} · {bookmark.ayah ?? 1} · محفوظ:{" "}
-              {memorized.length}
+              {t("qr.markLine")}: {SURAH_NAMES[(bookmark.surah ?? 1) - 1]} · {bookmark.ayah ?? 1} ·{" "}
+              {memorized.length} {t("qr.memCount")}
             </span>
           </div>
           <article className="mushaf" style={{ fontSize }}>
@@ -171,7 +173,7 @@ export function QuranReader() {
                     <button
                       type="button"
                       onClick={() => setBookmark({ surah: a.surah, ayah: a.ayah })}
-                      aria-label="علّم هنا"
+                      aria-label={t("qr.mark")}
                     >
                       🔖
                     </button>
@@ -179,7 +181,7 @@ export function QuranReader() {
                       type="button"
                       onClick={() => toggleMem(key)}
                       aria-pressed={memorized.includes(key)}
-                      aria-label="حفظ"
+                      aria-label={t("qr.mem")}
                     >
                       {memorized.includes(key) ? "★" : "☆"}
                     </button>

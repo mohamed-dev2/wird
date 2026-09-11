@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "../lib/i18n";
 import { useStoredState } from "../lib/use-stored-state";
 import { AdhkarView } from "../components/views/adhkar";
 import { DreamsBoard, type Dream } from "../components/library/dreams-board";
@@ -9,31 +10,32 @@ import { PathsList } from "../components/library/paths-list";
 import { QuranReader } from "../components/library/quran-reader";
 
 const TABS = [
-  { id: "adhkar", label: "الأذكار" },
-  { id: "quran", label: "القرآن" },
-  { id: "hadith", label: "الحديث" },
-  { id: "paths", label: "مسارات العلم" },
-  { id: "dreams", label: "الأحلام" },
+  { id: "adhkar", labelKey: "lb.adhkar" },
+  { id: "quran", labelKey: "lb.quran" },
+  { id: "hadith", labelKey: "lb.hadith" },
+  { id: "paths", labelKey: "lb.paths" },
+  { id: "dreams", labelKey: "lb.dreams" },
 ] as const;
 
 type Tab = (typeof TABS)[number]["id"];
 
 export default function LibraryPage() {
+  const t = useT();
   const [tab, setTab] = useState<Tab>("adhkar");
   const [dreams, setDreams] = useStoredState<Dream[]>("wird-dreams-v1", []);
 
   return (
     <section className="destination-view">
       <div className="book-chips lib-tabs">
-        {TABS.map((t) => (
+        {TABS.map((tb) => (
           <button
-            key={t.id}
+            key={tb.id}
             type="button"
-            onClick={() => setTab(t.id)}
-            aria-pressed={tab === t.id}
-            className={tab === t.id ? "selected" : ""}
+            onClick={() => setTab(tb.id)}
+            aria-pressed={tab === tb.id}
+            className={tab === tb.id ? "selected" : ""}
           >
-            {t.label}
+            {t(tb.labelKey)}
           </button>
         ))}
       </div>

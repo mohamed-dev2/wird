@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { dayId, QURAN_GOAL_PAGES } from "../lib/wird";
+import { useT } from "../lib/i18n";
 import { useWird } from "../components/wird-store";
 
 type Status = "done" | "partial" | "missed";
@@ -15,22 +16,25 @@ type SavedReview = {
 };
 
 const REVIEW_ONLY = [
-  { id: "rev-anger", title: "ملكت غضبي اليوم", weight: 2 },
-  { id: "rev-backbite", title: "حفظت لساني من الغيبة", weight: 2 },
-  { id: "rev-parents", title: "بررت والديّ (اتصال/زيارة/دعاء)", weight: 2 },
-  { id: "rev-honesty", title: "صدقت في عملي وكلامي", weight: 2 },
-  { id: "rev-kindness", title: "فعلت إحسانًا (صدقة/مساعدة)", weight: 2 },
-  { id: "rev-sleep", title: "نمت مبكرًا بنية الفجر", weight: 2 },
+  { id: "rev-anger", key: "rv.r1", weight: 2 },
+  { id: "rev-backbite", key: "rv.r2", weight: 2 },
+  { id: "rev-parents", key: "rv.r3", weight: 2 },
+  { id: "rev-honesty", key: "rv.r4", weight: 2 },
+  { id: "rev-kindness", key: "rv.r5", weight: 2 },
+  { id: "rev-sleep", key: "rv.r6", weight: 2 },
 ];
 
 const MOODS = [
-  { id: "good", icon: "😊", label: "مشرق" },
-  { id: "ok", icon: "😐", label: "عادي" },
-  { id: "low", icon: "😞", label: "متعب" },
+  { id: "good", icon: "😊", key: "rv.mGood" },
+  { id: "ok", icon: "😐", key: "rv.mOk" },
+  { id: "low", icon: "😞", key: "rv.mLow" },
 ] as const;
 
-const STATUS_LABEL: Record<Status, string> = { done: "✓ تم", partial: "◐ جزئي", missed: "○ فات" };
 const NEXT_STATUS: Record<Status, Status> = { missed: "done", done: "partial", partial: "missed" };
+
+function statusLabel(t: (k: string) => string, s: Status): string {
+  return s === "done" ? t("rv.stDone") : s === "partial" ? t("rv.stPart") : t("rv.stMiss");
+}
 
 function loadReviews(): Record<string, SavedReview> {
   try {
@@ -44,6 +48,7 @@ function loadReviews(): Record<string, SavedReview> {
 }
 
 export default function ReviewPage() {
+  const t = useT();
   const { done, quranPages, fastType, tasbeeh, allHabits, saveReview } = useWird();
   const todayId = useMemo(() => dayId(), []);
   const [statuses, setStatuses] = useState<Record<string, Status>>({});
@@ -98,8 +103,9 @@ export default function ReviewPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statuses, done, quranPages, fastType, tasbeeh, allHabits]);
 
-  const grade =
-    score >= 85 ? "يوم مشرق 🌟" : score >= 60 ? "يوم ثابت 🤍" : "يوم متعثر — وغدًا صفحة جديدة 🌱";
+  const grade = score >= 85 ? t("rv.g85") : score >= 60 ? t("rv.g60") : t("rv.gLow");
+  const gradeTitle =
+    loadedScore >= 85 ? t("rv.g85") : loadedScore >= 60 ? t("rv.g60") : t("rv.gLow");
 
   const submit = () => {
     const rec = { items: { ...statuses }, score, mood, gratitude };
@@ -120,16 +126,14 @@ export default function ReviewPage() {
     return (
       <section className="destination-view">
         <div className="view-hero review-done">
-          <p className="eyebrow">حصاد اليوم</p>
-          <h2>
-            {loadedScore >= 85 ? "يوم مشرق 🌟" : loadedScore >= 60 ? "يوم ثابت 🤍" : "تقبل الله 🤲"}
-          </h2>
+          <p className="eyebrow">{t("rv.heroE")}</p>
+          <h2>{gradeTitle}</h2>
           <p>
-            درجتك {loadedScore}٪ — {earned} نقطة. {grade}
+            {t("rv.score")} {loadedScore}٪ — {earned} {t("rv.pts")}. {grade}
           </p>
           <div className="review-actions">
             <button type="button" onClick={() => setSubmitted(false)}>
-              مراجعة اليوم مرة أخرى
+              {t("rv.edit")}
             </button>
           </div>
         </div>
@@ -146,19 +150,19 @@ export default function ReviewPage() {
     })),
     {
       id: "review-pages",
-      title: "ورد القرآن",
-      detail: `${quranPages} من ${QURAN_GOAL_PAGES} صفحة`,
+      title: t("rv.pagesT"),
+      detail: t("rv.pagesD", { p: quranPages, g: QURAN_GOAL_PAGES }),
       fallback: pagesStatus,
     },
     {
       id: "review-fast",
-      title: "الصيام",
-      detail: fastType ?? "لست صائمًا",
+      title: t("rv.fastT"),
+      detail: fastType ? t("rv.fastOn", { f: fastType }) : t("rv.fastOff"),
       fallback: fastStatus,
     },
     {
       id: "review-tasbeeh",
-      title: "الذكر السريع",
+      title: t("rv.tasT"),
       detail: `${tasbeeh} / ٣٣`,
       fallback: tasbeehStatus,
     },
@@ -167,13 +171,13 @@ export default function ReviewPage() {
   return (
     <section className="destination-view">
       <div className="view-hero">
-        <p className="eyebrow">حصاد اليوم · دقيقة واحدة قبل النوم</p>
-        <h2>ماذا فعلت اليوم؟</h2>
-        <p>كل ما سجلته موجود مسبقًا — أكّد ما تم، وصحح ما فات.</p>
+        <p className="eyebrow">{t("rv.heroE")}</p>
+        <h2>{t("rv.heroT")}</h2>
+        <p>{t("rv.heroS")}</p>
         <div className="review-progress">
           <b>{score}٪</b>
           <span>
-            {earned} من {total} نقطة · {grade}
+            {earned} {t("quran.of")} {total} {t("rv.pts")} · {grade}
           </span>
         </div>
       </div>
@@ -195,15 +199,15 @@ export default function ReviewPage() {
                 <b>{row.title}</b>
                 <small>{row.detail}</small>
               </span>
-              <em>{STATUS_LABEL[s]}</em>
+              <em>{statusLabel(t, s)}</em>
             </button>
           );
         })}
       </div>
       <div className="section-heading">
         <div>
-          <p className="eyebrow">مراجعة القلب</p>
-          <h2>كيف عشت يومك؟</h2>
+          <p className="eyebrow">{t("rv.heartE")}</p>
+          <h2>{t("rv.heartT")}</h2>
         </div>
       </div>
       <div className="review-list">
@@ -221,9 +225,9 @@ export default function ReviewPage() {
                 {s === "done" ? "✓" : s === "partial" ? "◐" : ""}
               </span>
               <span className="review-text">
-                <b>{r.title}</b>
+                <b>{t(r.key)}</b>
               </span>
-              <em>{STATUS_LABEL[s]}</em>
+              <em>{statusLabel(t, s)}</em>
             </button>
           );
         })}
@@ -238,18 +242,18 @@ export default function ReviewPage() {
               aria-pressed={mood === m.id}
               className={mood === m.id ? "selected" : ""}
             >
-              {m.icon} {m.label}
+              {m.icon} {t(m.key)}
             </button>
           ))}
         </div>
         <textarea
           value={gratitude}
           onChange={(e) => setGratitude(e.target.value)}
-          placeholder="نعمة واحدة تشكر الله عليها اليوم…"
-          aria-label="نعمة اليوم"
+          placeholder={t("rv.gratPh")}
+          aria-label={t("rv.gratAria")}
         />
         <button type="button" className="review-submit" onClick={submit}>
-          اختم يومك 🌙
+          {t("rv.submit")}
         </button>
       </div>
     </section>

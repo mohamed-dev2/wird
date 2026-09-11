@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useT } from "../../lib/i18n";
+import { useWird } from "../wird-store";
 
 export function CalendarView({
   fridayAdded,
@@ -9,30 +11,57 @@ export function CalendarView({
   fridayAdded: boolean;
   onFridayAdd: () => void;
 }) {
+  const t = useT();
+  const { lang } = useWird();
   const [calDay, setCalDay] = useState<number | null>(null);
   const dates = Array.from({ length: 30 }, (_, i) => i + 1);
+  const now = new Date();
+  const hijriHead = (() => {
+    try {
+      return new Intl.DateTimeFormat(lang === "ar" ? "ar-SA-u-ca-islamic" : "en-u-ca-islamic", {
+        month: "long",
+        year: "numeric",
+      }).format(now);
+    } catch {
+      return "";
+    }
+  })();
+  const gregHead = (() => {
+    try {
+      return new Intl.DateTimeFormat(lang === "ar" ? "ar-EG" : "en", {
+        month: "long",
+        year: "numeric",
+      }).format(now);
+    } catch {
+      return "";
+    }
+  })();
   return (
     <section className="destination-view">
       <div className="calendar-heading">
         <div>
-          <p className="eyebrow">ربيع الأول ١٤٤٨ هـ</p>
-          <h2>تقويم رحلتك الهادئة</h2>
-          <p>اضغط على أي يوم لتتذكر ما أنجزته فيه.</p>
+          <p className="eyebrow" suppressHydrationWarning>
+            {hijriHead}
+          </p>
+          <h2>{t("cal.title")}</h2>
+          <p>{t("cal.sub")}</p>
         </div>
-        <button type="button">‹ سبتمبر ٢٠٢٦ ›</button>
+        <button type="button" suppressHydrationWarning>
+          ‹ {gregHead} ›
+        </button>
       </div>
       <div className="calendar-legend">
         <span>
-          <i className="excellent" /> إنجاز ممتاز
+          <i className="excellent" /> {t("cal.excellent")}
         </span>
         <span>
-          <i className="good" /> إنجاز جيد
+          <i className="good" /> {t("cal.good")}
         </span>
         <span>
-          <i className="partial" /> إنجاز جزئي
+          <i className="partial" /> {t("cal.partial")}
         </span>
         <span>
-          <i className="season" /> مناسبة
+          <i className="season" /> {t("cal.season")}
         </span>
       </div>
       <div className="calendar">
@@ -65,22 +94,20 @@ export function CalendarView({
               .join(" ")}
           >
             <strong>{day}</strong>
-            {day === 15 && <small>أيام بيض</small>}
-            {day === 5 && <small>جمعة</small>}
+            {day === 15 && <small>{t("cal.white")}</small>}
+            {day === 5 && <small>{t("cal.friday")}</small>}
           </button>
         ))}
       </div>
-      {calDay != null && (
-        <p className="chart-caption">يوم {calDay}: سجّل وردك من صفحة اليوم، وسيُحفظ تقدمك هنا.</p>
-      )}
+      {calDay != null && <p className="chart-caption">{t("cal.dayNote", { d: calDay })}</p>}
       <article className="calendar-note">
         <span>☾</span>
         <div>
-          <b>الجمعة القادمة</b>
-          <p>سورة الكهف • الصلاة على النبي ﷺ • التبكير للصلاة</p>
+          <b>{t("cal.fridayNote")}</b>
+          <p>{t("cal.fridaySub")}</p>
         </div>
         <button type="button" onClick={onFridayAdd} aria-pressed={fridayAdded}>
-          {fridayAdded ? "✓ أُضيفت للخطة" : "أضف لخطة الجمعة"}
+          {fridayAdded ? t("cal.added") : t("cal.add")}
         </button>
       </article>
     </section>

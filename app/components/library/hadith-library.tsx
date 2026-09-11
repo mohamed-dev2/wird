@@ -4,15 +4,17 @@ import { useMemo, useState } from "react";
 import { HADITH_BOOKS, NAWAWI, type HadithEntry } from "../../lib/data/hadith";
 import { normalizeAr } from "../../lib/quran";
 import { useStoredState } from "../../lib/use-stored-state";
+import { useT } from "../../lib/i18n";
 
 function EntryCard({ entry, fav, onFav }: { entry: HadithEntry; fav: boolean; onFav: () => void }) {
+  const t = useT();
   return (
     <article className="hadith-card">
       <p>{entry.text}</p>
       <div className="hadith-meta">
         <span>{entry.grade}</span>
         <span>{entry.ref}</span>
-        <button type="button" onClick={onFav} aria-pressed={fav} aria-label="مفضلة">
+        <button type="button" onClick={onFav} aria-pressed={fav} aria-label={t("hd.favAria")}>
           {fav ? "★" : "☆"}
         </button>
       </div>
@@ -21,6 +23,7 @@ function EntryCard({ entry, fav, onFav }: { entry: HadithEntry; fav: boolean; on
 }
 
 export function HadithLibrary() {
+  const t = useT();
   const [book, setBook] = useState<string>("nawawi");
   const [query, setQuery] = useState("");
   const [favs, setFavs] = useStoredState<string[]>("wird-hadith-fav-v1", []);
@@ -47,13 +50,13 @@ export function HadithLibrary() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="ابحث في المختارات…"
-          aria-label="البحث في الحديث"
+          placeholder={t("hd.search")}
+          aria-label={t("hd.searchAria")}
         />
       </div>
       {results ? (
         <div className="lib-results">
-          {results.length === 0 && <p className="chart-caption">لا نتائج — جرّب كلمة أخرى.</p>}
+          {results.length === 0 && <p className="chart-caption">{t("hd.noRes")}</p>}
           {results.map((e) => (
             <div key={e.id}>
               <p className="eyebrow">{e.book}</p>
@@ -70,7 +73,7 @@ export function HadithLibrary() {
               aria-pressed={book === "nawawi"}
               className={book === "nawawi" ? "selected" : ""}
             >
-              الأربعون النووية
+              {t("hd.nawawi")}
             </button>
             <button
               type="button"
@@ -94,7 +97,7 @@ export function HadithLibrary() {
           </div>
           {book === "nawawi" && (
             <>
-              <p className="chart-caption">مختارات من الأربعين — جوامع الكلم للحفظ والعمل.</p>
+              <p className="chart-caption">{t("hd.nawawiNote")}</p>
               {NAWAWI.map((e) => (
                 <EntryCard
                   key={e.id}
@@ -107,9 +110,7 @@ export function HadithLibrary() {
           )}
           {book === "fav" && (
             <>
-              {favs.length === 0 && (
-                <p className="chart-caption">لا مفضلات بعد — اضغط ☆ على أي حديث.</p>
-              )}
+              {favs.length === 0 && <p className="chart-caption">{t("hd.favEmpty")}</p>}
               {all
                 .filter((e) => favs.includes(e.id))
                 .map((e) => (
@@ -123,7 +124,7 @@ export function HadithLibrary() {
           {HADITH_BOOKS.filter((b) => b.id === book).map((b) => (
             <div key={b.id}>
               <p className="chart-caption">
-                {b.full} — {b.note}. مختارات مشهورة؛ للنص الكامل راجع النسخ المعتمدة.
+                {b.full} - {b.note}. {t("hd.curated")}
               </p>
               {b.entries.map((e) => (
                 <EntryCard

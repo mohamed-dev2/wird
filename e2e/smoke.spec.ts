@@ -42,3 +42,18 @@ test("routes render: calendar, review, insights, library", async ({ page }) => {
   await page.goto("/library");
   await expect(page.getByRole("button", { name: "القرآن" })).toBeVisible();
 });
+
+test("theme and language persist", async ({ page }) => {
+  await page.goto("/account");
+  await page.getByRole("button", { name: "ليلي", exact: true }).click();
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe("dark");
+  await page.getByRole("button", { name: "English" }).click();
+  await expect.poll(() => page.evaluate(() => document.documentElement.dir)).toBe("ltr");
+  await expect(page.locator("aside.sidebar").getByRole("link", { name: "Today" })).toBeVisible();
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe("dark");
+  await expect.poll(() => page.evaluate(() => document.documentElement.dir)).toBe("ltr");
+  await page.getByRole("button", { name: "Light", exact: true }).click();
+  await page.getByRole("button", { name: "العربية" }).click();
+  await expect.poll(() => page.evaluate(() => document.documentElement.dir)).toBe("rtl");
+});

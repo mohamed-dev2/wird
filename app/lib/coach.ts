@@ -1,3 +1,4 @@
+import type { Lang } from "../components/wird-store";
 import { extras, sections } from "./wird";
 import { adherence, dataStreak, lastNDays, missStreak, type History } from "./history";
 
@@ -77,8 +78,13 @@ export function liftScores(history: History, deeds: Deed[], endDay: string): Lif
 
 export type Risk = { id: string; title: string; reason: string; prob: number };
 
+const WEEKDAYS: Record<Lang, string[]> = {
+  ar: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+  en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+};
+
 /** Same-weekday miss pattern over the last 5 occurrences of this weekday. */
-export function atRisk(history: History, deeds: Deed[], endDay: string): Risk[] {
+export function atRisk(history: History, deeds: Deed[], endDay: string, lang: Lang = "ar"): Risk[] {
   const weekday = new Date(`${endDay}T12:00:00Z`).getUTCDay();
   const out: Risk[] = [];
   for (const d of deeds) {
@@ -96,7 +102,10 @@ export function atRisk(history: History, deeds: Deed[], endDay: string): Risk[] 
       out.push({
         id: d.id,
         title: d.title,
-        reason: `يغيب ${d.title} أيام ${["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"][weekday] ?? ""} (${misses}/${samples})`,
+        reason:
+          lang === "ar"
+            ? `يغيب ${d.title} أيام ${WEEKDAYS.ar[weekday] ?? ""} (${misses}/${samples})`
+            : `Misses ${d.title} on ${WEEKDAYS.en[weekday] ?? ""} (${misses}/${samples})`,
         prob: Math.round((misses / samples) * 100),
       });
     }
@@ -139,8 +148,13 @@ export type Brief = {
   praise: string | null;
 };
 
-export function buildBrief(history: History, deeds: Deed[], endDay: string): Brief {
-  const risks = atRisk(history, deeds, endDay).slice(0, 1);
+export function buildBrief(
+  history: History,
+  deeds: Deed[],
+  endDay: string,
+  lang: Lang = "ar",
+): Brief {
+  const risks = atRisk(history, deeds, endDay, lang).slice(0, 1);
   const neglect = neglectList(history, deeds, endDay).slice(0, 1);
   const pace = quranPace(history, endDay);
   const paceFinding =
@@ -151,6 +165,11 @@ export function buildBrief(history: History, deeds: Deed[], endDay: string): Bri
     .filter((l) => l.samples > 0 && l.lift > 0.5)
     .sort((a, b) => b.lift - a.lift);
   const witrStreak = dataStreak(history, (d) => d.ids.includes("witr"), endDay);
-  const praise = witrStreak >= 7 ? `${witrStreak} ليالٍ متتالية من الوتر — ما شاء الله` : null;
+  const praise =
+    witrStreak >= 7
+      ? lang === "ar"
+        ? `${witrStreak} ليالٍ متتالية من الوتر — ما شاء الله`
+        : `${witrStreak} straight Witr nights — mashaAllah`
+      : null;
   return { risks, neglect, pace: paceFinding, topLift: lifts[0] ?? null, praise };
 }

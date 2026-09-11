@@ -2,31 +2,41 @@
 
 import { useEffect, useState } from "react";
 import { dayId, loadDailyNumber, saveToStorage } from "../../lib/wird";
+import { useT } from "../../lib/i18n";
+
+const GROUPS = [
+  { icon: "☀", titleKey: "ad.g1t", descKey: "ad.g1d" },
+  { icon: "◐", titleKey: "ad.g2t", descKey: "ad.g2d" },
+  { icon: "☾", titleKey: "ad.g3t", descKey: "ad.g3d" },
+  { icon: "⌂", titleKey: "ad.g4t", descKey: "ad.g4d" },
+] as const;
 
 export function AdhkarView() {
-  const [salawat, setSalawat] = useState(() => loadDailyNumber("wird-salawat-v2", 0, dayId()));
+  const t = useT();
+  const [salawat, setSalawat] = useState(0);
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    saveToStorage("wird-salawat-v2", { day: dayId(), value: salawat });
-  }, [salawat]);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-once hydration of stored counter
+    setSalawat(loadDailyNumber("wird-salawat-v2", 0, dayId()));
+    setMounted(true);
+  }, []);
+  useEffect(() => {
+    if (mounted) saveToStorage("wird-salawat-v2", { day: dayId(), value: salawat });
+  }, [mounted, salawat]);
   return (
     <section className="destination-view adhkar-view">
       <div className="view-hero">
-        <p className="eyebrow">أذكار في وقتها</p>
-        <h2>اذكر الله في تفاصيل يومك</h2>
-        <p>اختر ذكرًا يناسب لحظتك، واحفظ ما تحب العودة إليه.</p>
+        <p className="eyebrow">{t("ad.heroE")}</p>
+        <h2>{t("ad.heroT")}</h2>
+        <p>{t("ad.heroS")}</p>
       </div>
       <div className="adhkar-groups">
-        {[
-          ["☀", "الصباح", "ابدأ يومك بسكينة"],
-          ["◐", "بعد الصلاة", "أذكار قصيرة بعد كل فريضة"],
-          ["☾", "المساء والنوم", "اختم يومك بالطمأنينة"],
-          ["⌂", "المواقف اليومية", "سفر، طعام، مسجد، منزل"],
-        ].map(([icon, title, description]) => (
-          <button type="button" key={title}>
+        {GROUPS.map(({ icon, titleKey, descKey }) => (
+          <button type="button" key={titleKey}>
             <span>{icon}</span>
             <div>
-              <b>{title}</b>
-              <small>{description}</small>
+              <b>{t(titleKey)}</b>
+              <small>{t(descKey)}</small>
             </div>
             <i>‹</i>
           </button>
@@ -34,13 +44,13 @@ export function AdhkarView() {
       </div>
       <article className="counter-feature">
         <div>
-          <p className="eyebrow">ورد اليوم</p>
-          <h2>الصلاة على النبي ﷺ</h2>
-          <p>١٠٠ مرة • اجعلها رفيقة يومك</p>
+          <p className="eyebrow">{t("ad.cfE")}</p>
+          <h2>{t("ad.cfT")}</h2>
+          <p>{t("ad.cfS")}</p>
         </div>
         <b>{salawat >= 100 ? "✓" : salawat}</b>
         <button type="button" onClick={() => setSalawat((c) => (c >= 100 ? 0 : c + 1))}>
-          {salawat >= 100 ? "تم الورد · ابدأ من جديد" : "ابدأ العدّاد"}
+          {salawat >= 100 ? t("ad.cfDone") : t("ad.cfGo")}
         </button>
       </article>
     </section>

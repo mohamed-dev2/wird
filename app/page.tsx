@@ -1,6 +1,8 @@
 "use client";
 
 import { useWird } from "./components/wird-store";
+import { modeLabel, MODES, prayerName, useT } from "./lib/i18n";
+import { fastLabel, PRAYER_ID } from "./lib/daymode";
 import { NowView } from "./components/views/now";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
@@ -21,7 +23,7 @@ import {
   ensurePermission,
   fireNotification,
 } from "./lib/notify";
-import { arDuration, nextPrayer, PRAYER_AR } from "./lib/prayer";
+import { arDuration, nextPrayer } from "./lib/prayer";
 import { useStoredState } from "./lib/use-stored-state";
 
 export default function TodayPage() {
@@ -93,13 +95,15 @@ export default function TodayPage() {
     addGoal,
     editIntention,
     cycleFilter,
-    filterLabel,
     passFilter,
+    lang,
+    filter,
     scrollToQuran,
     prayerTimes,
     mosque,
     setMosque,
   } = useWird();
+  const t = useT();
   // ---- M5 local features (hydration-safe stored state) ----
   const [lastSeen] = useStoredState<string | null>("wird-lastseen-v1", null);
   const [reminders] = useStoredState("wird-reminders-v1", DEFAULT_REMINDERS);
@@ -139,7 +143,7 @@ export default function TodayPage() {
       : reminders.tone === "strict"
         ? Math.max(returnStage(absentDays), absentDays >= 3 ? 2 : 0)
         : returnStage(absentDays);
-  const returnVerses = useMemo(() => versesForStage(stage as 0 | 1 | 2 | 3), [stage]);
+  const returnVerses = versesForStage(stage as 0 | 1 | 2 | 3);
 
   useEffect(() => {
     if (!lastSeen || mosque) return;
@@ -179,7 +183,8 @@ export default function TodayPage() {
     return [...sections].sort((a, b) => rank(a.id) - rank(b.id));
   }, [prayerTimes, upcoming]);
 
-  const KID_QUESTS = ["صلاة الفجر", "صفحة قرآن", "٣٣ تسبيحة", "عمل طيب", "نوم مبكر"];
+  const KID_QUESTS = ["q1", "q2", "q3", "q4", "q5"];
+  const INTENT_KEYS = ["job", "craft", "benefit", "learn", "family"];
   const askName = (message: string) => {
     try {
       const v = window.prompt(message)?.trim();
@@ -189,7 +194,7 @@ export default function TodayPage() {
     }
   };
   const addKid = () => {
-    const name = askName("اسم الصغير؟");
+    const name = askName(t("kd.ask"));
     if (name) {
       setKids((cur) => [...cur, { name, checks: {} }]);
       setKidSel(kids.length);
@@ -213,9 +218,9 @@ export default function TodayPage() {
     );
   };
   const addPledge = () => {
-    const text = askName("عهدك؟ (مثال: الفجر في المسجد ٧ أيام)");
+    const text = askName(t("pg.askT"));
     if (!text) return;
-    const stake = askName("الجزاء عند التقصير؟ (مثال: ٥ صدقة)") ?? "";
+    const stake = askName(t("pg.askS")) ?? "";
     setPledges((cur) => [...cur, { id: `plg-${Date.now()}`, text, stake, checks: [] }]);
   };
   const togglePledge = (id: string) => {
@@ -233,7 +238,7 @@ export default function TodayPage() {
   };
   const removePledge = (id: string) => {
     try {
-      if (!window.confirm("حذف هذا العهد؟")) return;
+      if (!window.confirm(t("pg.del"))) return;
     } catch {}
     setPledges((cur) => cur.filter((p) => p.id !== id));
   };
@@ -243,8 +248,8 @@ export default function TodayPage() {
       <>
         <section className="return-screen">
           <span className="return-moon">🌙</span>
-          <p className="eyebrow">اشتقنا إليك · غبت {absentDays} أيام</p>
-          <h2>الباب مفتوح — ارجع الآن</h2>
+          <p className="eyebrow">{t("ret.absent", { n: absentDays })}</p>
+          <h2>{t("ret.title")}</h2>
           {returnVerses.map((v, i) => (
             <blockquote key={i}>
               <p>﴿{v.text}﴾</p>
@@ -270,15 +275,15 @@ export default function TodayPage() {
         <section className="ramadan-banner">
           <span>🌙</span>
           <div>
-            <b>رمضان كريم — تقبل الله طاعتكم</b>
-            <p>التراويح والقيام في انتظارك الليلة.</p>
+            <b>{t("rm2.title")}</b>
+            <p>{t("rm2.sub")}</p>
           </div>
           <button
             type="button"
             onClick={() => toggle("taraweeh")}
             aria-pressed={done.includes("taraweeh")}
           >
-            {done.includes("taraweeh") ? "✓ صليت التراويح" : "سجل التراويح"}
+            {done.includes("taraweeh") ? t("rm2.trDone") : t("rm2.tr")}
           </button>
           <button type="button" className="soft" onClick={() => setFastType("فرض رمضان")}>
             صائم اليوم
@@ -291,28 +296,25 @@ export default function TodayPage() {
             × إنهاء التركيز
           </button>
           <span>☾</span>
-          <p className="eyebrow">لحظة واحدة تكفي</p>
-          <h2>هل أوترت اليوم؟</h2>
-          <p>ركعة واحدة قد تكون أجمل ختام ليومك.</p>
+          <p className="eyebrow">{t("focus.eyebrow")}</p>
+          <h2>{t("focus.q")}</h2>
+          <p>{t("focus.sub")}</p>
           <button
             type="button"
             className="focus-action"
             onClick={() => toggle("witr")}
             aria-pressed={done.includes("witr")}
           >
-            {done.includes("witr") ? "✓ تم تسجيل الوتر" : "سجّل الوتر الآن"}
+            {done.includes("witr") ? t("focus.logged") : t("focus.cta")}
           </button>
         </section>
       ) : (
         <>
           <section className="hero">
             <div className="hero-copy">
-              <span className="pill">رحلتك اليوم · يوم {dayMode}</span>
-              <h2>أنت تصنع أثرًا جميلًا</h2>
-              <p>
-                أكملت <b>{completed}</b> من {total} وردًا اليوم. استمر، فالقليل الدائم أحبّ إلى
-                الله.
-              </p>
+              <span className="pill">{t("hero.pill", { mode: modeLabel(lang, dayMode) })}</span>
+              <h2>{t("hero.title")}</h2>
+              <p>{t("hero.progress", { c: completed, t: total })}</p>
               <div className="progress-line">
                 <span
                   style={{
@@ -322,42 +324,48 @@ export default function TodayPage() {
               </div>
               <div className="hero-stats">
                 <b>
-                  {total ? Math.round((completed / total) * 100) : 0}% <small>إنجاز اليوم</small>
+                  {total ? Math.round((completed / total) * 100) : 0}%{" "}
+                  <small>{t("hero.pct")}</small>
                 </b>
                 <b>
-                  {completedPoints} / {totalPoints} <small>نقطة بركة</small>
+                  {completedPoints} / {totalPoints} <small>{t("hero.points")}</small>
                 </b>
               </div>
             </div>
             <div className="hero-ring" style={{ "--ring": ringDeg } as CSSProperties}>
               <div>
                 <b>{completed}</b>
-                <span>مكتمل</span>
+                <span>{t("hero.done")}</span>
               </div>
             </div>
             <div className="hero-deco">✦</div>
           </section>
           <section className="mode-bar">
             <div>
-              <b>كيف يبدو يومك؟</b>
-              <small>اختر ما يناسب قدرتك اليوم.</small>
+              <b>{t("mode.title")}</b>
+              <small>{t("mode.sub")}</small>
             </div>
             <div>
-              {["كامل", "عادي", "مشغول", "سفر", "مرض"].map((mode) => (
+              {MODES.map((mode) => (
                 <button
                   type="button"
                   onClick={() => {
                     setDayMode(mode);
-                    setMinimumPlan(mode === "مشغول" || mode === "سفر" || mode === "مرض");
+                    setMinimumPlan(mode === "busy" || mode === "travel" || mode === "sick");
                   }}
                   className={dayMode === mode ? "selected" : ""}
                   key={mode}
                 >
-                  {mode}
+                  {modeLabel(lang, mode)}
                 </button>
               ))}
-              <button type="button" className="focus-trigger" onClick={() => setFocusMode(true)}>
-                ◉ تركيز
+              <button
+                type="button"
+                className="focus-trigger"
+                onClick={() => setFocusMode(true)}
+                aria-label={t("mode.focus")}
+              >
+                {t("mode.focus")}
               </button>
             </div>
           </section>
@@ -369,8 +377,8 @@ export default function TodayPage() {
               aria-pressed={showNow}
             >
               <span>◉</span>
-              <b>الآن</b>
-              <small>ما يناسب وقتك</small>
+              <b>{t("tools.now")}</b>
+              <small>{t("tools.nowSub")}</small>
             </button>
             <button
               type="button"
@@ -379,8 +387,8 @@ export default function TodayPage() {
               aria-pressed={minimumPlan}
             >
               <span>✦</span>
-              <b>أقل ورد لليوم</b>
-              <small>أساسيات بلا ضغط</small>
+              <b>{t("tools.min")}</b>
+              <small>{t("tools.minSub")}</small>
             </button>
             <button
               type="button"
@@ -390,35 +398,35 @@ export default function TodayPage() {
               }}
             >
               <span>↻</span>
-              <b>ابدأ من الآن</b>
-              <small>ما زال في اليوم خير</small>
+              <b>{t("tools.start")}</b>
+              <small>{t("tools.startSub")}</small>
             </button>
             <button type="button" onClick={addCustom}>
               <span>＋</span>
-              <b>عبادة مخصصة</b>
-              <small>أضف ما يناسبك</small>
+              <b>{t("tools.custom")}</b>
+              <small>{t("tools.customSub")}</small>
             </button>
           </section>
           <section className="rescue-plan">
             <div className="rescue-top">
               <div>
-                <p className="eyebrow">خطة إنقاذ اليوم</p>
-                <h2>خطوة صغيرة، وأثرها كبير</h2>
-                <p>لا تحتاج أن تنجز كل شيء. اختر ما يناسبك الآن.</p>
+                <p className="eyebrow">{t("rescue.eyebrow")}</p>
+                <h2>{t("rescue.title")}</h2>
+                <p>{t("rescue.sub")}</p>
               </div>
               <span>✦</span>
             </div>
             <div className="rescue-grid">
               <article className="one-now">
-                <p className="eyebrow">عبادة واحدة الآن</p>
-                <h3>أذكار الصباح</h3>
-                <p>دقيقتان تضيئان بداية يومك.</p>
+                <p className="eyebrow">{t("rescue.one")}</p>
+                <h3>{t("rescue.oneTitle")}</h3>
+                <p>{t("rescue.oneSub")}</p>
                 <button
                   type="button"
                   onClick={() => toggle("morning")}
                   aria-pressed={done.includes("morning")}
                 >
-                  {done.includes("morning") ? "✓ تم تسجيلها" : "ابدأ الآن ←"}
+                  {done.includes("morning") ? t("rescue.oneDone") : t("rescue.oneGo")}
                 </button>
               </article>
               <article className="quran-session" id="quran-session">
@@ -430,12 +438,12 @@ export default function TodayPage() {
                   {quranSeconds
                     ? `${String(Math.floor(quranSeconds / 60)).padStart(2, "0")}:${String(quranSeconds % 60).padStart(2, "0")}`
                     : quranStarted
-                      ? "أحسنت، انتهت الجلسة"
-                      : "ابدأ جلسة قرآن"}
+                      ? t("rescue.quranDone")
+                      : t("rescue.quranStart")}
                 </h3>
                 {quranStarted && !quranSeconds ? (
                   <div className="pages-ask">
-                    <span>كم صفحة قرأت؟</span>
+                    <span>{t("rescue.quranAsk")}</span>
                     {[1, 2, 4].map((page) => (
                       <button
                         type="button"
@@ -459,7 +467,7 @@ export default function TodayPage() {
                           onClick={() => setSelectedMinutes(minute)}
                           key={minute}
                         >
-                          {minute} د
+                          {minute} {t("rescue.min")}
                         </button>
                       ))}
                     </div>
@@ -471,21 +479,21 @@ export default function TodayPage() {
                         setQuranSeconds(selectedMinutes * 60);
                       }}
                     >
-                      {quranSeconds ? "الجلسة مستمرة" : "ابدأ الجلسة"}
+                      {quranSeconds ? t("rescue.quranLive") : t("rescue.quranBegin")}
                     </button>
                   </>
                 )}
               </article>
               <article className="daily-dua">
-                <p className="eyebrow">دعاؤك اليوم</p>
-                <h3>اللهم ارزق والديّ الصحة والعافية</h3>
-                <p>دعاء للوالدين</p>
+                <p className="eyebrow">{t("dua.rE")}</p>
+                <h3>{t("dua.rT")}</h3>
+                <p>{t("dua.rS")}</p>
                 <button
                   type="button"
                   onClick={() => toggle("daily-dua")}
                   aria-pressed={done.includes("daily-dua")}
                 >
-                  {done.includes("daily-dua") ? "✓ دعوت به اليوم" : "دعوت به اليوم"}
+                  {done.includes("daily-dua") ? t("dua.rDone") : t("dua.rB")}
                 </button>
               </article>
             </div>
@@ -493,8 +501,8 @@ export default function TodayPage() {
               <div>
                 <span>◷</span>
                 <p>
-                  <b>الاستعداد للصلاة</b>
-                  <small>بقي ٢٠ دقيقة على العصر · هل تريد الوضوء؟</small>
+                  <b>{t("rescue.prep")}</b>
+                  <small>{t("rescue.prepSub")}</small>
                 </p>
               </div>
               <button type="button" onClick={() => setFocusMode(true)}>
@@ -506,20 +514,18 @@ export default function TodayPage() {
                 onClick={() => toggle(`${upcoming?.id ?? "dhuhr"}-jamaa`)}
                 aria-pressed={done.includes(`${upcoming?.id ?? "dhuhr"}-jamaa`)}
               >
-                {done.includes(`${upcoming?.id ?? "dhuhr"}-jamaa`) ? "✓ سُجّلت" : "سجل الصلاة"}
+                {done.includes(`${upcoming?.id ?? "dhuhr"}-jamaa`)
+                  ? t("rescue.recorded")
+                  : t("rescue.record")}
               </button>
             </div>
           </section>
           <section className="steady-grid">
             <article className="ramp-card">
               <div>
-                <p className="eyebrow">ورد متدرج</p>
-                <h3>
-                  {rampReduced
-                    ? "الوضع المخفف · صفحة واحدة يوميًا"
-                    : "الأسبوع الثاني · صفحتان يوميًا"}
-                </h3>
-                <p>تقدّمك هادئ وثابت. يمكنك التوقف أو تقليل الهدف متى شئت.</p>
+                <p className="eyebrow">{t("ramp.eyebrow")}</p>
+                <h3>{rampReduced ? t("ramp.light") : t("ramp.full")}</h3>
+                <p>{t("ramp.sub")}</p>
               </div>
               <div className="ramp-steps">
                 <i className="done">١</i>
@@ -532,28 +538,26 @@ export default function TodayPage() {
                 onClick={() => setRampReduced((v) => !v)}
                 aria-pressed={rampReduced}
               >
-                {rampReduced ? "أعد الورد" : "خفّف الورد"}
+                {rampReduced ? t("ramp.restore") : t("ramp.ease")}
               </button>
             </article>
             <article className="intention-card">
               <span>♡</span>
               <div>
-                <p className="eyebrow">قبل العمل أو الدراسة</p>
-                <h3>ما نيتك الآن؟</h3>
+                <p className="eyebrow">{t("intent.eyebrow")}</p>
+                <h3>{t("intent.q")}</h3>
                 <div>
-                  {["طلب الرزق الحلال", "إتقان العمل", "نفع الناس", "التعلم", "إعانة الأسرة"].map(
-                    (item) => (
-                      <button
-                        type="button"
-                        key={item}
-                        onClick={() => setIntention(item)}
-                        aria-pressed={intention === item}
-                        className={intention === item ? "selected" : ""}
-                      >
-                        {item}
-                      </button>
-                    ),
-                  )}
+                  {INTENT_KEYS.map((item) => (
+                    <button
+                      type="button"
+                      key={item}
+                      onClick={() => setIntention(item)}
+                      aria-pressed={intention === item}
+                      className={intention === item ? "selected" : ""}
+                    >
+                      {t(`intent.${item}`)}
+                    </button>
+                  ))}
                 </div>
               </div>
             </article>
@@ -561,8 +565,10 @@ export default function TodayPage() {
           <section className="friday-card">
             <span>☾</span>
             <div>
-              <p className="eyebrow">رفيق الجمعة {isFriday ? "· اليوم" : "· خطتك القادمة"}</p>
-              <h3>{isFriday ? "جمعة مباركة، وردك ينتظرك" : "ورد الجمعة بانتظارك"}</h3>
+              <p className="eyebrow">
+                {t("friday.eyebrow")} {isFriday ? t("friday.now") : t("friday.soon")}
+              </p>
+              <h3>{isFriday ? t("friday.titleNow") : t("friday.titleSoon")}</h3>
               <div>
                 {[
                   "سورة الكهف",
@@ -590,7 +596,7 @@ export default function TodayPage() {
           <section className="utility-row">
             <article>
               <div>
-                <p className="eyebrow">مفضلة المستخدم</p>
+                <p className="eyebrow">{t("util.fav")}</p>
                 <div className="favorite-tags">
                   {["الوتر", "ورد القرآن", "أذكار الصباح", "صلة الوالدين", "الاستغفار"].map(
                     (item) => (
@@ -610,7 +616,7 @@ export default function TodayPage() {
               </div>
             </article>
             <article className="dont-forget">
-              <p className="eyebrow">لا تنسَ</p>
+              <p className="eyebrow">{t("util.forget")}</p>
               <div>
                 {[
                   "صيام قضاء · ٢٢ ربيع الأول",
@@ -637,25 +643,25 @@ export default function TodayPage() {
               </div>
             </article>
             <article className="tawbah">
-              <p className="eyebrow">دفتر التوبة والاستغفار</p>
-              <b>أحتاج إلى استغفار اليوم</b>
+              <p className="eyebrow">{t("util.tawbah")}</p>
+              <b>{t("util.tawbahNeed")}</b>
               <button
                 type="button"
                 onClick={() => toggle("tawbah")}
                 aria-pressed={done.includes("tawbah")}
               >
-                {done.includes("tawbah") ? "✓ تم" : "سجّلها لنفسك"}
+                {done.includes("tawbah") ? t("util.tawbahDone") : t("util.tawbahGo")}
               </button>
             </article>
           </section>
           <section className="struggle-grid">
             <article className="qada-card">
-              <p className="eyebrow">قضاء الفوائت</p>
-              <h3>{qadaOpen === 0 ? "لا فوائت — ما شاء الله" : `عليك ${qadaOpen} صلوات`}</h3>
+              <p className="eyebrow">{t("qd.title")}</p>
+              <h3>{qadaOpen === 0 ? t("qd.empty") : t("qd.open", { n: qadaOpen })}</h3>
               <div className="qada-add">
                 {PRAYER_NAMES.map((p) => (
                   <button key={p} type="button" onClick={() => addQada(p)}>
-                    + {p}
+                    + {prayerName(lang, PRAYER_ID[p] ?? p)}
                   </button>
                 ))}
               </div>
@@ -674,7 +680,7 @@ export default function TodayPage() {
                       type="button"
                       className="linklike"
                       onClick={() => removeQada(q.id)}
-                      aria-label="حذف"
+                      aria-label={t("qd.delAria")}
                     >
                       ✕
                     </button>
@@ -686,13 +692,13 @@ export default function TodayPage() {
                   className="linklike"
                   onClick={() => setQada((c) => c.filter((q) => !q.cleared))}
                 >
-                  مسح المقضية
+                  {t("qd.clearDone")}
                 </button>
               )}
             </article>
             <article className="fast-card">
-              <p className="eyebrow">صيام اليوم</p>
-              <h3>{fastType ? `صائم: ${fastType}` : "لست صائمًا اليوم"}</h3>
+              <p className="eyebrow">{t("fs.title")}</p>
+              <h3>{fastType ? fastLabel(lang, fastType) : t("fs.off")}</h3>
               <div className="fast-types">
                 {FAST_TYPES.map((f) => (
                   <button
@@ -702,16 +708,16 @@ export default function TodayPage() {
                     className={fastType === f ? "selected" : ""}
                     onClick={() => setFastType((cur) => (cur === f ? null : f))}
                   >
-                    {f}
+                    {fastLabel(lang, f)}
                   </button>
                 ))}
               </div>
             </article>
             <article className="breaker-card">
-              <p className="eyebrow">كسر عادة سيئة</p>
+              <p className="eyebrow">{t("br.title")}</p>
               {!breaker ? (
                 <>
-                  <h3>اختر عادة تتوب منها اليوم</h3>
+                  <h3>{t("br.pick")}</h3>
                   <button type="button" onClick={startBreaker}>
                     + ابدأ التحدي
                   </button>
@@ -721,7 +727,9 @@ export default function TodayPage() {
                   <h3>
                     {breaker.name} — {breakerCleanDays} يوم نظيف 🔥
                   </h3>
-                  <p>زلّات مسجلة: {breaker.slips.length}</p>
+                  <p>
+                    {t("br.slips")}: {breaker.slips.length}
+                  </p>
                   <div className="breaker-actions">
                     <button type="button" onClick={logSlip}>
                       سجل زلة (واستغفر)
@@ -731,7 +739,7 @@ export default function TodayPage() {
                       className="linklike"
                       onClick={() => {
                         try {
-                          if (window.confirm("حذف تحدي كسر العادة؟")) setBreaker(null);
+                          if (window.confirm(t("br.delAsk"))) setBreaker(null);
                         } catch {
                           setBreaker(null);
                         }
@@ -747,11 +755,11 @@ export default function TodayPage() {
           <section className="kids-card">
             <span>🧒</span>
             <div>
-              <p className="eyebrow">ركن الصغار</p>
+              <p className="eyebrow">{t("kd.title")}</p>
               {kids.length === 0 ? (
                 <>
-                  <h3>تحديات ممتعة لأبنائك</h3>
-                  <p>٥ مهام يومية بالنجوم — سجّل اسم الصغير وابدأ.</p>
+                  <h3>{t("kd.emptyT")}</h3>
+                  <p>{t("kd.emptyS")}</p>
                 </>
               ) : (
                 <>
@@ -785,7 +793,7 @@ export default function TodayPage() {
                             aria-pressed={on}
                             className={on ? "kid-done" : ""}
                           >
-                            {on ? "★" : "☆"} {q}
+                            {on ? "★" : "☆"} {t(`kd.${q}`)}
                           </button>
                         );
                       })}
@@ -815,8 +823,8 @@ export default function TodayPage() {
             <div className="minimum-note">
               <span>✦</span>
               <div>
-                <b>خطة الحد الأدنى مفعّلة</b>
-                <p>الصلوات، ذكر قصير، آية واحدة، استغفار ١٠ مرات، والوتر. هذا يكفي لليوم.</p>
+                <b>{t("minplan.title")}</b>
+                <p>{t("minplan.sub")}</p>
               </div>
               <button type="button" onClick={() => setMinimumPlan(false)}>
                 إلغاء
@@ -829,18 +837,18 @@ export default function TodayPage() {
         <article className="next-prayer">
           <span className="mini-icon">◐</span>
           <div>
-            <p className="eyebrow">الصلاة القادمة</p>
+            <p className="eyebrow">{t("moment.next")}</p>
             {upcoming ? (
               <>
                 <h3>
-                  {PRAYER_AR[upcoming.id] ?? upcoming.id} <b>{upcoming.at}</b>
+                  {prayerName(lang, upcoming.id)} <b>{upcoming.at}</b>
                 </h3>
                 <p>{arDuration(upcoming.inMs)}</p>
               </>
             ) : (
               <>
-                <h3>اضبط مواقيتك</h3>
-                <p>من صفحة حسابي ← مواقيت الصلاة</p>
+                <h3>{t("moment.setTimes")}</h3>
+                <p>{t("moment.setTimesSub")}</p>
               </>
             )}
           </div>
@@ -849,14 +857,14 @@ export default function TodayPage() {
             onClick={() => setRemindPrayer((v) => !v)}
             aria-pressed={remindPrayer}
           >
-            {remindPrayer ? "✓ سيتم تنبيهك" : "تنبيه قبل الأذان"}
+            {remindPrayer ? t("moment.remindOn") : t("moment.remind")}
           </button>
           <button
             type="button"
             onClick={() => setMosque((v) => !v)}
             aria-pressed={mosque}
             className={mosque ? "counter on" : "counter"}
-            title="وضع المسجد: يكتم التذكيرات"
+            title={t("moment.mosqueTitle")}
           >
             🕌
           </button>
@@ -864,16 +872,16 @@ export default function TodayPage() {
         <article className="intention">
           <span>♡</span>
           <div>
-            <p className="eyebrow">نية اليوم</p>
-            <h3>{intention}</h3>
+            <p className="eyebrow">{t("moment.niyyah")}</p>
+            <h3>{INTENT_KEYS.includes(intention) ? t(`intent.${intention}`) : intention}</h3>
           </div>
-          <button type="button" aria-label="تعديل النية" onClick={editIntention}>
+          <button type="button" aria-label={t("intent.edit")} onClick={editIntention}>
             ✎
           </button>
         </article>
         <article className="tasbeeh">
           <div>
-            <p className="eyebrow">عداد الذكر السريع</p>
+            <p className="eyebrow">{t("tasbeeh.title")}</p>
             <h3>
               سبحان الله <b>{tasbeeh} / ٣٣</b>
             </h3>
@@ -884,17 +892,17 @@ export default function TodayPage() {
             aria-pressed={tasbeeh >= 33}
             className={tasbeeh >= 33 ? "counter on" : "counter"}
           >
-            {tasbeeh >= 33 ? "✓ اكتمل" : "+ ١"}
+            {tasbeeh >= 33 ? t("tasbeeh.done") : "+ ١"}
           </button>
         </article>
       </section>
       <div className="section-heading">
         <div>
-          <p className="eyebrow">وردك اليومي</p>
-          <h2>الصلوات والأوراد</h2>
+          <p className="eyebrow">{t("sec.dailyEyebrow")}</p>
+          <h2>{t("sec.daily")}</h2>
         </div>
         <button type="button" className="filter" onClick={cycleFilter}>
-          {filterLabel}
+          {t(`filter.${filter}`)}
         </button>
       </div>
       <div className="cards">
@@ -937,8 +945,8 @@ export default function TodayPage() {
       <section className="extras">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">أكثر من الصلاة</p>
-            <h2>ورد القرآن والخير</h2>
+            <p className="eyebrow">{t("sec.extrasEyebrow")}</p>
+            <h2>{t("sec.extras")}</h2>
           </div>
           <span className="spark">✦</span>
         </div>
@@ -956,7 +964,7 @@ export default function TodayPage() {
                 <span className="extra-check">{done.includes(habit.id) ? "✓" : "+"}</span>
                 <div>
                   <b>{habit.title}</b>
-                  <small>{habit.detail || "عمل يسير وأثر كبير"}</small>
+                  <small>{habit.detail || t("sec.moreDetail")}</small>
                 </div>
                 <span>+{habit.points}</span>
               </button>
@@ -966,14 +974,14 @@ export default function TodayPage() {
       <section className="quran-callout">
         <div className="quran-art">۝</div>
         <div className="quran-copy">
-          <p className="eyebrow">ورد القرآن اليومي</p>
+          <p className="eyebrow">{t("quran.eyebrow")}</p>
           <h2>
             {quranPages} من {QURAN_GOAL_PAGES} صفحة
           </h2>
           <p>
             {quranPages >= QURAN_GOAL_PAGES
-              ? "ما شاء الله، أتممت وردك اليوم. زد ما شئت."
-              : `خطوتك القادمة: أكمل ${Math.min(2, QURAN_GOAL_PAGES - quranPages)} صفحات.`}
+              ? t("quran.full")
+              : t("quran.next", { n: Math.min(2, QURAN_GOAL_PAGES - quranPages) })}
           </p>
           <div className="quran-progress">
             <span style={{ width: `${quranPct}%` }} />
@@ -992,9 +1000,9 @@ export default function TodayPage() {
         <div>
           <span className="adhkar-icon">☷</span>
           <div>
-            <p className="eyebrow">أذكار متنوعة</p>
-            <h2>اذكر الله في تفاصيل يومك</h2>
-            <p>أدعية قصيرة تُعينك على حضور القلب في كل لحظة.</p>
+            <p className="eyebrow">{t("adhkar.eyebrow")}</p>
+            <h2>{t("adhkar.title")}</h2>
+            <p>{t("adhkar.sub")}</p>
           </div>
         </div>
         <div className="tags">
@@ -1016,12 +1024,12 @@ export default function TodayPage() {
         <article className="dua-card">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">مساحتك الخاصة</p>
-              <h2>دعائي اليوم</h2>
+              <p className="eyebrow">{t("dua.eyebrow")}</p>
+              <h2>{t("dua.title")}</h2>
             </div>
             <span>☾</span>
           </div>
-          <p className="dua-feature">“اللهم أعنّي على ذكرك وشكرك وحسن عبادتك.”</p>
+          <p className="dua-feature">{t("du.feat")}</p>
           <div className="dua-tags">
             {duas.map((dua, i) => (
               <button
@@ -1054,12 +1062,12 @@ export default function TodayPage() {
         </article>
         <article className="gentle-card">
           <span className="gentle-star">✦</span>
-          <p className="eyebrow">تذكير لطيف</p>
-          <h2>كل يوم بداية جديدة</h2>
-          <p>فاتك شيء؟ لا بأس. اختر عملًا صغيرًا الآن، والله يحب العمل الدائم ولو كان قليلًا.</p>
+          <p className="eyebrow">{t("gentle.eyebrow")}</p>
+          <h2>{t("gentle.title")}</h2>
+          <p>{t("gentle.sub")}</p>
           <div className="weekly">
-            <span>هذا الأسبوع</span>
-            <b>الوتر ٥ أيام</b>
+            <span>{t("gentle.week")}</span>
+            <b>{t("gentle.witr")}</b>
             <div>
               <i />
               <i />
@@ -1075,8 +1083,8 @@ export default function TodayPage() {
       <section className="goals-section">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">أهدافك على مهل</p>
-            <h2>رحلتك الروحية</h2>
+            <p className="eyebrow">{t("goals.eyebrow")}</p>
+            <h2>{t("goals.title")}</h2>
           </div>
           <button type="button" className="filter" onClick={addGoal}>
             + أضف هدفًا
@@ -1086,8 +1094,8 @@ export default function TodayPage() {
           <article>
             <span className="goal-icon">☾</span>
             <div>
-              <b>الوتر هذا الأسبوع</b>
-              <small>بقي ٣ أيام لإكمال هدفك</small>
+              <b>{t("goals.witr")}</b>
+              <small>{t("goals.witrSub")}</small>
               <div className="tiny-progress">
                 <i style={{ width: "57%" }} />
               </div>
@@ -1097,8 +1105,8 @@ export default function TodayPage() {
           <article>
             <span className="goal-icon quran-goal">۝</span>
             <div>
-              <b>ورد القرآن الشهري</b>
-              <small>٢٤ صفحة من ٦٠</small>
+              <b>{t("goals.quran")}</b>
+              <small>{t("goals.quranSub")}</small>
               <div className="tiny-progress gold">
                 <i style={{ width: "40%" }} />
               </div>
@@ -1108,8 +1116,8 @@ export default function TodayPage() {
           <article>
             <span className="goal-icon heart-goal">♡</span>
             <div>
-              <b>صلة الرحم</b>
-              <small>هدف أسبوعي لطيف</small>
+              <b>{t("goals.kin")}</b>
+              <small>{t("goals.kinSub")}</small>
               <div className="tiny-progress coral">
                 <i style={{ width: "50%" }} />
               </div>
@@ -1126,7 +1134,7 @@ export default function TodayPage() {
                   <i style={{ width: "5%" }} />
                 </div>
               </div>
-              <strong>جديد</strong>
+              <strong>{t("goals.new")}</strong>
             </article>
           ))}
           {challenges.map((c) => {
@@ -1138,7 +1146,7 @@ export default function TodayPage() {
                 <div>
                   <b>{c.title}</b>
                   <small>
-                    {c.checks.length} / {c.target} يوم
+                    {c.checks.length} / {c.target} {t("ch.days")}
                   </small>
                   <div className="tiny-progress">
                     <i style={{ width: `${pct}%` }} />
@@ -1150,7 +1158,7 @@ export default function TodayPage() {
                     className="mini-check"
                     onClick={() => toggleChallengeDay(c.id)}
                     aria-pressed={todayDone}
-                    aria-label="تسجيل اليوم"
+                    aria-label={t("ch.checkAria")}
                   >
                     {todayDone ? "✓" : "+"}
                   </button>
@@ -1158,7 +1166,7 @@ export default function TodayPage() {
                     type="button"
                     className="linklike"
                     onClick={() => removeChallenge(c.id)}
-                    aria-label="حذف التحدي"
+                    aria-label={t("ch.delAria")}
                   >
                     ✕
                   </button>
@@ -1177,8 +1185,8 @@ export default function TodayPage() {
                 <div>
                   <b>{p.text}</b>
                   <small>
-                    {p.stake ? `الجزاء: ${p.stake} · ` : ""}
-                    {p.checks.length} يوم وفاء
+                    {p.stake ? `${t("pg.stake")}: ${p.stake} · ` : ""}
+                    {p.checks.length} {t("pg.days")}
                   </small>
                   <div className="tiny-progress">
                     <i style={{ width: pdone ? "100%" : "5%" }} />
@@ -1190,7 +1198,7 @@ export default function TodayPage() {
                     className="mini-check"
                     onClick={() => togglePledge(p.id)}
                     aria-pressed={pdone}
-                    aria-label="وفاء اليوم"
+                    aria-label={t("pg.checkAria")}
                   >
                     {pdone ? "✓" : "+"}
                   </button>
@@ -1198,7 +1206,7 @@ export default function TodayPage() {
                     type="button"
                     className="linklike"
                     onClick={() => removePledge(p.id)}
-                    aria-label="حذف العهد"
+                    aria-label={t("pg.delAria")}
                   >
                     ✕
                   </button>
@@ -1214,26 +1222,26 @@ export default function TodayPage() {
       <section className="night-section">
         <div className="night-copy">
           <span>☾</span>
-          <p className="eyebrow">قبل النوم</p>
-          <h2>اختتم يومك بسكينة</h2>
-          <p>وضوء، أذكار النوم، آية الكرسي، نعمة تشكر الله عليها، ثم نية للفجر.</p>
+          <p className="eyebrow">{t("night.eyebrow")}</p>
+          <h2>{t("night.title")}</h2>
+          <p>{t("night.sub")}</p>
           <button type="button" onClick={() => setFocusMode(true)}>
             ابدأ روتين الليل ←
           </button>
         </div>
         <div className="reflection">
-          <p className="eyebrow">محاسبة خاصة</p>
-          <h3>ما أجمل شيء فعلته اليوم؟</h3>
+          <p className="eyebrow">{t("night.journalEyebrow")}</p>
+          <h3>{t("night.journalQ")}</h3>
           <textarea
             value={reflection}
             onChange={(e) => setReflection(e.target.value)}
-            placeholder="اكتب لنفسك كلمة طيبة…"
-            aria-label="محاسبة خاصة"
+            placeholder={t("night.journalPh")}
+            aria-label={t("night.journalQ")}
           />
-          <span>هذه المساحة لك وحدك، ولا تدخل في الإحصاءات.</span>
+          <span>{t("night.journalNote")}</span>
         </div>
       </section>
-      <footer>﴿ وَاذْكُر رَّبَّكَ كَثِيرًا وَسَبِّحْ بِالْعَشِيِّ وَالْإِبْكَارِ ﴾</footer>
+      <footer>{t("footer.verse")}</footer>
     </>
   );
 }

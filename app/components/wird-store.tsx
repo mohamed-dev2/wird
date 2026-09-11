@@ -30,6 +30,7 @@ import {
   type Habit,
 } from "../lib/wird";
 import { emptyDay, recordDay, type DayRecord, type History } from "../lib/history";
+import { normalizeDayMode } from "../lib/daymode";
 import type { PrayerTimes } from "../lib/prayer";
 
 export type WirdStore = {
@@ -78,6 +79,10 @@ export type WirdStore = {
   setRampReduced: Dispatch<SetStateAction<boolean>>;
   fridayAdded: boolean;
   setFridayAdded: Dispatch<SetStateAction<boolean>>;
+  theme: Theme;
+  setTheme: Dispatch<SetStateAction<Theme>>;
+  lang: Lang;
+  setLang: Dispatch<SetStateAction<Lang>>;
   prayerTimes: PrayerTimes;
   setPrayerTimes: Dispatch<SetStateAction<PrayerTimes>>;
   mosque: boolean;
@@ -115,13 +120,16 @@ export type WirdStore = {
   addGoal: () => void;
   editIntention: () => void;
   cycleFilter: () => void;
-  filterLabel: string;
   passFilter: (id: string) => boolean;
+  filter: "all" | "done" | "todo";
   scrollToQuran: () => void;
   resetDay: () => void;
   history: History;
   saveReview: (rec: DayRecord) => void;
 };
+
+export type Theme = "light" | "dark" | "oled";
+export type Lang = "ar" | "en";
 
 const WirdContext = createContext<WirdStore | null>(null);
 
@@ -161,6 +169,8 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const [snoozed, setSnoozed] = useState<string[]>([]);
   const [rampReduced, setRampReduced] = useState(false);
   const [fridayAdded, setFridayAdded] = useState(false);
+  const [theme, setTheme] = useState<Theme>("light");
+  const [lang, setLang] = useState<Lang>("ar");
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes>({});
   const [mosque, setMosque] = useState(false);
   const [qada, setQada] = useState<QadaItem[]>([]);
@@ -174,7 +184,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     const t = dayId();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDone(loadDailyList("wird-done-v2", DEFAULT_DONE, t));
-    setDayMode(loadFromStorage("wird-daymode-v1", "عادي"));
+    setDayMode(normalizeDayMode(loadFromStorage("wird-daymode-v1", "عادي")));
     setQuranPages(loadDailyNumber("wird-quran-pages-v2", 0, t));
     setTasbeeh(loadDailyNumber("wird-tasbeeh-v2", 0, t));
     setCustoms(loadFromStorage("wird-customs-v1", []));
@@ -188,6 +198,15 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     setSnoozed(loadDailyList("wird-snoozed-v2", [], t));
     setRampReduced(loadFromStorage("wird-ramp-v1", false));
     setFridayAdded(loadFromStorage("wird-friday-plan-v1", false));
+    const storedTheme = loadFromStorage<Theme | null>("wird-theme-v1", null);
+    if (storedTheme) {
+      setTheme(storedTheme);
+      setLang(loadFromStorage<Lang>("wird-lang-v1", "ar"));
+    } else {
+      try {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) setTheme("dark");
+      } catch {}
+    }
     setPrayerTimes(loadFromStorage("wird-prayer-times-v1", {}));
     setMosque(loadFromStorage("wird-mosque-v1", false));
     setQada(loadFromStorage("wird-qada-v1", []));
@@ -269,6 +288,21 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   }, [mounted, fridayAdded]);
   useEffect(() => {
     if (!mounted) return;
+    saveToStorage("wird-theme-v1", theme);
+    try {
+      document.documentElement.dataset.theme = theme === "light" ? "" : theme;
+    } catch {}
+  }, [mounted, theme]);
+  useEffect(() => {
+    if (!mounted) return;
+    saveToStorage("wird-lang-v1", lang);
+    try {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    } catch {}
+  }, [mounted, lang]);
+  useEffect(() => {
+    if (!mounted) return;
     saveToStorage("wird-prayer-times-v1", prayerTimes);
   }, [mounted, prayerTimes]);
   useEffect(() => {
@@ -299,7 +333,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const hijriLabel = useMemo(() => {
     if (!today) return "";
     try {
-      return new Intl.DateTimeFormat("ar-SA-u-ca-islamic", {
+      return new Intl.DateTimeFormat(lang === "ar" ? "ar-SA-u-ca-islamic" : "en-u-ca-islamic", {
         weekday: "long",
         day: "numeric",
         month: "long",
@@ -308,18 +342,18 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     } catch {
       return "";
     }
-  }, [today]);
+  }, [today, lang]);
   const gregLabel = useMemo(() => {
     if (!today) return "";
     try {
-      return new Intl.DateTimeFormat("ar-EG", {
+      return new Intl.DateTimeFormat(lang === "ar" ? "ar-EG" : "en", {
         day: "numeric",
         month: "long",
       }).format(today);
     } catch {
       return "";
     }
-  }, [today]);
+  }, [today, lang]);
   const completedPoints = allHabits
     .filter((h) => done.includes(h.id))
     .reduce((sum, h) => sum + h.points, 0);
@@ -442,7 +476,6 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const ramadan = today != null && isRamadanDay(today);
   const cycleFilter = () =>
     setFilter((f) => (f === "all" ? "done" : f === "done" ? "todo" : "all"));
-  const filterLabel = filter === "all" ? "⌄ الكل" : filter === "done" ? "✓ المكتمل" : "○ المتبقي";
   const passFilter = (id: string) =>
     filter === "all" ? true : filter === "done" ? done.includes(id) : !done.includes(id);
   const scrollToQuran = () => {
@@ -519,6 +552,10 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     setRampReduced,
     fridayAdded,
     setFridayAdded,
+    theme,
+    setTheme,
+    lang,
+    setLang,
     prayerTimes,
     setPrayerTimes,
     mosque,
@@ -556,8 +593,8 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     addGoal,
     editIntention,
     cycleFilter,
-    filterLabel,
     passFilter,
+    filter,
     scrollToQuran,
     resetDay,
     history,

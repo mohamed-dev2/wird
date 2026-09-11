@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import "./tokens.css";
 import "./styles.css";
 import "./additions.css";
 import "./views.css";

@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { PATHS } from "../../lib/data/paths";
 import { useStoredState } from "../../lib/use-stored-state";
+import { useT } from "../../lib/i18n";
 
 export function PathsList() {
+  const t = useT();
   const [science, setScience] = useState(PATHS[0]?.id ?? "aqeedah");
   const [done, setDone] = useStoredState<Record<string, boolean>>("wird-paths-v1", {});
   const [customTitles, setCustomTitles] = useStoredState<string[]>("wird-paths-custom-v1", []);
@@ -15,7 +17,7 @@ export function PathsList() {
   const toggle = (id: string) => setDone((cur) => ({ ...cur, [id]: !cur[id] }));
   const askTitle = () => {
     try {
-      const v = window.prompt("اسم الكتاب الذي تقرؤه:")?.trim();
+      const v = window.prompt(t("pa.ask"))?.trim();
       if (v) setCustomTitles((cur) => (cur.includes(v) ? cur : [...cur, v]));
     } catch {}
   };
@@ -74,17 +76,17 @@ export function PathsList() {
               );
             })}
             {li === 0 &&
-              customTitles.map((t) => (
-                <div key={t} className="path-book custom">
+              customTitles.map((title) => (
+                <div key={title} className="path-book custom">
                   <span className="review-text">
-                    <b>{t}</b>
-                    <small>كتابك الخاص</small>
+                    <b>{title}</b>
+                    <small>{t("pa.mine")}</small>
                   </span>
                 </div>
               ))}
             {li === 0 && (
               <button type="button" className="linklike" onClick={askTitle}>
-                + أضف كتابك الخاص
+                {t("pa.add")}
               </button>
             )}
           </article>

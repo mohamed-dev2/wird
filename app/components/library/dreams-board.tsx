@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "../../lib/i18n";
+
 import type { Dispatch, SetStateAction } from "react";
 
 export type Dream = {
@@ -25,11 +27,12 @@ export function DreamsBoard({
   dreams: Dream[];
   setDreams: Dispatch<SetStateAction<Dream[]>>;
 }) {
+  const t = useT();
   const addDream = () => {
-    const title = ask("حلمك الكبير؟ (مثال: حج ٢٠٢٨، حفظ البقرة)");
+    const title = ask(t("dr.askT"));
     if (!title) return;
-    const target = ask("الموعد المستهدف؟ (مثال: رمضان ١٤٤٨)") ?? "";
-    const step = ask("أول خطوة صغيرة اليوم؟ (مثال: صفحتان يوميًا)");
+    const target = ask(t("dr.askTar")) ?? "";
+    const step = ask(t("dr.askFirst"));
     setDreams((cur) => [
       ...cur,
       {
@@ -41,7 +44,7 @@ export function DreamsBoard({
     ]);
   };
   const addStep = (id: string) => {
-    const text = ask("الخطوة التالية؟");
+    const text = ask(t("dr.askStep"));
     if (!text) return;
     setDreams((cur) =>
       cur.map((d) => (d.id === id ? { ...d, steps: [...d.steps, { text, done: false }] } : d)),
@@ -57,7 +60,7 @@ export function DreamsBoard({
     );
   const removeDream = (id: string) => {
     try {
-      if (!window.confirm("حذف هذا الحلم؟")) return;
+      if (!window.confirm(t("dr.del"))) return;
     } catch {}
     setDreams((cur) => cur.filter((d) => d.id !== id));
   };
@@ -65,9 +68,9 @@ export function DreamsBoard({
   if (dreams.length === 0)
     return (
       <div className="lib-empty">
-        <p>لا أحلام مسجلة بعد. الحلم الكبير يبدأ بخطوة صغيرة اليوم.</p>
+        <p>{t("dr.empty")}</p>
         <button type="button" onClick={addDream}>
-          + سجّل حلمك
+          {t("dr.add")}
         </button>
       </div>
     );
@@ -87,7 +90,7 @@ export function DreamsBoard({
                 type="button"
                 className="linklike"
                 onClick={() => removeDream(d.id)}
-                aria-label="حذف الحلم"
+                aria-label={t("dr.delAria")}
               >
                 ✕
               </button>
@@ -111,13 +114,13 @@ export function DreamsBoard({
               </button>
             ))}
             <button type="button" className="linklike" onClick={() => addStep(d.id)}>
-              + خطوة جديدة
+              {t("dr.stepNew")}
             </button>
           </article>
         );
       })}
       <button type="button" className="goal-add" onClick={addDream}>
-        + حلم جديد
+        {t("dr.new")}
       </button>
     </div>
   );
