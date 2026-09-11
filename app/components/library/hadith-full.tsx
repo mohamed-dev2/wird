@@ -21,15 +21,18 @@ export function HadithFull({
   toggleFav,
   readIds,
   toggleRead,
+  bookId,
+  onBookId,
 }: {
   favs: string[];
   toggleFav: (id: string) => void;
   readIds: string[];
   toggleRead: (id: string) => void;
+  bookId: FullBookId;
+  onBookId: (id: FullBookId) => void;
 }) {
   const t = useT();
   const { lang } = useWird();
-  const [bookId, setBookId] = useState<FullBookId>("bukhari");
   const [book, setBook] = useState<FullBook | null>(null);
   const [failed, setFailed] = useState(false);
   const [section, setSection] = useState<string>("all");
@@ -44,7 +47,7 @@ export function HadithFull({
     setSection("all");
     setPage(0);
     setQuery("");
-    setBookId(id);
+    onBookId(id);
   };
 
   useEffect(() => {

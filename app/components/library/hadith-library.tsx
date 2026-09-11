@@ -63,6 +63,35 @@ export function HadithLibrary() {
   const toggleRead = (id: string) =>
     setReadIds((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
   const [mode, setMode] = useState<"curated" | "full">("curated");
+  const [fullBook, setFullBook] = useState<
+    | "bukhari"
+    | "muslim"
+    | "abudawud"
+    | "tirmidhi"
+    | "nasai"
+    | "ibnmajah"
+    | "malik"
+    | "nawawi"
+    | "qudsi"
+  >("bukhari");
+
+  const FULL_OF: Record<string, typeof fullBook | null> = {
+    bukhari: "bukhari",
+    muslim: "muslim",
+    abudawud: "abudawud",
+    tirmidhi: "tirmidhi",
+    nasai: "nasai",
+    ibnmajah: "ibnmajah",
+    muwatta: "malik",
+    musnad: null,
+    darimi: null,
+  };
+
+  const openFull = (curatedId: string) => {
+    const target = FULL_OF[curatedId];
+    if (target) setFullBook(target);
+    setMode("full");
+  };
 
   const all: (HadithEntry & { book: string })[] = useMemo(
     () => [
@@ -99,9 +128,23 @@ export function HadithLibrary() {
         </button>
       </div>
       {mode === "full" ? (
-        <HadithFull favs={favs} toggleFav={toggleFav} readIds={readIds} toggleRead={toggleRead} />
+        <HadithFull
+          favs={favs}
+          toggleFav={toggleFav}
+          readIds={readIds}
+          toggleRead={toggleRead}
+          bookId={fullBook}
+          onBookId={setFullBook}
+        />
       ) : (
         <>
+          <div className="full-promo">
+            <span>📚</span>
+            <p>{t("hf.promo")}</p>
+            <button type="button" onClick={() => setMode("full")}>
+              {t("hf.open")}
+            </button>
+          </div>
           <div className="lib-toolbar">
             <input
               value={query}
@@ -206,6 +249,11 @@ export function HadithLibrary() {
                   {b.entries.filter((e) => readIds.includes(e.id)).length}/{b.entries.length}
                 </span>
               </div>
+              {FULL_OF[b.id] && (
+                <button type="button" className="goal-add" onClick={() => openFull(b.id)}>
+                  {t("hf.browseFull")}
+                </button>
+              )}
               {b.entries.map((e) => (
                 <EntryCard
                   key={e.id}
