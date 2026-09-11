@@ -76,15 +76,16 @@
   border: 0;
   border-radius: 8px;
   padding: 8px 10px;
-  background: var(--brand);
+  background: linear-gradient(180deg, var(--brand), var(--brand-deep));
   color: #fff;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(20, 114, 93, 0.3);
 }
 
 .one-now button:hover,
 .session-start:hover {
-  background: var(--brand-deep);
+  filter: brightness(1.1);
 }
 
 .minutes {
@@ -112,7 +113,7 @@
 
 .quran-session h3 {
   font:
-    700 16px DM Sans,
+    700 16px var(--font-dm),
     sans-serif;
 }
 
@@ -275,7 +276,7 @@
   border-radius: 20px;
   padding: 11px 14px;
   font:
-    600 10px Alexandria,
+    600 10px var(--font-alexandria),
     sans-serif;
   box-shadow: 0 7px 22px rgba(16, 81, 65, 0.28);
   cursor: pointer;
@@ -331,7 +332,7 @@
 
 .zikr-current strong {
   font:
-    700 23px DM Sans,
+    700 23px var(--font-dm),
     sans-serif;
   color: #16715c;
 }
@@ -548,7 +549,7 @@
 
 .friday-card > b {
   font:
-    700 12px "DM Sans",
+    700 12px var(--font-dm),
     sans-serif;
   color: var(--gold-deep);
   white-space: nowrap;

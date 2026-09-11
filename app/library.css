@@ -484,7 +484,7 @@
 
 .book-progress {
   font:
-    700 12px DM Sans,
+    700 12px var(--font-dm),
     sans-serif;
   color: var(--brand-ink);
   background: var(--brand-soft);
@@ -539,7 +539,7 @@
 
 .path-head span {
   font:
-    600 10px DM Sans,
+    600 10px var(--font-dm),
     sans-serif;
   color: var(--brand-ink);
 }

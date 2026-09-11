@@ -8,6 +8,7 @@ import "./library.css";
 import { Shell } from "./components/shell";
 import { SwRegister } from "./components/sw-register";
 import { WirdProvider } from "./components/wird-store";
+import { alexandria, dmSans } from "./fonts";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://wird.vercel.app";
 
@@ -60,7 +61,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="ar" dir="rtl" className={`${alexandria.variable} ${dmSans.variable}`}>
       <body>
         <WirdProvider>
           <SwRegister />

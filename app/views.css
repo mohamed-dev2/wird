@@ -67,7 +67,7 @@
 .metric-row span {
   display: block;
   font:
-    700 23px DM Sans,
+    700 23px var(--font-dm),
     sans-serif;
   color: #176f5d;
 }
@@ -450,7 +450,7 @@
 
 .review-progress b {
   font:
-    700 24px DM Sans,
+    700 24px var(--font-dm),
     sans-serif;
   color: #176f5d;
 }
@@ -597,10 +597,19 @@
   font-weight: 700;
   border: 0;
   border-radius: 12px;
-  background: var(--brand);
+  background: linear-gradient(180deg, var(--brand), var(--brand-deep));
   color: #fff;
   padding: 13px;
   cursor: pointer;
+  box-shadow: 0 8px 20px rgba(20, 114, 93, 0.35);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.review-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(20, 114, 93, 0.4);
 }
 
 .review-submit:hover {
@@ -1011,7 +1020,7 @@
 
 .counter-feature > b {
   font:
-    700 26px DM Sans,
+    700 26px var(--font-dm),
     sans-serif;
 }
 

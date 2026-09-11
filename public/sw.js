@@ -1,5 +1,5 @@
 /* Wird service worker: offline shell + notification deep-links. No build step. */
-const CACHE = "wird-v2";
+const CACHE = "wird-v3";
 const CORE = [
   "/",
   "/manifest.webmanifest",
@@ -7,6 +7,7 @@ const CORE = [
   "/data/en-clear.min.json",
   "/data/ar-jalalayn.min.json",
   "/data/bip39-en.txt",
+  "/data/ar-nawawi.min.json",
 ];
 
 function cacheable(url) {

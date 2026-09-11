@@ -33,9 +33,7 @@
 }
 
 .moment-grid h3 b {
-  font-family:
-    DM Sans,
-    sans-serif;
+  font-family: var(--font-dm), sans-serif;
   font-size: 11px;
   color: var(--brand);
   margin-right: 6px;
@@ -474,14 +472,15 @@
 .focus-card .focus-action {
   font: inherit;
   font-size: 10px;
-  color: var(--brand-ink);
-  background: #f1ca73;
+  color: #1d5144;
+  background: linear-gradient(180deg, #f5d384, #eab855);
   border: 0;
   border-radius: 9px;
   margin-top: 20px;
   padding: 11px 16px;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
 .focus-card .focus-action:hover {
@@ -563,7 +562,7 @@
 
 .goal-grid strong {
   font:
-    600 10px DM Sans,
+    600 10px var(--font-dm),
     sans-serif;
   color: var(--brand-ink);
 }

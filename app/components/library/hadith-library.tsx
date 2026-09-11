@@ -85,6 +85,7 @@ export function HadithLibrary() {
     muwatta: "malik",
     musnad: null,
     darimi: null,
+    nawawi: "nawawi",
   };
 
   const openFull = (curatedId: string) => {
@@ -205,6 +206,9 @@ export function HadithLibrary() {
           {book === "nawawi" && (
             <>
               <p className="chart-caption">{t("hd.nawawiNote")}</p>
+              <button type="button" className="goal-add" onClick={() => openFull("nawawi")}>
+                {t("hf.browseAll40")}
+              </button>
               {NAWAWI.map((e) => (
                 <EntryCard
                   key={e.id}
