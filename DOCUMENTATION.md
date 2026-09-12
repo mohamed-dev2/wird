@@ -28,6 +28,7 @@ tools to move between devices.
 12. [Troubleshooting](#12-troubleshooting)
 13. [Keeping docs fresh](#keeping-docs-fresh)
 14. [Adaptive companion](#14-adaptive-companion)
+15. [Analytics methodology](docs/ANALYTICS.md)
 
 ## 1. Quick start
 
@@ -84,7 +85,15 @@ one-line night context for strong/low/return days (see §14).
 
 **Insights (`/insights`)** — period pills (1–365d buckets), weekly bars, 4
 metrics, coach brief (at-risk → neglect → pace → lift + praise), 6-axis
-balance radar (SVG), 30-day strip, Hijri year-in-review card, share-as-image.
+balance radar (SVG), 30-day strip, Hijri year-in-review card, share-as-image,
+plus the analytics layers (see §15): overview with personal baselines,
+14/30-day trends with evidence, habit comparison + per-habit best/weakest
+windows, weekday patterns (min samples), streak intelligence (avg run/break),
+Quran + memorization recency, adhkar trends, goal/challenge/pledge stats,
+reflection/gratitude/mood metadata (no diagnoses), return analytics
+(continuations, rebuild speed, break shortening), smart insights with
+why-lines, GitHub-style heatmap with faith disclaimer, month + year reviews,
+milestones, and a custom date range. Nothing renders without evidence.
 
 **Library (`/library`)** — Adhkar groups with per-item counters; Quran reader
 (full Uthmani text offline, EN translation toggle, 10 tafsirs incl. offline
@@ -110,14 +119,17 @@ Daily (auto-reset): `wird-done-v2`, `wird-quran-pages-v2`, `wird-tasbeeh-v2`,
 `wird-snoozed-v2`, `wird-salawat-v2`, `wird-adhkar-groups-v1`, `wird-lastseen-v1`,
 `wird-notify-day-v1`.
 
-Persistent: `wird-customs-v1`, `wird-duas-v1`, `wird-goals-v1`,
+Persistent: `wird-customs-v1`, `wird-duas-v1`, `wird-goals-v1` (entries may
+carry additive `created`/`done`; older goals without them read as unknown),
 `wird-intention-v1`, `wird-daymode-v1`, `wird-qada-v1`, `wird-breaker-v1`,
 `wird-challenges-v1`, `wird-ramp-v1`, `wird-friday-plan-v1`,
-`wird-quran-bookmark-v1`, `wird-quran-mem-v1`, `wird-quran-font-v1`,
+`wird-quran-bookmark-v1`, `wird-quran-mem-v1` (new marks carry `@dayId`
+recency suffixes; bare legacy marks still match), `wird-quran-font-v1`,
 `wird-quran-en-v1`, `wird-reciter-v1`, `wird-tafsir-src-v1`,
 `wird-hadith-fav-v1`, `wird-hadith-read-v1`, `wird-paths-v1`,
 `wird-paths-custom-v1`, `wird-dreams-v1`, `wird-kids-v1`, `wird-pledges-v1`,
-`wird-history-v1`, `wird-reviews-v1`, `wird-remind-v1`.
+`wird-history-v1`, `wird-reviews-v1`, `wird-remind-v1`,
+`wird-adhkar-log-v1` (per-day group counts, capped 180 days).
 
 Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-theme-v1`, `wird-lang-v1`, `wird-reminders-v1`, `wird-mosque-v1`,
@@ -278,14 +290,21 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   `companion` (26 user states, ranking, fatigue/once-ever, rotation, core,
   log caps), `content` (verse refs exist in bundle, legacy refs parse,
   hadith resolve with grade+ref, per-theme coverage), `guidance-safety`
-  (AR+EN key presence, no revelation markers, no shame/ruling/heart claims,
-  distinct source labels).
+  (auto-collected AR+EN keys: presence, no revelation markers, no
+  shame/ruling/heart/medical/causation claims, distinct source labels),
+  `analytics` (20-test BM suite over a synthetic 4-month dataset: periods,
+  trends, streaks, returns + rebuild days, restart-size evidence, habit
+  windows, weekday gating, honest time-of-day null, Quran/mem/adhkar,
+  goals/challenges/pledges, gratitude + mood metadata, heatmap relativity,
+  month deltas, what-changed, friction, insight gating, milestones, data
+  quality, DST safety, volatility, analytics→companion pipeline).
 - Playwright (prod server): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across
   switches and reloads, companion return journeys (fresh start, 10-day
   gentle return with working action, 95-day deep restart with tawbah path,
-  no-shame scan); hydration-error listener fails the run on mismatch.
+  no-shame scan), insights layers with seeded data + honest empty state;
+  hydration-error listener fails the run on mismatch.
 - CI (`.github/workflows/ci.yml`): install → typecheck → lint → unit → e2e →
   build → audit → docs:check.
 
@@ -358,6 +377,10 @@ components.
   rescue-plan context line, night-review line. Destructive-adjacent actions
   (new-day reset, demo clear) confirm explicitly; reflections/moods never
   leave the device and never enter share images (stats only).
+- **Analytics feed**: return cards cite the pre-break steadiest habit and
+  small-vs-large restart evidence (`restartSizeEvidence`); rescue lines
+  cite evening-vs-morning friction; challenge milestones flow from
+  `challengeStats`. See §15 / `docs/ANALYTICS.md`.
 - **Safety rules**: no shame, no rulings, no iman/sincerity/acceptance
   claims, no dream interpretation, no medical claims, kids get the same
   gentle copy, prayer times are referenced (never "you missed X" unless

@@ -5,6 +5,7 @@ import { dataStreak, lastNDays } from "../lib/history";
 import { buildBrief, buildCatalog, categoryBalance, type Category } from "../lib/coach";
 import { dayId, hijriParts } from "../lib/wird";
 import { shareProgress } from "../lib/share";
+import { AnalyticsLayers } from "../components/analytics-layers";
 import { useT } from "../lib/i18n";
 import { useWird } from "../components/wird-store";
 
@@ -350,6 +351,7 @@ export default function InsightsPage() {
           })}
         </div>
       </div>
+      <AnalyticsLayers />
     </section>
   );
 }

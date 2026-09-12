@@ -81,8 +81,8 @@ export type WirdStore = {
   setCustoms: Dispatch<SetStateAction<Habit[]>>;
   customDuas: string[];
   setCustomDuas: Dispatch<SetStateAction<string[]>>;
-  customGoals: { title: string; detail: string }[];
-  setCustomGoals: Dispatch<SetStateAction<{ title: string; detail: string }[]>>;
+  customGoals: GoalItem[];
+  setCustomGoals: Dispatch<SetStateAction<GoalItem[]>>;
   intention: string;
   setIntention: Dispatch<SetStateAction<string>>;
   remindPrayer: boolean;
@@ -139,6 +139,7 @@ export type WirdStore = {
   addCustom: () => void;
   addDua: () => void;
   addGoal: () => void;
+  toggleGoalDone: (index: number) => void;
   editIntention: () => void;
   cycleFilter: () => void;
   passFilter: (id: string) => boolean;
@@ -170,6 +171,9 @@ export type WirdStore = {
 export type Theme = "light" | "dark" | "oled";
 export type Lang = "ar" | "en";
 
+/** Custom goal. created/done are additive (older goals lack them → unknown). */
+export type GoalItem = { title: string; detail: string; created?: string; done?: boolean };
+
 const WirdContext = createContext<WirdStore | null>(null);
 
 export function useWird(): WirdStore {
@@ -198,7 +202,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const [tasbeeh, setTasbeeh] = useState(0);
   const [customs, setCustoms] = useState<Habit[]>([]);
   const [customDuas, setCustomDuas] = useState<string[]>([]);
-  const [customGoals, setCustomGoals] = useState<{ title: string; detail: string }[]>([]);
+  const [customGoals, setCustomGoals] = useState<GoalItem[]>([]);
   const [intention, setIntention] = useState(DEFAULT_INTENTION);
   const [remindPrayer, setRemindPrayer] = useState(false);
   const [filter, setFilter] = useState<"all" | "done" | "todo">("all");
@@ -483,7 +487,13 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const addGoal = () => {
     const title = askName(tr(lang, "goals.ask"));
     if (title)
-      setCustomGoals((current) => [...current, { title, detail: tr(lang, "goals.newDetail") }]);
+      setCustomGoals((current) => [
+        ...current,
+        { title, detail: tr(lang, "goals.newDetail"), created: dayId(), done: false },
+      ]);
+  };
+  const toggleGoalDone = (index: number) => {
+    setCustomGoals((current) => current.map((g, i) => (i === index ? { ...g, done: !g.done } : g)));
   };
   const editIntention = () => {
     const v = askName(tr(lang, "intent.ask"));
@@ -762,6 +772,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     addCustom,
     addDua,
     addGoal,
+    toggleGoalDone,
     editIntention,
     cycleFilter,
     passFilter,

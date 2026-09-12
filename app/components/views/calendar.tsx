@@ -7,9 +7,11 @@ import { useWird } from "../wird-store";
 export function CalendarView({
   fridayAdded,
   onFridayAdd,
+  markers,
 }: {
   fridayAdded: boolean;
   onFridayAdd: () => void;
+  markers?: Record<string, ("return" | "milestone")[]>;
 }) {
   const t = useT();
   const { lang } = useWird();
@@ -74,6 +76,12 @@ export function CalendarView({
         <span>
           <i className="season" /> {t("cal.season")}
         </span>
+        <span>
+          <i className="mark-return" /> {t("cal.return")}
+        </span>
+        <span>
+          <i className="mark-milestone" /> {t("cal.milestone")}
+        </span>
       </div>
       <div className="calendar">
         <b>س</b>
@@ -107,6 +115,17 @@ export function CalendarView({
             <strong>{day}</strong>
             {day === 15 && <small>{t("cal.white")}</small>}
             {day === 5 && <small>{t("cal.friday")}</small>}
+            {(() => {
+              const key = `${refMonth.getFullYear()}-${String(refMonth.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+              const marks = markers?.[key] ?? [];
+              if (marks.length === 0) return null;
+              return (
+                <small>
+                  {marks.includes("return") ? `· ${t("cal.return")}` : ""}
+                  {marks.includes("milestone") ? ` ★ ${t("cal.milestone")}` : ""}
+                </small>
+              );
+            })()}
           </button>
         ))}
       </div>

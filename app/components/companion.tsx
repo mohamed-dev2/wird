@@ -83,6 +83,7 @@ export function CompanionCard({
   hadith,
   overlayNote,
   coreTitles,
+  contextLine,
   onAction,
   onDismiss,
 }: {
@@ -91,6 +92,7 @@ export function CompanionCard({
   hadith: { book: string; id: string } | null;
   overlayNote: string | null;
   coreTitles: string[];
+  contextLine: string | null;
   onAction: (g: Guidance) => void;
   onDismiss: () => void;
 }) {
@@ -101,6 +103,7 @@ export function CompanionCard({
       <h2>{t(guidance.titleKey, guidance.vars)}</h2>
       <p>{t(guidance.bodyKey, guidance.vars)}</p>
       {guidance.reasonKey && <p className="cm-why">{t(guidance.reasonKey, guidance.reasonVars)}</p>}
+      {contextLine && <p className="cm-merge">{contextLine}</p>}
       {overlayNote && <p className="cm-merge">{overlayNote}</p>}
       {verse && <VerseCard surah={verse.surah} ayah={verse.ayah} />}
       {hadith && <HadithCard book={hadith.book} id={hadith.id} />}

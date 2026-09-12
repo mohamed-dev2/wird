@@ -9,6 +9,11 @@
 
 Daily Islamic habits tracker — Next.js 16 + React 19, **100% on-device** (localStorage only, no database, no accounts).
 
+**Wird** is a private, offline-first daily worship companion with an adaptive
+guide that understands where you are in your journey. Nothing leaves the
+device except user-initiated transfers. No analytics SDKs, no tracking, no
+cloud AI.
+
 ## التشغيل | Run
 
 ```bash
@@ -18,51 +23,74 @@ npm run build      # production build
 npm run start      # serve production
 npm run lint       # ESLint flat config, zero warnings
 npm run typecheck  # tsc --noEmit (strict + noUncheckedIndexedAccess)
-npm run test       # Vitest unit tests
+npm run test       # Vitest unit tests (100+)
 npm run test:e2e   # Playwright e2e (production server)
 npm run format     # Prettier write
+npm run docs:check # verify docs match code (keys + routes + parity)
 npm run clean      # wipe .next + tsbuildinfo (run after major upgrades)
 ```
 
-Node 22 (`.nvmrc`). CI (`.github/workflows/ci.yml`) runs typecheck → lint → unit → e2e → build → audit.
+Node 22 (`.nvmrc`). CI (`.github/workflows/ci.yml`) runs typecheck → lint → unit → e2e → build → audit → docs:check.
 
 ## المزايا | Features
 
 - **اليوم**: صلوات وأوراد، خطة إنقاذ، جلسة قرآن بمؤقت، بطاقات الجمعة/الوتر، عادات مخصصة، تحديات، عهود، ركن الصغار، قضاء الفوائت، الصيام، كسر العادات، وضع رمضان التلقائي.
-- **الحصاد** (`/review`): مراجعة ليلية tri-state مع درجة ومزاج وامتنان — تُحفظ كسجل يومي غير قابل للعبث.
-- **التقدّم** (`/insights`): إحصاءات حقيقية من سجلك، رادار التوازن، مدرب خبير (إهمال/كفاءة/رفع/مخاطر)، حصاد العام الهجري، شريط ٣٠ يومًا.
-- **المكتبة** (`/library`): قارئ قرآن كامل دون إنترنت (بحث، علامات، حفظ)، مختارات الكتب التسعة + الأربعون النووية، مسارات علمية ٤ مستويات × ٨ علوم، لوحة الأحلام.
-- **العودة**: شاشة رجوع متدرجة الرحمة بعد الغياب + سلّم تنبيهات محلية + تسجيل صوتي + مواقيت يدوية بعدّادات حية + وضع المسجد.
-- **الخصوصية**: تصدير عادي/مشفر (AES-GCM)، استيراد، مسح شامل — صفحة حسابي.
-- **التجربة**: عربي/إنجليزي (RTL/LTR)، فاتح/ليلي/أسود، PWA (تثبيت + عمل دون إنترنت)، حركات هادئة تحترم تقليل الحركة، طباعة للتقارير.
+- **المرشد التكيفي**: بطاقة واحدة ذكية (26 حالة: عودة، تعثر، زخم، إرهاق…) مع آية/حديث موثّقين من مجموعات محلية، ومسار توبة اختياري بعد الغياب الطويل — دون أحكام ودون ادعاء معرفة القلوب.
+- **الحصاد** (`/review`): مراجعة ليلية tri-state مع درجة ومزاج وامتنان — تُحفظ كسجل يومي، مع سطر سياق ليلي.
+- **التقدّم** (`/insights`): طبقات تحليلية محلية قابلة للتفسير (اتجاهات، عبادة-عبادة، قرآن وحفظ، أذكار، أهداف وتحديات وعهود، عودات واستمرارية، خريطة نشاط، مراجعة شهرية/سنوية، إنجازات) + مدى مخصص للمقارنة — لا بيانات مفتعلة أبدًا.
+- **المكتبة** (`/library`): قارئ قرآن كامل دون إنترنت (بحث، علامات، حفظ بتاريخ مراجعة)، مختارات الكتب التسعة + الأربعون النووية، مسارات علمية ٤ مستويات × ٨ علوم، لوحة الأحلام.
+- **العودة**: شاشة رجوع متدرجة حسب عمق الغياب (3/7/14/30/90 يومًا) + سلّم تنبيهات محلية + تسجيل صوتي + مواقيت يدوية بعدّادات حية + وضع المسجد.
+- **الخصوصية**: تصدير عادي/مشفر (AES-GCM ببيان سلامة)، استيراد ذرّي متحقق، مسح شامل بتأكيد مزدوج — صفحة حسابي.
+- **الاسترداد** (`/recovery`): بيئة طوارئ مستقلة لفحص التخزين والتصدير الطارئ والاسترجاع.
+- **التجربة**: عربي/إنجليزي (RTL/LTR، 770+ مفتاحًا بفحص تكافؤ)، فاتح/ليلي/أسود، PWA (تثبيت + عمل دون إنترنت)، حركات هادئة تحترم تقليل الحركة، طباعة للتقارير.
 
 ## البنية | Structure
 
 ```
 app/
-  page.tsx              اليوم (Today)
-  review|insights|calendar|library|account  one route per tab
+  page.tsx              اليوم (Today + companion card + return screen)
+  review|insights|calendar|library|account|recovery  one route per tab
   components/
     wird-store.tsx      shared state (mount-hydration pattern, no SSR mismatch)
     shell.tsx           sidebar/nav/header/zikr
+    companion.tsx       adaptive card + verified verse/hadith blocks
+    analytics-layers.tsx  insights layers (progressive disclosure)
     views/              tab views (props-driven)
     library/            quran/hadith/paths/dreams
   lib/
     wird.ts             habits data + storage helpers (daily-keyed, self-resetting)
-    history.ts coach.ts review analytics engine (pure, unit-tested)
-    crypto.ts           AES-GCM backup, quran.ts search, prayer.ts, notify.ts, voice.ts
-    strings.ts          420+ key AR/EN dictionary (religious content stays Arabic)
+    history.ts coach.ts companion.ts analytics.ts content.ts
+                        review/coach/guidance/analytics engines (pure, unit-tested)
+    schema.ts           versioned integrity layer (envelopes, quarantine, migrations)
+    crypto.ts           AES-GCM backup + atomic validated import, transfer.ts QR, lan.ts WebRTC
+    diagnostics.ts      local-only health snapshots + emergency export
+    strings.ts          770+ key AR/EN dictionary (religious content stays Arabic)
     data/               surahs, hadith selections, learning paths, return verses
-public/data/quran-uthmani.min.json  offline mushaf (~1.4MB, lazy-fetched)
-e2e/                    Playwright smoke (prod server — dev HMR is sandbox-flaky)
+  public/data/          offline mushaf, Clear-Quran EN, Jalalayn, Nawawi, BIP39 (~4.7MB lazy)
+  e2e/                  Playwright suites (prod server — dev HMR is sandbox-flaky)
+  docs/ANALYTICS.md     analytics methodology (formulas, thresholds, confidence)
 ```
 
 ## الأمان | Security
 
-Security headers + production-only strict CSP (`next.config.ts`), `X-Powered-By` hidden, mic allowed for self (voice logging), `npm audit` clean, encrypted backups, one-tap wipe, input-safe rendering.
+Security headers + production-only strict CSP (`next.config.ts`), `X-Powered-By` hidden, mic allowed for self (voice logging), `npm audit` clean, encrypted backups with fresh salt/IV per file, profile-id scoping + quarantine purge on delete, one-tap wipe, input-safe rendering. Details: `DOCUMENTATION.md` §9.
+
+## الخصوصية | Privacy
+
+كل البيانات في `localStorage` على جهازك — السجل، المزاج، التأملات، الأهداف،
+سجل الغياب، حالة المرشد، نتائج التحليلات: لا شيء يغادر الجهاز إلا بنسخة
+احتياطية أو نقل تبادر به أنت صراحة (وملخص التشخيص العددي فقط عند التصدير
+الطوعي). لا تحليلات خارجية، لا تتبع، لا ذكاء سحابي.
 
 ## ملاحظات تقنية
 
 - الحالة تبدأ بقيم ثابتة مطابقة لـ SSR ثم تُحمّل بعد التركيب — لا hydration errors.
 - مفاتيح التخزين يومية (`{day, ...}`) فتتصفّر تلقائيًا؛ السجل `wird-history-v1` يحتفظ بأرشيف per-deed للتحليل.
+- طبقة السلامة (`schema.ts`) تقبل البيانات القديمة العارية وتهاجرها دون مسح، وتحجر التالف بدل إسقاطه.
+- التحليلات حتمية ومفسّرة: لا اتجاه دون عتبة، لا نمط أيام دون عينات كافية، ولا دقة مفتعلة.
 - بعد أي ترقية رئيسية: `npm run clean` أولًا.
+
+## التوثيق الكامل
+
+- `DOCUMENTATION.md` — الدليل الشامل (13 قسمًا + المرشد التكيفي + المنهجية).
+- `docs/ANALYTICS.md` — منهجية التحليلات بالتفصيل.

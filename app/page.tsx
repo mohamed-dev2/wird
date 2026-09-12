@@ -16,6 +16,7 @@ import {
   type CompanionInput,
   type GuideLog,
 } from "./lib/companion";
+import { detectReturns, frictionByGroups, restartSizeEvidence } from "./lib/analytics";
 import { hadithForTheme, parseVerseRef, versesForTheme } from "./lib/content";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
@@ -119,6 +120,7 @@ export default function TodayPage() {
     addCustom,
     addDua,
     addGoal,
+    toggleGoalDone,
     editIntention,
     cycleFilter,
     passFilter,
@@ -300,6 +302,47 @@ export default function TodayPage() {
     );
     return ids.map((id) => allHabits.find((h) => h.id === id)?.title ?? id);
   }, [guidance, history, allHabits, todayStr]);
+
+  // Analytics → coach (AM/AN/AR): pre-break best habit + restart-size
+  // evidence + evening friction, all from local history only.
+  const returnContext = useMemo(() => {
+    if (!guidance || !cmReady) return null;
+    if (guidance.state !== "RETURNING" && guidance.state !== "REBUILDING") return null;
+    const events = detectReturns(history, todayStr);
+    if (events.length === 0) return null;
+    const last = events[events.length - 1];
+    if (!last || last.gapDays < 7) return null;
+    const parts: string[] = [];
+    const best = coreDeeds(
+      history,
+      allHabits.map((h) => h.id),
+      last.returnDay,
+    ).slice(0, 1);
+    const bestTitle =
+      best.length > 0 ? (allHabits.find((h) => h.id === best[0])?.title ?? null) : null;
+    if (bestTitle) parts.push(t("cm.r.returnBest", { deed: bestTitle }));
+    const ev = restartSizeEvidence(events);
+    if (ev.small && ev.large && ev.small.avgCont14 > ev.large.avgCont14) {
+      parts.push(t("cm.r.smallRestart"));
+    }
+    return parts.length > 0 ? parts.join(" ") : null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- context line for the selected guidance
+  }, [guidance, history, allHabits, todayStr, cmReady]);
+
+  const eveningFriction = useMemo(() => {
+    if (!guidance || guidance.action !== "rescue") return false;
+    const first = sections.slice(0, 3).flatMap((s) => s.habits.map((h) => h.id));
+    const second = sections.slice(3).flatMap((s) => s.habits.map((h) => h.id));
+    const fr = frictionByGroups(
+      history,
+      [
+        { label: "morning", ids: first },
+        { label: "evening", ids: second },
+      ],
+      todayStr,
+    );
+    return (fr[0]?.rate ?? 1) - (fr[1]?.rate ?? 1) >= 0.2;
+  }, [guidance, history, todayStr]);
   const overlayNote = useMemo(() => {
     if (!guidance || !cmReady) return null;
     if (guidance.state === "RAMADAN" || guidance.state === "FRIDAY") return null;
@@ -634,6 +677,7 @@ export default function TodayPage() {
                 hadith={guideHadith}
                 overlayNote={overlayNote}
                 coreTitles={guideCoreTitles}
+                contextLine={returnContext}
                 onAction={(g) => handleGuideAction(g.action)}
                 onDismiss={() => setCmDismissed(guidance.logKind)}
               />
@@ -735,6 +779,11 @@ export default function TodayPage() {
                 <p>{t("rescue.sub")}</p>
                 {cmReady && guidance?.action === "rescue" && guidance.reasonKey && (
                   <p className="cm-why">{t(guidance.reasonKey, guidance.reasonVars)}</p>
+                )}
+                {cmReady && eveningFriction && (
+                  <p className="cm-why">
+                    {t("an.eveningVs")} {t("an.makeSmall")}
+                  </p>
                 )}
               </div>
               <span>✦</span>
@@ -1465,17 +1514,28 @@ export default function TodayPage() {
             <strong>١ / ٢</strong>
           </article>
           {customGoals.map((g, gi) => (
-            <article key={g.title} data-tilt>
+            <article key={g.title} data-tilt className={g.done ? "goal-done" : ""}>
               <span className="goal-icon">✦</span>
               <div>
                 <b>{g.title}</b>
                 <small>{g.detail}</small>
                 <div className="tiny-progress">
-                  <i style={{ width: "5%" }} />
+                  <i style={{ width: g.done ? "100%" : "5%" }} />
                 </div>
               </div>
-              <strong>{t("goals.new")}</strong>
-              {editBtn({ kind: "goal", index: gi, title: g.title, detail: g.detail })}
+              <strong>{g.done ? t("goals.done") : t("goals.new")}</strong>
+              <div className="chl-actions">
+                <button
+                  type="button"
+                  className="mini-check"
+                  onClick={() => toggleGoalDone(gi)}
+                  aria-pressed={!!g.done}
+                  aria-label={t("goals.checkAria")}
+                >
+                  {g.done ? "✓" : "+"}
+                </button>
+                {editBtn({ kind: "goal", index: gi, title: g.title, detail: g.detail })}
+              </div>
             </article>
           ))}
           {challenges.map((c) => {

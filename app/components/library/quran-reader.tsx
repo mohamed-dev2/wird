@@ -13,6 +13,7 @@ import {
 } from "../../lib/quran";
 import { fetchTafsir, TAFSIRS } from "../../lib/tafsir";
 import { ayahAudioUrl, RECITERS } from "../../lib/audio";
+import { dayId } from "../../lib/wird";
 import { useStoredState } from "../../lib/use-stored-state";
 import { useT } from "../../lib/i18n";
 import { useWird } from "../wird-store";
@@ -125,8 +126,16 @@ export function QuranReader() {
       .slice(0, 8);
   }, [query]);
 
+  // Marks carry an optional @dayId suffix (added for new marks) so revision
+  // recency is analyzable. Matching is prefix-based: legacy bare "s:a" marks
+  // keep working, and toggling off removes either shape.
+  const hasMem = (key: string) => memorized.some((k) => k === key || k.startsWith(`${key}@`));
   const toggleMem = (key: string) =>
-    setMemorized((cur) => (cur.includes(key) ? cur.filter((k) => k !== key) : [...cur, key]));
+    setMemorized((cur) =>
+      hasMem(key)
+        ? cur.filter((k) => k !== key && !k.startsWith(`${key}@`))
+        : [...cur, `${key}@${dayId()}`],
+    );
 
   const openTafsir = (surah: number, ayah: number) => {
     setTafsirText(null);
@@ -312,7 +321,7 @@ export function QuranReader() {
                 <span
                   key={key}
                   id={`ayah-${a.surah}-${a.ayah}`}
-                  className={`ayah${memorized.includes(key) ? " mem" : ""}${isMark ? " mark" : ""}${
+                  className={`ayah${hasMem(key) ? " mem" : ""}${isMark ? " mark" : ""}${
                     isPlaying ? " playing" : ""
                   }`}
                 >
@@ -344,10 +353,10 @@ export function QuranReader() {
                     <button
                       type="button"
                       onClick={() => toggleMem(key)}
-                      aria-pressed={memorized.includes(key)}
+                      aria-pressed={hasMem(key)}
                       aria-label={t("qr.mem")}
                     >
-                      {memorized.includes(key) ? "★" : "☆"}
+                      {hasMem(key) ? "★" : "☆"}
                     </button>
                   </span>
                 </span>

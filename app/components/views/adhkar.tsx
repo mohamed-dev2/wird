@@ -59,6 +59,21 @@ export function AdhkarView() {
   useEffect(() => {
     if (!mounted) return;
     saveToStorage("wird-adhkar-groups-v1", { day: dayId(), counts: groupCounts });
+    // Daily history log (capped): enables adhkar trends without touching
+    // the live envelope. Written only when today's snapshot changed.
+    try {
+      const t = dayId();
+      const log = loadFromStorage<Record<string, Record<string, number>>>("wird-adhkar-log-v1", {});
+      if (JSON.stringify(log[t] ?? null) !== JSON.stringify(groupCounts)) {
+        const next = { ...log, [t]: { ...groupCounts } };
+        const keys = Object.keys(next).sort();
+        while (keys.length > 180) {
+          const oldest = keys.shift();
+          if (oldest) delete next[oldest];
+        }
+        saveToStorage("wird-adhkar-log-v1", next);
+      }
+    } catch {}
   }, [mounted, groupCounts]);
   return (
     <section className="destination-view adhkar-view">
