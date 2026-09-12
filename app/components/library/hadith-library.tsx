@@ -37,6 +37,17 @@ function EntryCard({
       <p className="hadith-en" dir="ltr">
         {entry.en}
       </p>
+      {entry.meaning && (
+        <details className="hadith-sharh">
+          <summary>{t("hd.sharh")}</summary>
+          <p>{entry.meaning}</p>
+          {entry.meaningEn && (
+            <p className="hadith-en" dir="ltr">
+              {entry.meaningEn}
+            </p>
+          )}
+        </details>
+      )}
       <div className="hadith-meta">
         <span className={gradeClass(entry.grade)}>{entry.grade}</span>
         <span>{entry.ref}</span>

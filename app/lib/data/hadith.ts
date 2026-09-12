@@ -6,6 +6,8 @@ export type HadithEntry = {
   en: string;
   grade: string;
   ref: string;
+  meaning?: string;
+  meaningEn?: string;
 };
 
 export type HadithBook = {
@@ -29,6 +31,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "Actions are but by intentions, and every person shall have only what they intended.",
         grade: "صحيح",
         ref: "بدء الوحي، ١",
+        meaning: "مدار الأعمال على النية؛ فأخلص نيتك يَعظُم أجرك ولو قل العمل.",
+        meaningEn: "Deeds are judged by intentions — purify yours and small acts grow great.",
       },
       {
         id: "b2",
@@ -36,6 +40,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "Whoever Allah wishes good for, He gives him understanding of the religion.",
         grade: "صحيح",
         ref: "كتاب العلم، ٧١",
+        meaning: "التفقه في الدين علامة إرادة الله الخير بالعبد.",
+        meaningEn: "Understanding the religion is a sign Allah wills good for you.",
       },
       {
         id: "b3",
@@ -58,6 +64,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "Purity is half of faith, and Alhamdulillah fills the scale.",
         grade: "صحيح",
         ref: "الطهارة، ٢٢٣",
+        meaning: "الطهارة نصف الإيمان، والذكر يثقل الميزان.",
+        meaningEn: "Purity is half of faith, and remembrance weighs heavy in the balance.",
       },
       {
         id: "m2",
@@ -65,6 +73,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "Whoever travels a path seeking knowledge, Allah makes easy a path to Paradise.",
         grade: "صحيح",
         ref: "الذكر والدعاء، ٢٦٩٩",
+        meaning: "طلب العلم طريق مختصر إلى الجنة.",
+        meaningEn: "Seeking knowledge is a shortcut to Paradise.",
       },
       {
         id: "m3",
@@ -87,6 +97,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "Scholars are the heirs of the Prophets, who left knowledge as inheritance.",
         grade: "صحيح",
         ref: "كتاب العلم، ٣٦٤١",
+        meaning: "العلماء ورثة الأنبياء في العلم والدعوة.",
+        meaningEn: "Scholars inherit the Prophets' knowledge and mission.",
       },
       {
         id: "d2",
@@ -94,6 +106,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "Whoever imitates a people is one of them.",
         grade: "حسن صحيح",
         ref: "كتاب اللباس، ٤٠٣١",
+        meaning: "تحذير من التشبه بالكفار في خصائصهم.",
+        meaningEn: "A warning against imitating disbelievers in their distinct ways.",
       },
       {
         id: "d3",
@@ -116,6 +130,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "Fear Allah wherever you are, follow a bad deed with a good one, and treat people well.",
         grade: "حسن صحيح",
         ref: "البر والصلة، ١٩٨٧",
+        meaning: "جماع الوصايا: تقوى الله، ومحو السيئة بالحسنة، وحسن الخلق.",
+        meaningEn: "Three encompassing counsels: piety, erasing bad with good, fine character.",
       },
       {
         id: "t2",
@@ -123,6 +139,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "A kind word is charity, and every step to prayer is charity.",
         grade: "صحيح",
         ref: "البر والصلة",
+        meaning: "الكلام الطيب والخطا إلى المساجد صدقات يومية.",
+        meaningEn: "Kind words and steps to prayer are daily charities.",
       },
       {
         id: "t3",
@@ -145,6 +163,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "The siwak purifies the mouth and pleases the Lord.",
         grade: "صحيح",
         ref: "الطهارة، ٥",
+        meaning: "السواك سنة مؤكدة تجمع طهارة الفم ورضا الرب.",
+        meaningEn: "Siwak is an emphasized sunnah joining oral purity with divine pleasure.",
       },
       {
         id: "n2",
@@ -152,6 +172,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "Five prayers Allah prescribed; whoever upholds them has a covenant to enter Paradise.",
         grade: "صحيح",
         ref: "الصلاة",
+        meaning: "المحافظة على الصلوات الخمس عهد بدخول الجنة.",
+        meaningEn: "Guarding the five prayers is a covenant of Paradise.",
       },
       {
         id: "n3",
@@ -174,6 +196,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "Seeking knowledge is obligatory upon every Muslim.",
         grade: "صحيح",
         ref: "المقدمة، ٢٢٤",
+        meaning: "طلب العلم واجب على كل مسلم بحسب حاجته.",
+        meaningEn: "Seeking knowledge is obligatory on every Muslim.",
       },
       {
         id: "j2",
@@ -181,6 +205,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "No vessel a person fills is worse than his stomach.",
         grade: "صحيح",
         ref: "الأطعمة، ٣٣٤٩",
+        meaning: "الاقتصاد في الطعام صحة للبدن وعون على العبادة.",
+        meaningEn: "Moderation in food is health for the body and aid in worship.",
       },
       {
         id: "j3",
@@ -203,6 +229,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "I was only sent to perfect noble character.",
         grade: "صحيح بلاغًا",
         ref: "حسن الخلق",
+        meaning: "بعثة النبي ﷺ تتميم لمكارم الأخلاق.",
+        meaningEn: "The Prophet ﷺ was sent to perfect noble character.",
       },
       {
         id: "w2",
@@ -210,6 +238,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "It is not lawful for a Muslim to forsake his brother for more than three nights.",
         grade: "صحيح",
         ref: "الجامع",
+        meaning: "تحريم الهجر فوق ثلاث ليال بين المسلمين.",
+        meaningEn: "Forsaking a fellow Muslim beyond three nights is forbidden.",
       },
       {
         id: "w3",
@@ -232,6 +262,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "The most beloved deeds to Allah are the most consistent, even if small.",
         grade: "صحيح",
         ref: "مسند عائشة",
+        meaning: "المداومة على القليل أحب إلى الله من الكثير المنقطع.",
+        meaningEn: "Consistent small deeds beat abundant interrupted ones.",
       },
       {
         id: "h2",
@@ -239,6 +271,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "Shield yourselves from the Fire, even with half a date.",
         grade: "صحيح",
         ref: "مسند عدي بن حاتم",
+        meaning: "اتق النار ولو بصدقة يسيرة أو كلمة طيبة.",
+        meaningEn: "Shield yourself from Hellfire even with half a date or a kind word.",
       },
       {
         id: "h3",
@@ -261,6 +295,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "The boldest of you in giving fatwa is the boldest toward the Fire.",
         grade: "مرسل",
         ref: "المقدمة، باب من هاب الفتيا",
+        meaning: "تحذير المفتين بغير علم من الجرأة على الفتيا.",
+        meaningEn: "A warning to those bold in fatwa without knowledge.",
       },
       {
         id: "r2",
@@ -268,6 +304,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "Be a scholar, a student, a listener, or a lover — and do not be the fifth.",
         grade: "موقوف",
         ref: "المقدمة",
+        meaning: "مراتب أهل العلم: عالم أو متعلم أو مستمع أو محب.",
+        meaningEn: "Ranks of knowledge people: scholar, student, listener, lover.",
       },
       {
         id: "r3",
@@ -290,6 +328,9 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "O My servants, I have forbidden injustice for Myself and among you — so do not wrong one another.",
         grade: "صحيح مسلم",
         ref: "مسلم، ٢٥٧٧",
+        meaning: "تحريم الظلم تحريمًا مؤكدًا على الله وعلى العباد.",
+        meaningEn:
+          "Injustice is emphatically forbidden — by Allah upon Himself and among servants.",
       },
       {
         id: "q2",
@@ -297,6 +338,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "I am as My servant expects Me, and I am with them when they remember Me.",
         grade: "متفق عليه",
         ref: "البخاري ومسلم",
+        meaning: "حسن الظن بالله من أعظم العبادات القلبية.",
+        meaningEn: "Good expectations of Allah are among the greatest heart-worships.",
       },
       {
         id: "q3",
@@ -319,6 +362,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "War is deceit.",
         grade: "متفق عليه",
         ref: "البخاري ومسلم",
+        meaning: "جواز الخدعة في الحرب ضد العدو.",
+        meaningEn: "Deception against the enemy in war is permitted.",
       },
       {
         id: "e2",
@@ -326,6 +371,8 @@ export const HADITH_BOOKS: HadithBook[] = [
         en: "The Muslim is a mirror to his fellow Muslim.",
         grade: "حسن",
         ref: "سنن أبي داود",
+        meaning: "المؤمن مرآة أخيه ينصحه ويستر عيبه.",
+        meaningEn: "A believer mirrors their brother: advising and concealing faults.",
       },
       {
         id: "e3",

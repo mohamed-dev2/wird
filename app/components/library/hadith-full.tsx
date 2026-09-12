@@ -9,6 +9,7 @@ import {
   type FullBookId,
 } from "../../lib/hadith-full";
 import { normalizeAr } from "../../lib/quran";
+import { topicAr } from "../../lib/data/topics-ar";
 import { parseArDigits } from "../../lib/wird";
 import { copyText } from "../../lib/clipboard";
 import { useT } from "../../lib/i18n";
@@ -161,7 +162,7 @@ export function HadithFull({
               <option value="all">{t("hf.sectionAll")}</option>
               {Object.entries(book.sections).map(([id, name]) => (
                 <option key={id} value={id}>
-                  {name}
+                  {lang === "ar" ? topicAr(name) : name}
                 </option>
               ))}
             </select>
@@ -187,7 +188,11 @@ export function HadithFull({
                   <span className="grade-other">
                     {t("hf.num")} {h.num}
                   </span>
-                  <span>{book.sections[String(h.book)] ?? ""}</span>
+                  <span>
+                    {lang === "ar"
+                      ? topicAr(book.sections[String(h.book)] ?? "")
+                      : (book.sections[String(h.book)] ?? "")}
+                  </span>
                   <span className="hadith-tools">
                     <button
                       type="button"

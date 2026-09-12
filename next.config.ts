@@ -31,6 +31,9 @@ const csp = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  turbopack: {
+    root: __dirname,
+  },
   async headers() {
     const headers = [...securityHeaders];
     if (process.env.NODE_ENV === "production") {

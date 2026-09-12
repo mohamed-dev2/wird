@@ -14,6 +14,9 @@ work/
 # TypeScript incremental build info
 tsconfig.tsbuildinfo
 
+# Next.js generated env types (regenerated on dev/build, churns paths)
+next-env.d.ts
+
 # Logs and OS artifacts
 *.log
 npm-debug.log*
