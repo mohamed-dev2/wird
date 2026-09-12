@@ -576,8 +576,25 @@
   padding: 15px 18px;
   border-radius: 16px;
   color: #f3ecdb;
-  background: linear-gradient(120deg, #143f3b, #1d6a5c);
+  background: linear-gradient(120deg, #143f3b, #1d6a5c, #143f3b);
+  background-size: 220% 220%;
   border: 1px solid #2a7a68;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ramadan-banner {
+    animation: banner-drift 14s ease-in-out infinite;
+  }
+}
+
+@keyframes banner-drift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .ramadan-banner > span {

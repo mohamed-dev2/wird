@@ -36,6 +36,9 @@ must stay empty (CI-linted culture, review-enforced).
   analytics inputs.
 - Deleting a profile purges its quarantine raws too (they can hold up to
   4KB of that profile's data).
+- Names are hidden on lock/login screens when enabled (Account → privacy
+  → `wird-privacy-names-v1`); PIN fields opt out of autocomplete and
+  spellcheck.
 - Recovery phrases are shown once, never logged, never persisted (only
   the verifier), and never grant access by themselves.
 - Analytics inputs never leave; the only analytics artifact that can

@@ -21,6 +21,7 @@ const GLOBAL_KEYS = new Set([
   "wird-prayer-times-v1",
   "wird-quarantine-v1",
   "wird-health-v1",
+  "wird-privacy-names-v1",
 ]);
 
 let activeId: string | null = null;

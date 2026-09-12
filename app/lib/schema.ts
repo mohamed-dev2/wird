@@ -345,6 +345,7 @@ export const SCHEMAS: Record<string, Schema> = {
   ),
   "wird-guide-log-v1": S(1, isArr, () => []),
   "wird-adhkar-log-v1": S(1, isObj, () => ({})),
+  "wird-privacy-names-v1": S(1, isBool, () => false),
 };
 
 // ---------- quarantine + health (global, unprefixed keys) ----------

@@ -17,6 +17,7 @@ export function LoginGate() {
     switchProfile,
     deleteProfile,
     unlockProfile,
+    hideNames,
   } = useWird();
   const [name, setName] = useState("");
   const [avatar, setAvatar] = useState(AVATARS[0] ?? "🌙");
@@ -125,12 +126,14 @@ export function LoginGate() {
           <div className="login-card">
             <span className="login-avatar">{activeProfile.avatar}</span>
             <h2>
-              {t("auth.welcomeBack")}، {activeProfile.name}
+              {t("auth.welcomeBack")}، {hideNames ? t("auth.hidden") : activeProfile.name}
             </h2>
             <p>{t("auth.pinHint")}</p>
             <input
               type="password"
               inputMode="numeric"
+              autoComplete="new-password"
+              spellCheck={false}
               maxLength={8}
               value={pinTry}
               onChange={(e) => setPinTry(e.target.value.replace(/\D/g, ""))}
@@ -182,11 +185,15 @@ export function LoginGate() {
                   onChange={(e) => setWords(e.target.value)}
                   placeholder={t("rc.enterWords")}
                   aria-label={t("rc.enterWords")}
+                  autoComplete="off"
+                  spellCheck={false}
                   rows={3}
                 />
                 <input
                   type="password"
                   inputMode="numeric"
+                  autoComplete="new-password"
+                  spellCheck={false}
                   maxLength={8}
                   value={newPin}
                   onChange={(e) => setNewPin(e.target.value.replace(/\D/g, ""))}
@@ -228,7 +235,8 @@ export function LoginGate() {
                 {profiles.map((p) => (
                   <div key={p.id} className="profile-row">
                     <button type="button" onClick={() => switchProfile(p.id)}>
-                      <span>{p.avatar}</span> {p.name} {p.pinHash ? "🔒" : ""}
+                      <span>{p.avatar}</span> {hideNames ? t("auth.hidden") : p.name}{" "}
+                      {p.pinHash ? "🔒" : ""}
                     </button>
                     <button
                       type="button"
@@ -271,6 +279,8 @@ export function LoginGate() {
               onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
               placeholder={t("auth.pinPh")}
               aria-label={t("auth.pin")}
+              autoComplete="new-password"
+              spellCheck={false}
               inputMode="numeric"
               maxLength={8}
             />

@@ -139,7 +139,7 @@ Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-prayer-times-v1`, `wird-autolock-v1`, `wird-recovery-v1`,
 `wird-pinlock`, `wird-pinlock-*`, `wird-unlocked` (sessionStorage),
 `wird-quarantine-v1`, `wird-health-v1`, `wird-last-backup-v1`,
-`wird-guide-log-v1` (diagnostics, see below).
+`wird-guide-log-v1`, `wird-privacy-names-v1` (diagnostics, see below).
 
 Helpers: `loadFromStorage` / `saveToStorage` (`lib/wird.ts`, profile-aware),
 `useStoredState` (`lib/use-stored-state.ts`, hydration-safe), `nsKey`
@@ -217,6 +217,10 @@ Download filenames (not storage, also matched by the checker):
 - Switching profile reloads the app so no cross-profile state leaks; every
   async import captures the active profile id first and aborts if it changed
   mid-decrypt, so imports can never commit into the wrong profile.
+- Anonymity: optional name-hiding on lock/login screens
+  (`wird-privacy-names-v1`, Account → privacy); PIN fields use
+  `autocomplete="new-password"` + no spellcheck against autofill and
+  shoulder-surfing dictionaries.
 - Catastrophic failure → `/recovery` (independent of the main store):
   storage-health inspection, emergency export, backup restore, per-dataset
   surgical reset, full erase only by typing DELETE.

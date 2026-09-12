@@ -5,6 +5,7 @@ import { modeLabel, MODES, prayerName, useT } from "./lib/i18n";
 import { fastLabel, PRAYER_ID } from "./lib/daymode";
 import { EditModal } from "./components/edit-modal";
 import { NowView } from "./components/views/now";
+import { PrayerArc } from "./components/prayer-arc";
 import { CompanionCard, VerseCard } from "./components/companion";
 import {
   assessUser,
@@ -1229,6 +1230,7 @@ export default function TodayPage() {
                   {prayerName(lang, upcoming.id)} <b>{upcoming.at}</b>
                 </h3>
                 <p>{arDuration(upcoming.inMs)}</p>
+                <PrayerArc times={prayerTimes} now={nowDate} />
               </>
             ) : (
               <>

@@ -107,6 +107,8 @@ export type WirdStore = {
   setPrayerTimes: Dispatch<SetStateAction<PrayerTimes>>;
   mosque: boolean;
   setMosque: Dispatch<SetStateAction<boolean>>;
+  hideNames: boolean;
+  setHideNames: Dispatch<SetStateAction<boolean>>;
   qada: QadaItem[];
   setQada: Dispatch<SetStateAction<QadaItem[]>>;
   addQada: (label: string) => void;
@@ -216,6 +218,8 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>("ar");
   const [prayerTimes, setPrayerTimes] = useState<PrayerTimes>({});
   const [mosque, setMosque] = useState(false);
+  // Anonymity: hide profile names on lock/login screens (over-the-shoulder).
+  const [hideNames, setHideNames] = useState(false);
   const [qada, setQada] = useState<QadaItem[]>([]);
   const [fastType, setFastType] = useState<string | null>(null);
   const [breaker, setBreaker] = useState<Breaker | null>(null);
@@ -271,6 +275,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     }
     setPrayerTimes(loadFromStorage("wird-prayer-times-v1", {}));
     setMosque(loadFromStorage("wird-mosque-v1", false));
+    setHideNames(loadFromStorage("wird-privacy-names-v1", false));
     setAutoLock(loadFromStorage("wird-autolock-v1", 15));
     setQada(loadFromStorage("wird-qada-v1", []));
     setFastType(loadDailyText("wird-fast-v2", "", t) || null);
@@ -397,6 +402,10 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     if (!mounted) return;
     saveToStorage("wird-mosque-v1", mosque);
   }, [mounted, mosque]);
+  useEffect(() => {
+    if (!mounted) return;
+    saveToStorage("wird-privacy-names-v1", hideNames);
+  }, [mounted, hideNames]);
   useEffect(() => {
     if (!mounted) return;
     saveToStorage("wird-autolock-v1", autoLock);
@@ -740,6 +749,8 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     setPrayerTimes,
     mosque,
     setMosque,
+    hideNames,
+    setHideNames,
     qada,
     setQada,
     addQada,

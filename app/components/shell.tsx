@@ -49,6 +49,7 @@ export function Shell({ children }: { children: ReactNode }) {
     // Subtle pointer tilt for [data-tilt] cards: desktop pointers only,
     // disabled with reduced motion. Delegated — survives route changes.
     let last: HTMLElement | null = null;
+    let queued = false;
     try {
       if (!window.matchMedia("(pointer: fine)").matches) return;
       if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -62,21 +63,31 @@ export function Shell({ children }: { children: ReactNode }) {
         last = null;
       }
     };
-    const move = (e: PointerEvent) => {
+    const applyTilt = (clientX: number, clientY: number) => {
       const el = document
-        .elementFromPoint(e.clientX, e.clientY)
+        .elementFromPoint(clientX, clientY)
         ?.closest?.("[data-tilt]") as HTMLElement | null;
       if (last && last !== el) clear();
       last = el;
       if (!el) return;
       const r = el.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) return;
-      const px = (e.clientX - r.left) / r.width - 0.5;
-      const py = (e.clientY - r.top) / r.height - 0.5;
+      const px = (clientX - r.left) / r.width - 0.5;
+      const py = (clientY - r.top) / r.height - 0.5;
       el.style.setProperty("--ry", `${(px * 11).toFixed(2)}deg`);
       el.style.setProperty("--rx", `${(-py * 11).toFixed(2)}deg`);
       el.style.setProperty("--mx", `${((px + 0.5) * 100).toFixed(1)}%`);
       el.style.setProperty("--my", `${((py + 0.5) * 100).toFixed(1)}%`);
+    };
+    const move = (e: PointerEvent) => {
+      // Coalesce to one style write per frame: per-event writes jank.
+      if (queued) return;
+      queued = true;
+      const { clientX, clientY } = e;
+      window.requestAnimationFrame(() => {
+        queued = false;
+        applyTilt(clientX, clientY);
+      });
     };
     document.addEventListener("pointermove", move, { passive: true });
     document.addEventListener("pointerleave", clear);

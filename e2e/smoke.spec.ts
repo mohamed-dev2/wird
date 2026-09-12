@@ -112,3 +112,26 @@ test("ayah hover opens a floating choice-list menu, memorize persists", async ({
       .getByRole("menuitemcheckbox", { name: /حفظ|Memorized/ }),
   ).toHaveAttribute("aria-checked", "true");
 });
+
+test("prayer arc renders between configured times", async ({ page }) => {
+  await ensureProfile(page);
+  await page.evaluate(() => {
+    try {
+      localStorage.setItem(
+        "wird-prayer-times-v1",
+        JSON.stringify({
+          fajr: "05:00",
+          dhuhr: "12:00",
+          asr: "15:30",
+          maghrib: "18:00",
+          isha: "19:30",
+        }),
+      );
+    } catch {}
+  });
+  await page.reload();
+  await page.goto("/");
+  const arc = page.locator(".prayer-arc").first();
+  await expect(arc).toBeVisible({ timeout: 20000 });
+  await expect(arc.locator(".arc-sun")).toBeVisible();
+});

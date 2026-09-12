@@ -246,6 +246,8 @@ export function AccountView({ onReset }: { onReset: () => void }) {
     done,
     customs,
     lang,
+    hideNames,
+    setHideNames,
   } = useWird();
   const [openRow, setOpenRow] = useState<string | null>(null);
   const askName = askPrompt;
@@ -465,6 +467,15 @@ export function AccountView({ onReset }: { onReset: () => void }) {
                 {item === "ac.privacy" && (
                   <>
                     <p>{t("bk.s")}</p>
+                    <button
+                      type="button"
+                      className="linklike"
+                      onClick={() => setHideNames((v) => !v)}
+                      aria-pressed={hideNames}
+                    >
+                      {hideNames ? "✓ " : ""}
+                      {t("auth.hideNames")}
+                    </button>
                     <button
                       type="button"
                       className="linklike"

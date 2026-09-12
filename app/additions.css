@@ -45,6 +45,42 @@
   font-size: 9px;
 }
 
+/* Living prayer arc: sun glides prev → next as time passes (position set
+   inline from dayArc(); only the glow breathes, and only with motion OK). */
+.prayer-arc {
+  width: 100%;
+  max-width: 230px;
+  margin-top: 6px;
+  display: block;
+}
+
+.prayer-arc .arc-sun {
+  fill: var(--gold);
+  stroke: #fff8e6;
+  stroke-width: 1.5;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .prayer-arc .arc-sun {
+    animation: sun-breathe 4s ease-in-out infinite;
+  }
+}
+
+@keyframes sun-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.prayer-arc .arc-label {
+  font-size: 7px;
+  fill: var(--muted);
+}
+
 .next-prayer button,
 .counter,
 .intention button {

@@ -936,21 +936,50 @@ footer {
   box-shadow: var(--shadow-pop);
 }
 
-/* Subtle 3D: pointer tilt (JS sets --rx/--ry), layered hero ring, medal pops */
+/* Subtle 3D: pointer tilt (JS sets --rx/--ry/--mx/--my), layered hero ring, medal pops.
+   NOTE: transform transitions live ONLY on the resting state. While hovering,
+   tracking must be instant — a transform transition there would smooth away
+   every pointermove update and the tilt would feel dead. */
 @media (pointer: fine) {
   [data-tilt] {
     transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
     transition:
-      transform 0.18s var(--ease-out),
+      transform 0.45s var(--ease-out),
       box-shadow 0.2s ease,
       border-color 0.2s ease,
       background 0.2s ease;
+    transform-style: preserve-3d;
   }
   article.card[data-tilt]:hover,
   button.extra[data-tilt]:hover,
   .goal-grid article[data-tilt]:hover,
   .metric-row article[data-tilt]:hover {
     transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-2px);
+    transition:
+      box-shadow 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease;
+  }
+  /* Light sheen that follows the pointer (JS provides --mx/--my). */
+  article.card[data-tilt]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    background: radial-gradient(
+      220px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(245, 206, 115, 0.22),
+      transparent 70%
+    );
+  }
+  article.card[data-tilt]:hover::after {
+    opacity: 1;
+  }
+  article.card[data-tilt] {
+    position: relative;
   }
 }
 
@@ -969,6 +998,30 @@ footer {
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.28),
     0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Living glow: the ring breathes so Today feels alive on arrival.
+   Motion-OK only; static otherwise. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-ring {
+    animation: ring-breathe 5s ease-in-out infinite;
+  }
+}
+
+@keyframes ring-breathe {
+  0%,
+  100% {
+    box-shadow:
+      0 18px 40px rgba(0, 0, 0, 0.28),
+      0 2px 6px rgba(0, 0, 0, 0.2),
+      0 0 0 0 rgba(20, 115, 94, 0.35);
+  }
+  50% {
+    box-shadow:
+      0 18px 40px rgba(0, 0, 0, 0.28),
+      0 2px 6px rgba(0, 0, 0, 0.2),
+      0 0 0 12px rgba(20, 115, 94, 0);
+  }
 }
 
 .hero-copy {
