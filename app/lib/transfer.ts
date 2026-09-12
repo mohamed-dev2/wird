@@ -1,3 +1,6 @@
+// QR transfer primitives: gzip→base64, chunking, WIRD1:i/n: encode/decode,
+// order-independent assembly. Pure + unit-tested; session locking and PIN
+// verification live in the UI layer (transfer.tsx).
 export async function gzipToB64(text: string): Promise<string> {
   try {
     const stream = new Blob([text]).stream().pipeThrough(new CompressionStream("gzip"));

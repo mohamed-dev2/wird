@@ -1,3 +1,6 @@
+// Calendar route (/calendar): computes return/milestone markers from local
+// analytics, then renders CalendarView. Markers are advisory dots, never
+// judgments — see docs/ANALYTICS.md language rules.
 "use client";
 
 import { useMemo } from "react";

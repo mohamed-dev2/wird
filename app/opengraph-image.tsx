@@ -1,3 +1,5 @@
+// Dynamic OG image (edge-rendered): brand title on the app gradient.
+// Static content only — never embeds user data (shared URLs stay private).
 import { ImageResponse } from "next/og";
 
 export const size = { width: 1200, height: 630 };

@@ -1,3 +1,6 @@
+// Coach brief engine (insights surface): neglect ranking, weekday-risk,
+// quran pace, lift scores, witr praise. Pure + deterministic; copy stays
+// observational (see guidance-safety tests).
 import type { Lang } from "../components/wird-store";
 import { extras, sections } from "./wird";
 import { adherence, dataStreak, lastNDays, missStreak, type History } from "./history";

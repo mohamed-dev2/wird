@@ -1,3 +1,6 @@
+// EditModal: generic rename dialog for customs/goals/challenges/pledges.
+// Caller owns persistence; the modal only returns the edited values (or
+// null on cancel) so destructive actions stay explicit at the call site.
 "use client";
 
 import { useEffect, useState } from "react";

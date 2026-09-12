@@ -38,8 +38,10 @@ export function VerseCard({ surah, ayah }: { surah: number; ayah: number }) {
       live = false;
     };
   }, [surah, ayah]);
-  // Hydration-safe + authenticity-first: nothing until verified loaded.
-  if (!ready || missing || !verse) return null;
+  // Hydration-safe + authenticity-first: skeleton while the verified
+  // bundle loads, nothing at all when the ref is absent from the dataset.
+  if (!ready) return <div className="skel" role="status" aria-label={t("qr.loading")} />;
+  if (missing || !verse) return null;
   const ref = lang === "ar" ? `${surahNameAr(surah)} · ${ayah}` : `Quran · ${surah}:${ayah}`;
   return (
     <blockquote className="cm-verse" aria-label={t("cm.quran")}>

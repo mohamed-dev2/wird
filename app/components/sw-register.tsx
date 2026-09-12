@@ -1,3 +1,6 @@
+// Service-worker registration + update banner (SKIP_WAITING flow).
+// The worker caches library bundles for offline use; it never touches
+// user data. Registration is client-only and failure-silent.
 "use client";
 
 import { useEffect, useState } from "react";

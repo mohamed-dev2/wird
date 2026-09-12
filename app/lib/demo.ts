@@ -1,3 +1,6 @@
+// Demo mode: deterministic 45-day seeded dataset (mulberry32) for
+// showcasing stats. Merges fill-only (never overwrites real records);
+// clearing is namespaced to the current profile and must confirm in UI.
 import type { History } from "./history";
 import { nsKey } from "./profiles";
 import { loadFromStorage, saveToStorage } from "./wird";

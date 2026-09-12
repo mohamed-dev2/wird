@@ -1,4 +1,6 @@
 // Curated return-screen verses: hope → paradise → warning (mercy-first escalation).
+// Texts are verified selections; the companion resolves refs against the
+// bundled mushaf at runtime (see content.ts) rather than trusting strings.
 export type VerseTone = "hope" | "jannah" | "warning";
 export type Verse = { text: string; ref: string; tone: VerseTone };
 

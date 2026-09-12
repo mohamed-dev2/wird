@@ -1,3 +1,5 @@
+// Day modes (full/normal/busy/travel/sick): labels, normalization of
+// legacy Arabic labels, and fasting labels. Pure; no storage here.
 import type { Lang } from "../components/wird-store";
 import { tr } from "./strings";
 

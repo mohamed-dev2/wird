@@ -1,3 +1,5 @@
+// Adhkar groups view: per-item counters with daily reset, plus the salawat
+// counter. Counts persist enveloped; a capped daily log feeds adhkar trends.
 "use client";
 
 import { useEffect, useState } from "react";

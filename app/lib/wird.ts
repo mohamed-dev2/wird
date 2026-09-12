@@ -1,3 +1,7 @@
+// Wird domain core: habit/section catalogs, day helpers, and the profile-
+// aware storage helpers (loadFromStorage/saveToStorage) that route every
+// read/write through the schema integrity layer. Daily loaders trust ONLY
+// storage-proven values (readTrusted) so corruption can never masquerade.
 export type Habit = {
   id: string;
   title: string;

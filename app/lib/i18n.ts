@@ -1,3 +1,5 @@
+// i18n glue: useT() hook (lang from store), prayer/day-mode label helpers.
+// Raw dictionaries live in strings.ts; AR/EN parity is CI-enforced.
 "use client";
 
 import { useWird } from "../components/wird-store";

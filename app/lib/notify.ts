@@ -1,3 +1,6 @@
+// Gentle reminders: bedtime nudges + ladder evaluation against the day's
+// real progress. Notification permission is requested only on explicit user
+// action; denial degrades to silent (never blocks the app).
 export type ReminderSettings = {
   enabled: boolean;
   bedtime: string; // "HH:MM"

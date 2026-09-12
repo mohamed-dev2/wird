@@ -1,3 +1,5 @@
+// Sitemap: public routes only. Per-user pages hold no server content, so
+// listing them would leak nothing but also help nothing — hence excluded.
 import type { MetadataRoute } from "next";
 
 const routes = ["", "/calendar", "/insights", "/review", "/library", "/account"];

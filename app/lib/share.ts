@@ -1,3 +1,6 @@
+// Share-as-image: canvas-rendered milestone card (stats the user chose to
+// share). Never receives reflections, mood, or history — callers pass an
+// explicit ShareStats allowlist only. See docs/PRIVACY.md.
 export type ShareStats = { avg: number; streak: number; witr: number; pages: number; days: number };
 
 /** Renders a 1080x1350 milestone card and shares (or downloads) it. */

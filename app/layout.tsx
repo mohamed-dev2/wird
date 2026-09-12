@@ -1,3 +1,6 @@
+// Root layout: metadata/OG/RTL shell, fonts, global CSS, WirdProvider +
+// Shell around every route (including /recovery, which stays independent
+// of provider STATE even though it renders inside the provider tree).
 import type { Metadata, Viewport } from "next";
 import "./tokens.css";
 import "./styles.css";

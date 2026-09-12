@@ -1,3 +1,5 @@
+// Tafsir sources: Jalalayn bundled offline; others fetched on demand from
+// CSP-allowlisted endpoints and cached by the service worker afterwards.
 export type TafsirSource = { id: string; ar: string; en: string; offline?: boolean };
 
 export const TAFSIRS: TafsirSource[] = [

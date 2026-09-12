@@ -1,3 +1,5 @@
+// Full 9-book hadith library: static catalog + lazy per-book JSON fetch.
+// IDs are stable (book + number) so favorites/reads survive updates.
 export type FullHadith = {
   num: number;
   text: string;

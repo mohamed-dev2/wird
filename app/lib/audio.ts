@@ -1,3 +1,5 @@
+// Reciter catalog + per-ayah MP3 URLs (everyayah.com, CSP-allowlisted).
+// Audio streams on demand only; nothing is prefetched or uploaded.
 export type Reciter = { id: string; ar: string; en: string };
 
 export const RECITERS: Reciter[] = [

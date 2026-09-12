@@ -1,3 +1,6 @@
+// NowView: "what fits right now" quick list driven by the current moment
+// (prayer countdown context). Read-only suggestions — toggling still goes
+// through the store so history stays the single source of truth.
 "use client";
 
 import { useT } from "../../lib/i18n";

@@ -1,3 +1,5 @@
+// Bundled Quran access: Uthmani text + Clear-Quran English, lazy-fetched
+// once and cached in-module. Includes Arabic search normalization helpers.
 export type Ayah = { surah: number; ayah: number; text: string };
 
 let cache: Promise<Ayah[]> | null = null;

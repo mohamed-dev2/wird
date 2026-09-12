@@ -1,3 +1,5 @@
+// Learning paths browser: 8 sciences × 4 levels from lib/data/paths.ts,
+// plus the user's own custom books. Progress is manual checkmarks only.
 "use client";
 
 import { useState } from "react";

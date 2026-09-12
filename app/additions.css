@@ -1120,3 +1120,127 @@
   font-size: 12px;
   line-height: 1.9;
 }
+
+/* =====================================================================
+   Accessibility + privacy-hardening layer
+   - :focus-visible ring system (keyboard users get what hover gives mice)
+   - skeleton shimmer for async loads (library bundles, verses)
+   - forced-colors (Windows high contrast) fallbacks
+   - print: interactive chrome + private content never hit paper
+   - calendar marker dots + heat legend swatches (never color-ONLY:
+     every swatch ships with a text label next to it)
+   - global reduced-motion kill-switch (per-component guards stay first)
+   ===================================================================== */
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Async content placeholder: shimmer while bundles load. */
+.skel {
+  border-radius: 10px;
+  min-height: 44px;
+  background: linear-gradient(
+    100deg,
+    var(--brand-soft) 30%,
+    var(--surface) 50%,
+    var(--brand-soft) 70%
+  );
+  background-size: 200% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skel {
+    animation: skel-drift 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes skel-drift {
+  0%,
+  100% {
+    background-position: 0% 0;
+  }
+  50% {
+    background-position: -100% 0;
+  }
+}
+
+@media (forced-colors: active) {
+  .ayah-menu,
+  .choice-menu {
+    border: 2px solid CanvasText;
+  }
+  .progress-line > span,
+  .tiny-progress > i {
+    background: CanvasText;
+  }
+  .ayah.mem,
+  .hadith-card.read {
+    outline: 2px dashed CanvasText;
+  }
+}
+
+@media print {
+  /* Paper must never carry secrets or chrome. */
+  .sidebar,
+  .bottom-nav,
+  .backup-actions,
+  .words-grid,
+  textarea,
+  input,
+  .zikr-popover {
+    display: none !important;
+  }
+  .destination-view,
+  .content {
+    max-width: 100%;
+  }
+}
+
+/* Calendar + heatmap legend swatches: color AND label, always paired. */
+.calendar-legend .mark-return,
+.calendar-legend .mark-milestone,
+.heat-legend .sw {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-inline-end: 4px;
+  vertical-align: baseline;
+}
+
+.calendar-legend .mark-return {
+  background: var(--gold);
+}
+
+.calendar-legend .mark-milestone {
+  background: var(--brand);
+}
+
+.heat-legend .sw {
+  border: 1px solid var(--line);
+}
+
+/* Global motion kill-switch: no animation or smooth scrolling survives
+   a reduce request, even if a component guard is ever missed. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Privacy screen: applied to <body> while the tab is hidden (see shell).
+   Content blurs so task switchers and screen shares show nothing legible,
+   without locking the session (transfer copy-paste keeps working). */
+body.tab-hidden .content {
+  filter: blur(22px) brightness(0.92);
+  pointer-events: none;
+  user-select: none;
+}

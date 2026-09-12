@@ -1,3 +1,5 @@
+// Dream board: organizes the user's dreams and steps only. Never
+// interprets dreams — no religious claims are generated here by design.
 "use client";
 
 import { useState } from "react";

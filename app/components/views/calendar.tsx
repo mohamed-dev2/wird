@@ -1,3 +1,6 @@
+// CalendarView: 30-day grid with intensity classes + optional return /
+// milestone markers (passed in, computed from analytics in the route).
+// Presentational only — date math lives in the caller.
 "use client";
 
 import { useState } from "react";

@@ -1,3 +1,5 @@
+// Self-hosted fonts (Alexandria + DM Sans via next/font). Self-hosting
+// keeps the CSP font-src tight and avoids third-party font requests.
 import { Alexandria, DM_Sans } from "next/font/google";
 
 export const alexandria = Alexandria({

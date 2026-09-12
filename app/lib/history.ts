@@ -1,3 +1,6 @@
+// History core: DayRecord map + monotonic recordDay merge (never loses
+// yesterday's ids/pages to an empty today) + window/streak/adherence
+// helpers. All date math is UTC-anchored (DST-safe); see analytics.ts.
 export type DayRecord = {
   day: string;
   ids: string[];

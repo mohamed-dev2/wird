@@ -1,3 +1,6 @@
+// Quran reader: offline mushaf (bundled JSON) + Clear-Quran English +
+// tafsir sheet + per-ayah audio + floating action menus. See the reading
+// order note above QuranReader() for the file tour.
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";

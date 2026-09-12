@@ -1,3 +1,7 @@
+// Insights page (/insights): existing period widgets (bars, radar, brief,
+// year card) plus <AnalyticsLayers/> — the layered, evidence-gated analytics
+// UI. All derivations are memoized; nothing renders without minimum samples.
+
 "use client";
 
 import { useMemo, useState } from "react";

@@ -1,3 +1,6 @@
+// AccountView: profile manager, backup/restore/wipe, reminders, appearance,
+// transfer card, demo tools, data-health card. Every destructive action
+// confirms explicitly with its consequences spelled out (see §1.18).
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -11,8 +14,10 @@ import {
   markBackup,
   parseBackupFile,
   previewRestore,
+  profilesInBackup,
   restoreBackupSafe,
   unwrapDecrypted,
+  verifyBackupIntegrity,
   wrapForEncryption,
 } from "../../lib/crypto";
 import { DEFAULT_REMINDERS, ensurePermission, fireNotification } from "../../lib/notify";
@@ -23,7 +28,13 @@ import { useStoredState } from "../../lib/use-stored-state";
 import { useT } from "../../lib/i18n";
 import { useWird } from "../wird-store";
 import { Transfer } from "../transfer";
-import { getActiveProfileId } from "../../lib/profiles";
+import {
+  getActiveProfileId,
+  isWeakPin,
+  loadProfiles,
+  saveProfiles,
+  sha256Hex,
+} from "../../lib/profiles";
 import {
   readHealth,
   readQuarantine,
@@ -248,15 +259,117 @@ export function AccountView({ onReset }: { onReset: () => void }) {
     lang,
     hideNames,
     setHideNames,
+    vaultState,
+    enableVaultText,
+    disableVaultText,
   } = useWird();
   const [openRow, setOpenRow] = useState<string | null>(null);
   const askName = askPrompt;
   const [reminders, setReminders] = useStoredState("wird-reminders-v1", DEFAULT_REMINDERS);
+  const [analyticsOptOut, setAnalyticsOptOut] = useStoredState("wird-analytics-optout-v1", false);
   const [prayerTimes, setPrayerTimes] = useStoredState<PrayerTimes>("wird-prayer-times-v1", {});
   const [remindMsg, setRemindMsg] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const askPass = askPrompt;
   const stamp = () => new Date().toISOString().slice(0, 10);
+  // Destructive backup actions on a PIN-locked profile first re-verify the
+  // PIN inline (an unlocked screen in the wrong hands must not suffice).
+  const [pinGate, setPinGate] = useState<null | { action: "wipe" | "export" }>(null);
+  const [pinGateValue, setPinGateValue] = useState("");
+  const [pinGateErr, setPinGateErr] = useState("");
+  const [duressMsg, setDuressMsg] = useState("");
+  const [vaultMsg, setVaultMsg] = useState("");
+  // Vault setup/disable: discouragement FIRST (confirm), then passphrase.
+  // Both directions are explicit; forgetting means permanent loss (stated).
+  const setupVaultFlow = async () => {
+    try {
+      if (!window.confirm(t("vault.warn"))) return;
+      const pass = askPass(t("vault.passAsk"));
+      if (!pass || pass.length < 4) return;
+      await enableVaultText(pass);
+      setVaultMsg(t("vault.lockedT"));
+    } catch {
+      setVaultMsg(t("vault.bad"));
+    }
+  };
+  const disableVaultFlow = async () => {
+    try {
+      const pass = askPass(t("vault.passAsk"));
+      if (!pass) return;
+      await disableVaultText(pass);
+      setVaultMsg(t("vault.disable"));
+    } catch {
+      setVaultMsg(t("vault.bad"));
+    }
+  };
+  // Optional duress PIN: explained first, then set (or cleared when the
+  // prompt is left empty). Must differ from the real PIN and be non-weak.
+  // Success reloads via switchProfile so store state stays truthful.
+  const setDuressPin = async () => {
+    if (!activeProfile?.pinHash) return;
+    try {
+      if (!window.confirm(t("auth.duressExp"))) return;
+      const raw = askName(t("auth.duressAsk"));
+      if (!raw) {
+        const list = loadProfiles().map((p) =>
+          p.id === activeProfile.id ? { ...p, duressPinHash: null } : p,
+        );
+        saveProfiles(list);
+        switchProfile(activeProfile.id);
+        return;
+      }
+      const v = raw.replace(/\D/g, "");
+      if (v.length < 4 || v.length > 8) {
+        setDuressMsg(t("auth.pin"));
+        return;
+      }
+      if (isWeakPin(v)) {
+        setDuressMsg(t("auth.weakPin"));
+        return;
+      }
+      if ((await sha256Hex(v)) === activeProfile.pinHash) {
+        setDuressMsg(t("auth.duressSame"));
+        return;
+      }
+      const hash = await sha256Hex(v);
+      const list = loadProfiles().map((p) =>
+        p.id === activeProfile.id ? { ...p, duressPinHash: hash } : p,
+      );
+      saveProfiles(list);
+      switchProfile(activeProfile.id);
+    } catch {
+      setDuressMsg(t("bk.wipeFail"));
+    }
+  };
+  const needsPin = !!activeProfile?.pinHash;
+  const requestPinGate = (action: "wipe" | "export") => {
+    if (!needsPin) {
+      if (action === "wipe") void doWipe();
+      else onExportPlain();
+      return;
+    }
+    setPinGateErr("");
+    setPinGateValue("");
+    setPinGate({ action });
+  };
+  const confirmPinGate = async () => {
+    try {
+      const ok = activeProfile?.pinHash
+        ? (await sha256Hex(pinGateValue.replace(/\D/g, ""))) === activeProfile.pinHash
+        : true;
+      if (!ok) {
+        setPinGateErr(t("auth.wrongPin"));
+        return;
+      }
+      const action = pinGate?.action;
+      setPinGate(null);
+      setPinGateValue("");
+      if (action === "wipe") void doWipe();
+      else onExportPlain();
+    } catch {
+      setPinGateErr(t("auth.wrongPin"));
+    }
+  };
   const onExportPlain = () => {
     try {
       const file = buildBackupFile();
@@ -288,10 +401,16 @@ export function AccountView({ onReset }: { onReset: () => void }) {
       const text = await f.text();
       let data: unknown = JSON.parse(text);
       if (data && typeof data === "object" && "enc" in (data as Record<string, unknown>)) {
+        // Encrypted: AES-GCM authentication covers integrity — no extra check.
         const pass = askPass(t("bk.impAsk"));
         if (!pass) return;
         data = unwrapDecrypted(await decryptBackup(pass, text));
       } else {
+        // Plain: verify the tamper-evident checksum before trusting a byte.
+        if (!verifyBackupIntegrity(data)) {
+          setBackupMsg(t("bk.bad"));
+          return;
+        }
         data = parseBackupFile(text);
       }
       if (getActiveProfileId() !== startedProfile) {
@@ -305,11 +424,18 @@ export function AccountView({ onReset }: { onReset: () => void }) {
       // Dry-run first: warn before touching storage when entries need quarantine.
       try {
         const pre = previewRestore(data);
-        if (pre.invalid > 0 || pre.salvagable > 0) {
+        const profs = profilesInBackup(data);
+        const profNote =
+          profs.length > 1
+            ? lang === "ar"
+              ? ` وتشمل ${profs.length} حسابات.`
+              : ` It contains ${profs.length} profiles.`
+            : "";
+        if (pre.invalid > 0 || pre.salvagable > 0 || profs.length > 1) {
           const warn =
             lang === "ar"
-              ? `الملف فيه ${pre.invalid} عنصر تالف و${pre.salvagable} قابل للإنقاذ الجزئي من أصل ${pre.total}. سيُحفظ التالف في الحجر الصحي بدل حذفه. متابعة؟`
-              : `Backup has ${pre.invalid} corrupt and ${pre.salvagable} partially-salvageable of ${pre.total} entries. Corrupt ones go to quarantine, never deleted. Continue?`;
+              ? `الملف فيه ${pre.invalid} عنصر تالف و${pre.salvagable} قابل للإنقاذ الجزئي من أصل ${pre.total}.${profNote} سيُحفظ التالف في الحجر الصحي بدل حذفه. متابعة؟`
+              : `Backup has ${pre.invalid} corrupt and ${pre.salvagable} partially-salvageable of ${pre.total} entries.${profNote} Corrupt ones go to quarantine, never deleted. Continue?`;
           if (!window.confirm(warn)) {
             setBackupMsg(t("bk.bad"));
             return;
@@ -331,7 +457,7 @@ export function AccountView({ onReset }: { onReset: () => void }) {
       setBackupMsg(t("bk.bad"));
     }
   };
-  const onWipe = () => {
+  const doWipe = () => {
     try {
       if (!window.confirm(t("bk.wipeAsk"))) return;
       const data = collectBackup();
@@ -383,6 +509,11 @@ export function AccountView({ onReset }: { onReset: () => void }) {
             <button type="button" onClick={logout}>
               {t("auth.logout")}
             </button>
+            {activeProfile?.pinHash && (
+              <button type="button" onClick={() => void setDuressPin()}>
+                {activeProfile.duressPinHash ? `✓ ${t("auth.duress")}` : t("auth.duress")}
+              </button>
+            )}
             {activeProfile && (
               <button
                 type="button"
@@ -397,6 +528,8 @@ export function AccountView({ onReset }: { onReset: () => void }) {
               </button>
             )}
           </div>
+          {duressMsg && <p className="backup-msg">{duressMsg}</p>}
+          {vaultMsg && <p className="backup-msg">{vaultMsg}</p>}
         </div>
       </article>
       <div className="account-list">
@@ -479,6 +612,32 @@ export function AccountView({ onReset }: { onReset: () => void }) {
                     <button
                       type="button"
                       className="linklike"
+                      onClick={() => setAnalyticsOptOut((v) => !v)}
+                      aria-pressed={analyticsOptOut}
+                    >
+                      {analyticsOptOut ? "✓ " : ""}
+                      {t("auth.pausePersonal")}
+                    </button>
+                    {vaultState === "off" ? (
+                      <button
+                        type="button"
+                        className="linklike"
+                        onClick={() => void setupVaultFlow()}
+                      >
+                        {t("vault.setup")}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="linklike"
+                        onClick={() => void disableVaultFlow()}
+                      >
+                        {t("vault.disable")}
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="linklike"
                       onClick={() => {
                         try {
                           document
@@ -523,16 +682,43 @@ export function AccountView({ onReset }: { onReset: () => void }) {
             <button type="button" onClick={onExportEnc}>
               {t("bk.enc")}
             </button>
-            <button type="button" onClick={onExportPlain}>
+            <button type="button" onClick={() => requestPinGate("export")}>
               {t("bk.plain")}
             </button>
             <button type="button" onClick={() => fileRef.current?.click()}>
               {t("bk.imp")}
             </button>
-            <button type="button" className="danger" onClick={onWipe}>
+            <button type="button" className="danger" onClick={() => requestPinGate("wipe")}>
               {t("bk.wipe")}
             </button>
           </div>
+          {pinGate && (
+            <div className="backup-actions">
+              <label className="time-label">
+                {t("auth.pin")}
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  autoComplete="new-password"
+                  spellCheck={false}
+                  maxLength={8}
+                  value={pinGateValue}
+                  onChange={(e) => setPinGateValue(e.target.value.replace(/\D/g, ""))}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") void confirmPinGate();
+                    if (e.key === "Escape") setPinGate(null);
+                  }}
+                />
+              </label>
+              <button type="button" onClick={() => void confirmPinGate()}>
+                {t("auth.unlock")}
+              </button>
+              <button type="button" className="linklike" onClick={() => setPinGate(null)}>
+                {t("cm.act.none")}
+              </button>
+            </div>
+          )}
+          {pinGateErr && <p className="backup-msg">{pinGateErr}</p>}
           {backupMsg && <p className="backup-msg">{backupMsg}</p>}
           <input
             ref={fileRef}

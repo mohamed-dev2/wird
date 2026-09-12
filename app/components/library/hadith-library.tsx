@@ -1,3 +1,6 @@
+// Curated hadith selections browser (famous selections + Nawawi 40).
+// Texts come verbatim from lib/data/hadith.ts with grade + ref; nothing
+// here paraphrases or generates religious content.
 "use client";
 
 import { useMemo, useState } from "react";

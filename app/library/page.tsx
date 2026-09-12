@@ -1,3 +1,5 @@
+// Library route (/library): tab shell (Adhkar · Quran · Hadith · Paths ·
+// Dreams). Each tab owns its data fetching; nothing prefetches siblings.
 "use client";
 
 import { useState } from "react";

@@ -1,3 +1,6 @@
+// useStoredState: hydration-safe persisted state in one place. Static
+// fallback renders SSR-identical HTML; the real value loads after mount and
+// saves are mount-gated. The single sanctioned set-state-in-effect site.
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { loadFromStorage, saveToStorage } from "./wird";
 
