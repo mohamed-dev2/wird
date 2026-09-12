@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dayId, loadDailyNumber, saveToStorage } from "../../lib/wird";
-import { nsKey } from "../../lib/profiles";
+import { dayId, loadDailyNumber, loadFromStorage, saveToStorage } from "../../lib/wird";
 import { useT } from "../../lib/i18n";
 
 const GROUPS = [
@@ -45,11 +44,12 @@ export function AdhkarView() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-once hydration of stored counter
     setSalawat(loadDailyNumber("wird-salawat-v2", 0, dayId()));
     try {
-      const raw = localStorage.getItem(nsKey("wird-adhkar-groups-v1"));
-      if (raw) {
-        const v = JSON.parse(raw) as { day?: string; counts?: Record<string, number> };
-        if (v.day === dayId() && v.counts) setGroupCounts(v.counts);
-      }
+      // Enveloped read (legacy bare maps still load; malformed → fallback).
+      const stored = loadFromStorage<{ day?: string; counts?: Record<string, number> }>(
+        "wird-adhkar-groups-v1",
+        { day: "", counts: {} },
+      );
+      if (stored.day === dayId() && stored.counts) setGroupCounts(stored.counts);
     } catch {}
     setMounted(true);
   }, []);

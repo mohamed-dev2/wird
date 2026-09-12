@@ -155,6 +155,16 @@ const normRec =
     return r ?? { value: v, rejected: [] };
   };
 
+// Pre-envelope v1 shapes: bare array/number/string. Stamped day:""
+// (undated legacy) — daily loaders treat "" as current-but-undated,
+// exactly how the old code treated bare values. Deterministic + idempotent:
+// migrated output already validates, so re-running is a no-op.
+const migList = (v: unknown): unknown =>
+  Array.isArray(v) ? { day: "", ids: v.filter((x): x is string => typeof x === "string") } : v;
+const migNum = (v: unknown): unknown =>
+  typeof v === "number" && Number.isFinite(v) ? { day: "", value: v } : v;
+const migText = (v: unknown): unknown => (typeof v === "string" ? { day: "", text: v } : v);
+
 // ---------- schema registry (keys are unprefixed dataset keys) ----------
 
 const S = (
@@ -170,26 +180,32 @@ export const SCHEMAS: Record<string, Schema> = {
     1,
     (v) => isObj(v) && isStrArr((v as { ids?: unknown }).ids),
     () => ({ day: "", ids: [] }),
+    { migrate: migList },
   ),
-  "wird-quran-pages-v2": S(1, isNumEnvelope, () => ({ day: "", value: 0 })),
-  "wird-tasbeeh-v2": S(1, isNumEnvelope, () => ({ day: "", value: 0 })),
-  "wird-salawat-v2": S(1, isNumEnvelope, () => ({ day: "", value: 0 })),
-  "wird-fast-v2": S(1, isTextEnvelope, () => ({ day: "", text: "" })),
+  "wird-quran-pages-v2": S(1, isNumEnvelope, () => ({ day: "", value: 0 }), {
+    migrate: migNum,
+  }),
+  "wird-tasbeeh-v2": S(1, isNumEnvelope, () => ({ day: "", value: 0 }), { migrate: migNum }),
+  "wird-salawat-v2": S(1, isNumEnvelope, () => ({ day: "", value: 0 }), { migrate: migNum }),
+  "wird-fast-v2": S(1, isTextEnvelope, () => ({ day: "", text: "" }), { migrate: migText }),
   "wird-forget-v2": S(
     1,
     (v) => isDayEnvelope(v),
     () => ({ day: "", ids: [] as string[] }),
+    { migrate: migList },
   ),
-  "wird-reflection-v2": S(1, isTextEnvelope, () => ({ day: "", text: "" })),
+  "wird-reflection-v2": S(1, isTextEnvelope, () => ({ day: "", text: "" }), { migrate: migText }),
   "wird-partial-v2": S(
     1,
     (v) => isDayEnvelope(v),
     () => ({ day: "", ids: [] as string[] }),
+    { migrate: migList },
   ),
   "wird-snoozed-v2": S(
     1,
     (v) => isDayEnvelope(v),
     () => ({ day: "", ids: [] as string[] }),
+    { migrate: migList },
   ),
   "wird-adhkar-groups-v1": S(
     1,
@@ -319,6 +335,14 @@ export const SCHEMAS: Record<string, Schema> = {
     () => null,
   ),
   "wird-lang-v1": S(1, isStr, () => "ar"),
+  "wird-last-backup-v1": S(
+    1,
+    (v) => isObj(v) && isNum((v as { at?: unknown }).at),
+    () => ({
+      at: 0,
+      kind: "none",
+    }),
+  ),
 };
 
 // ---------- quarantine + health (global, unprefixed keys) ----------
@@ -535,4 +559,22 @@ export function pushNotice(n: StoreNotice): void {
 
 export function drainNotices(): StoreNotice[] {
   return notices.splice(0, notices.length);
+}
+
+/**
+ * Drop quarantine entries belonging to a deleted profile prefix
+ * (e.g. `p_<id>_`). Quarantine raws can hold up to 4KB of that profile's
+ * data, so deletion must not leave them behind. Health entries carry no
+ * payload (key + kind only) and are kept for forensics.
+ */
+export function purgeQuarantineForPrefix(store: StorageLike, prefix: string): number {
+  try {
+    const list = readQuarantine(store);
+    const kept = list.filter((e) => !e.key.startsWith(prefix));
+    const dropped = list.length - kept.length;
+    if (dropped > 0) saveQuarantine(store, kept);
+    return dropped;
+  } catch {
+    return 0;
+  }
 }

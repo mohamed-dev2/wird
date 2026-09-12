@@ -1,4 +1,9 @@
-import { SCHEMAS, logHealth, quarantineRecord } from "./schema";
+import { SCHEMAS, logHealth, quarantineRecord, writeRecord } from "./schema";
+
+/** Bump alongside package.json — stamped into every backup manifest. */
+export const WIRD_APP_VERSION = "0.1.0";
+/** Backup container format version (1 = legacy raw map / {data}, 2 = manifest). */
+export const BACKUP_FORMAT = 2;
 
 const ENC = new TextEncoder();
 const DEC = new TextDecoder();
@@ -49,7 +54,12 @@ export async function encryptBackup(passphrase: string, data: unknown): Promise<
 }
 
 export async function decryptBackup(passphrase: string, payload: string): Promise<unknown> {
-  const wrap = JSON.parse(payload) as { v: number; salt: string; iv: string; data: string };
+  let wrap: { v: number; salt: string; iv: string; data: string };
+  try {
+    wrap = JSON.parse(payload) as { v: number; salt: string; iv: string; data: string };
+  } catch {
+    throw new Error("bad backup file");
+  }
   if (wrap.v !== 1 || !wrap.salt || !wrap.iv || !wrap.data) throw new Error("bad backup file");
   const key = await deriveKey(passphrase, b64ToBuf(wrap.salt));
   const plain = await crypto.subtle.decrypt(
@@ -165,24 +175,68 @@ export function previewRestore(data: unknown): PreviewReport {
 }
 
 /**
- * Validated, atomic import. Snapshots overwritten keys first; valid entries
- * are applied, invalid ones quarantined (never silently dropped). On
- * unexpected failure mid-restore the snapshot is rolled back.
+ * Validated, atomic import. Two phases:
+ *  1. classify EVERYTHING without writing a byte — a backup with zero
+ *     applicable entries is rejected before current state is touched;
+ *  2. snapshot overwritten keys, then apply valid / salvage partial /
+ *     quarantine corrupt. Unexpected mid-restore failures roll back.
+ * Per-entry corruption therefore never blocks healthy entries (with an
+ * explicit report), and never leaves a half-applied import behind.
  */
 export function restoreBackupSafe(data: unknown): RestoreReport {
   if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("bad backup data");
-  const entries = Object.entries(data as Record<string, unknown>).filter(
+  const raws = Object.entries(data as Record<string, unknown>).filter(
     (e): e is [string, string] => isBackupKey(e[0] as string) && typeof e[1] === "string",
   );
-  if (entries.length === 0) throw new Error("no wird keys in backup");
+  if (raws.length === 0) throw new Error("no wird keys in backup");
+
+  type Plan = {
+    key: string;
+    raw: string;
+    action: "apply" | "unknown" | "salvage" | "invalid";
+    value?: unknown;
+    rejected?: unknown[];
+    reason?: "parse" | "validate";
+  };
+  // Phase 1: pure classification, zero storage writes.
+  const plan: Plan[] = raws.map(([k, v]) => {
+    const schema = SCHEMAS[datasetKeyOf(k)];
+    if (!schema) return { key: k, raw: v, action: "unknown" };
+    let parsed: unknown = null;
+    try {
+      parsed = JSON.parse(v);
+    } catch {
+      return { key: k, raw: v, action: "invalid", reason: "parse" };
+    }
+    const content = unwrapEnvelope(parsed);
+    try {
+      if (schema.validate(content)) return { key: k, raw: v, action: "apply" };
+    } catch {
+      // fall through to normalize
+    }
+    if (schema.normalize) {
+      try {
+        const { value, rejected } = schema.normalize(content);
+        if (schema.validate(value)) return { key: k, raw: v, action: "salvage", value, rejected };
+      } catch {
+        // fall through
+      }
+    }
+    return { key: k, raw: v, action: "invalid", reason: "validate" };
+  });
+  if (!plan.some((p) => p.action !== "invalid")) {
+    throw new Error("no valid wird keys in backup");
+  }
+
+  // Phase 2: snapshot + commit.
   const store = localStorage;
   const snapshot = new Map<string, string | null>();
-  for (const [k] of entries) {
-    if (!snapshot.has(k)) {
+  for (const p of plan) {
+    if (!snapshot.has(p.key)) {
       try {
-        snapshot.set(k, store.getItem(k));
+        snapshot.set(p.key, store.getItem(p.key));
       } catch {
-        snapshot.set(k, null);
+        snapshot.set(p.key, null);
       }
     }
   }
@@ -195,67 +249,43 @@ export function restoreBackupSafe(data: unknown): RestoreReport {
     details: [],
   };
   try {
-    for (const [k, v] of entries) {
-      const schema = SCHEMAS[datasetKeyOf(k)];
-      if (!schema) {
-        store.setItem(k, v);
+    for (const p of plan) {
+      const k = p.key;
+      if (p.action === "unknown" || p.action === "apply") {
+        store.setItem(k, p.raw);
         report.applied++;
-        report.details.push({ key: k, status: "applied-unknown" });
-        continue;
-      }
-      let parsed: unknown = null;
-      try {
-        parsed = JSON.parse(v);
-      } catch {
-        quarantineRecord(store, k, "import-parse", v);
+        report.details.push({
+          key: k,
+          status: p.action === "unknown" ? "applied-unknown" : "applied",
+        });
+      } else if (p.action === "salvage") {
+        const schema = SCHEMAS[datasetKeyOf(k)];
+        const rejected = p.rejected ?? [];
+        if (rejected.length > 0) {
+          quarantineRecord(
+            store,
+            k,
+            `import-salvaged-${rejected.length}`,
+            JSON.stringify(rejected).slice(0, 4096),
+          );
+          report.quarantined++;
+        }
+        store.setItem(
+          k,
+          JSON.stringify({
+            __wird: { v: schema?.version ?? 0, updatedAt: Date.now() },
+            d: p.value,
+          }),
+        );
+        report.applied++;
+        report.salvaged++;
+        report.details.push({ key: k, status: "applied-salvaged" });
+      } else {
+        quarantineRecord(store, k, `import-${p.reason}`, p.raw);
         report.skipped++;
         report.quarantined++;
         report.details.push({ key: k, status: "skipped" });
-        continue;
       }
-      const content = unwrapEnvelope(parsed);
-      let ok = false;
-      try {
-        ok = schema.validate(content);
-      } catch {
-        ok = false;
-      }
-      if (ok) {
-        store.setItem(k, v);
-        report.applied++;
-        report.details.push({ key: k, status: "applied" });
-        continue;
-      }
-      if (schema.normalize) {
-        try {
-          const { value, rejected } = schema.normalize(content);
-          if (schema.validate(value)) {
-            if (rejected.length > 0) {
-              quarantineRecord(
-                store,
-                k,
-                `import-salvaged-${rejected.length}`,
-                JSON.stringify(rejected).slice(0, 4096),
-              );
-              report.quarantined++;
-            }
-            store.setItem(
-              k,
-              JSON.stringify({ __wird: { v: schema.version, updatedAt: Date.now() }, d: value }),
-            );
-            report.applied++;
-            report.salvaged++;
-            report.details.push({ key: k, status: "applied-salvaged" });
-            continue;
-          }
-        } catch {
-          // fall through to quarantine
-        }
-      }
-      quarantineRecord(store, k, "import-validate", v);
-      report.skipped++;
-      report.quarantined++;
-      report.details.push({ key: k, status: "skipped" });
     }
   } catch (e) {
     // Roll back to the pre-import snapshot; never leave a half-applied import.
@@ -273,24 +303,106 @@ export function restoreBackupSafe(data: unknown): RestoreReport {
   return report;
 }
 
+export type BackupDatasetInfo = { version: number; records: number };
 export type BackupFileV2 = {
   v: 2;
   app: "wird";
+  format: number;
+  appVersion: string;
   exportedAt: string;
+  encrypted: false;
   count: number;
+  datasets: Record<string, BackupDatasetInfo>;
   data: Record<string, string>;
 };
 
-/** Manifest-wrapped export (v2). Encrypted exports keep the raw map (decrypt → map). */
+/** Best-effort record count for a stored raw value (arrays/objects → size, else 1). */
+function countRecords(raw: string): number {
+  try {
+    const content = unwrapEnvelope(JSON.parse(raw));
+    if (Array.isArray(content)) return content.length;
+    if (content && typeof content === "object") return Object.keys(content).length;
+    return 1;
+  } catch {
+    return 0;
+  }
+}
+
+function describeDatasets(data: Record<string, string>): Record<string, BackupDatasetInfo> {
+  const out: Record<string, BackupDatasetInfo> = {};
+  for (const [k, v] of Object.entries(data)) {
+    const ds = datasetKeyOf(k);
+    const schema = SCHEMAS[ds];
+    const cur = out[ds] ?? { version: schema?.version ?? 0, records: 0 };
+    cur.records += countRecords(v);
+    out[ds] = cur;
+  }
+  return out;
+}
+
+/** Manifest-wrapped export (v2). Encrypted exports wrap separately (see below). */
 export function buildBackupFile(): BackupFileV2 {
   const data = collectBackup();
   return {
     v: 2,
     app: "wird",
+    format: BACKUP_FORMAT,
+    appVersion: WIRD_APP_VERSION,
     exportedAt: new Date().toISOString(),
+    encrypted: false,
     count: Object.keys(data).length,
+    datasets: describeDatasets(data),
     data,
   };
+}
+
+/**
+ * Encrypted-transfer envelope: the SAME integrity manifest travels inside the
+ * ciphertext (never beside it), so QR/LAN/file-encrypted imports can verify
+ * format, version, and dataset inventory before touching storage.
+ */
+export type EncryptedBackupPayload = {
+  v: 2;
+  app: "wird";
+  format: number;
+  appVersion: string;
+  exportedAt: string;
+  encrypted: true;
+  count: number;
+  datasets: Record<string, BackupDatasetInfo>;
+  data: Record<string, string>;
+};
+
+export function wrapForEncryption(data: Record<string, string>): EncryptedBackupPayload {
+  return {
+    v: 2,
+    app: "wird",
+    format: BACKUP_FORMAT,
+    appVersion: WIRD_APP_VERSION,
+    exportedAt: new Date().toISOString(),
+    encrypted: true,
+    count: Object.keys(data).length,
+    datasets: describeDatasets(data),
+    data,
+  };
+}
+
+/**
+ * Accept the encrypted envelope OR a legacy raw key map (pre-manifest
+ * backups). Throws a generic error — callers must not leak crypto details.
+ */
+export function unwrapDecrypted(payload: unknown): Record<string, string> {
+  if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+    const rec = payload as Record<string, unknown>;
+    if (rec.app === "wird" && rec.encrypted === true && rec.data && typeof rec.data === "object") {
+      return rec.data as Record<string, string>;
+    }
+    const keys = Object.keys(payload);
+    if (keys.length > 0 && keys.every((k) => isBackupKey(k))) {
+      return payload as Record<string, string>;
+    }
+  }
+  throw new Error("bad backup data");
 }
 
 /** Accept v2 manifest, legacy v1 ({v:1,data} / {plain,data}), or a raw key map. */
@@ -303,6 +415,33 @@ export function parseBackupFile(text: string): unknown {
     if ("data" in rec && rec.data && typeof rec.data === "object") return rec.data;
   }
   return parsed;
+}
+
+/** Stamp a successful export/import for the local diagnostics card. */
+export function markBackup(kind: "export" | "import"): void {
+  try {
+    writeRecord(localStorage, "wird-last-backup-v1", "wird-last-backup-v1", {
+      at: Date.now(),
+      kind,
+    });
+  } catch {}
+}
+
+export function readLastBackup(): { at: number; kind: string } {
+  try {
+    const raw = localStorage.getItem("wird-last-backup-v1");
+    if (!raw) return { at: 0, kind: "none" };
+    const v = JSON.parse(raw) as unknown;
+    const d =
+      v && typeof v === "object" && "__wird" in (v as Record<string, unknown>)
+        ? (v as { d: unknown }).d
+        : v;
+    if (d && typeof d === "object" && typeof (d as { at?: unknown }).at === "number") {
+      const r = d as { at: number; kind?: unknown };
+      return { at: r.at, kind: typeof r.kind === "string" ? r.kind : "unknown" };
+    }
+  } catch {}
+  return { at: 0, kind: "none" };
 }
 
 export function downloadFile(filename: string, text: string): void {

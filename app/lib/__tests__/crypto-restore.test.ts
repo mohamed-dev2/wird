@@ -39,7 +39,10 @@ describe("backup manifest + safe restore", () => {
     const file = buildBackupFile();
     expect(file.v).toBe(2);
     expect(file.app).toBe("wird");
+    expect(file.format).toBe(2);
+    expect(file.encrypted).toBe(false);
     expect(file.count).toBe(1);
+    expect(file.datasets["wird-daymode-v1"]).toEqual({ version: 1, records: 1 });
     expect(parseBackupFile(JSON.stringify(file))).toEqual(collectBackup());
     expect(parseBackupFile(JSON.stringify({ v: 1, plain: true, data: { a: "b" } }))).toEqual({
       a: "b",
@@ -89,6 +92,18 @@ describe("backup manifest + safe restore", () => {
     });
     expect(pre).toEqual({ total: 4, valid: 1, salvagable: 1, invalid: 1, unknownKeys: 1 });
     expect(localStorage.length).toBe(0);
+  });
+
+  it("writes nothing — not even quarantine — when zero entries are applicable", () => {
+    localStorage.setItem("wird-daymode-v1", JSON.stringify("keep me"));
+    expect(() =>
+      restoreBackupSafe({
+        "wird-daymode-v1": JSON.stringify(42),
+        "wird-tasbeeh-v2": "{oops",
+      }),
+    ).toThrow("no valid wird keys");
+    expect(localStorage.getItem("wird-daymode-v1")).toBe(JSON.stringify("keep me"));
+    expect(localStorage.getItem("wird-quarantine-v1")).toBeNull();
   });
 
   it("rolls back to snapshot when a write fails mid-restore", () => {

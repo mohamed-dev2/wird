@@ -1,3 +1,5 @@
+import { readRecord, writeRecord } from "./schema";
+
 let wordsCache: Promise<string[]> | null = null;
 
 export function loadWordlist(): Promise<string[]> {
@@ -99,18 +101,36 @@ export async function recoveryVerifier(words: string[]): Promise<string> {
 
 export function loadVerifiers(): Record<string, string> {
   try {
-    const raw = localStorage.getItem("wird-recovery-v1");
-    const v = raw ? (JSON.parse(raw) as unknown) : {};
-    return v && typeof v === "object" ? (v as Record<string, string>) : {};
+    // Routed through the integrity layer: malformed maps fall back to {}
+    // and the raw bytes are quarantined instead of crashing auth.
+    // NOTE: namespaced per active profile by the caller (see profiles.ts);
+    // entries inside are keyed by profileId as a second scope.
+    const { value } = readRecord<Record<string, string>>(
+      localStorage,
+      namespacedRecoveryKey(),
+      "wird-recovery-v1",
+    );
+    return value && typeof value === "object" ? value : {};
   } catch {
     return {};
   }
+}
+
+function namespacedRecoveryKey(): string {
+  // localStorage key resolution without importing profiles (avoids a cycle):
+  // profiles.ts nsKey() prefixes non-global wird-* keys with p_<id>_.
+  // wird-recovery-v1 is intentionally NOT global, so resolve the prefix here.
+  try {
+    const active = localStorage.getItem("wird-active-profile");
+    if (active && /^[A-Za-z0-9-]+$/.test(active)) return `p_${active}_wird-recovery-v1`;
+  } catch {}
+  return "wird-recovery-v1";
 }
 
 export function saveVerifier(profileId: string, verifier: string): void {
   try {
     const all = loadVerifiers();
     all[profileId] = verifier;
-    localStorage.setItem("wird-recovery-v1", JSON.stringify(all));
+    writeRecord(localStorage, namespacedRecoveryKey(), "wird-recovery-v1", all);
   } catch {}
 }

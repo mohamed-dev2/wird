@@ -4,7 +4,6 @@ import { useWird } from "./components/wird-store";
 import { modeLabel, MODES, prayerName, useT } from "./lib/i18n";
 import { fastLabel, PRAYER_ID } from "./lib/daymode";
 import { EditModal } from "./components/edit-modal";
-import { nsKey } from "./lib/profiles";
 import { NowView } from "./components/views/now";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
@@ -18,6 +17,8 @@ import {
   FAST_TYPES,
   dayId,
   diffDays,
+  loadFromStorage,
+  saveToStorage,
 } from "./lib/wird";
 import { returnStage, versesForStage } from "./lib/data/verses";
 import {
@@ -130,9 +131,9 @@ export default function TodayPage() {
   useEffect(() => {
     const t = dayId();
     if (lastSeen !== t) {
-      try {
-        localStorage.setItem(nsKey("wird-lastseen-v1"), t);
-      } catch {}
+      // Enveloped write like everything else (a raw string would fail
+      // JSON.parse on next load and spam quarantine every visit).
+      saveToStorage("wird-lastseen-v1", t);
     }
   }, [lastSeen]);
   useEffect(() => {
@@ -156,19 +157,14 @@ export default function TodayPage() {
   useEffect(() => {
     if (!lastSeen || mosque) return;
     const t = dayId();
-    let capped = false;
-    try {
-      capped = localStorage.getItem(nsKey("wird-notify-day-v1")) === t;
-    } catch {}
-    if (capped) return;
+    // Enveloped like everything else (raw strings corrupt the read path).
+    if (loadFromStorage("wird-notify-day-v1", "") === t) return;
     const hit = evaluateLadder(new Date(), lastSeen, t, reminders);
     if (!hit) return;
     void ensurePermission().then((ok) => {
       if (!ok) return;
       fireNotification(hit.title, hit.body);
-      try {
-        localStorage.setItem(nsKey("wird-notify-day-v1"), t);
-      } catch {}
+      saveToStorage("wird-notify-day-v1", t);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lastSeen, mosque, ladderTick]);

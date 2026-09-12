@@ -1,4 +1,6 @@
 import type { History } from "./history";
+import { nsKey } from "./profiles";
+import { loadFromStorage, saveToStorage } from "./wird";
 
 function mulberry32(seed: number): () => number {
   let a = seed;
@@ -62,8 +64,22 @@ export function buildDemo(
 
 export function mergeHistoryDemo(generated: History): number {
   try {
-    const raw = localStorage.getItem("wird-history-v1");
-    const prev = (raw ? JSON.parse(raw) : {}) as History;
+    // Profile-namespaced + enveloped like every other write: demo seeds must
+    // never leak into another profile or bypass validation.
+    // (load/saveToStorage apply nsKey internally.)
+    const prev = loadFromStorage<History>("wird-history-v1", {});
+    // Heal pre-fix orphans: demo seeds used to write the global key even with
+    // an active profile. Fold those days in (missing only, never overwrite).
+    try {
+      const namespaced = nsKey("wird-history-v1");
+      if (namespaced !== "wird-history-v1") {
+        const raw = localStorage.getItem("wird-history-v1");
+        const legacy = (raw ? JSON.parse(raw) : {}) as History;
+        for (const [day, rec] of Object.entries(legacy)) {
+          if (rec && typeof rec === "object" && !prev[day]) prev[day] = rec;
+        }
+      }
+    } catch {}
     let n = 0;
     for (const [day, rec] of Object.entries(generated)) {
       if (!prev[day]) {
@@ -71,7 +87,8 @@ export function mergeHistoryDemo(generated: History): number {
         n++;
       }
     }
-    localStorage.setItem("wird-history-v1", JSON.stringify(prev));
+    // Only fill days that are still missing — never overwrite real records.
+    saveToStorage("wird-history-v1", prev);
     return n;
   } catch {
     return 0;
@@ -80,15 +97,16 @@ export function mergeHistoryDemo(generated: History): number {
 
 export function saveDemoReviews(reviews: Record<string, DemoReview>): void {
   try {
-    const raw = localStorage.getItem("wird-reviews-v1");
-    const prev = (raw ? JSON.parse(raw) : {}) as Record<string, DemoReview>;
-    localStorage.setItem("wird-reviews-v1", JSON.stringify({ ...reviews, ...prev }));
+    const prev = loadFromStorage<Record<string, DemoReview>>("wird-reviews-v1", {});
+    saveToStorage("wird-reviews-v1", { ...reviews, ...prev });
   } catch {}
 }
 
 export function clearDemoData(): void {
   try {
-    localStorage.removeItem("wird-history-v1");
-    localStorage.removeItem("wird-reviews-v1");
+    // NOTE: removes the history/reviews datasets for the CURRENT profile
+    // only. Callers must confirm explicitly (destructive).
+    localStorage.removeItem(nsKey("wird-history-v1"));
+    localStorage.removeItem(nsKey("wird-reviews-v1"));
   } catch {}
 }

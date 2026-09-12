@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import {
   buildBackupFile,
@@ -8,9 +8,12 @@ import {
   decryptBackup,
   downloadFile,
   encryptBackup,
+  markBackup,
   parseBackupFile,
   previewRestore,
   restoreBackupSafe,
+  unwrapDecrypted,
+  wrapForEncryption,
 } from "../../lib/crypto";
 import { DEFAULT_REMINDERS, ensurePermission, fireNotification } from "../../lib/notify";
 import { buildDemo, clearDemoData, mergeHistoryDemo, saveDemoReviews } from "../../lib/demo";
@@ -20,12 +23,14 @@ import { useStoredState } from "../../lib/use-stored-state";
 import { useT } from "../../lib/i18n";
 import { useWird } from "../wird-store";
 import { Transfer } from "../transfer";
+import { getActiveProfileId } from "../../lib/profiles";
 import {
   readHealth,
   readQuarantine,
   type HealthIssue,
   type QuarantineEntry,
 } from "../../lib/schema";
+import { collectDiagnostics, type DiagnosticsSnapshot } from "../../lib/diagnostics";
 
 function AppearanceCard() {
   const t = useT();
@@ -97,6 +102,9 @@ function DemoCard() {
     setMsg(t("dm.ok", { n }));
   };
   const clear = () => {
+    try {
+      if (!window.confirm(t("dm.clearAsk"))) return;
+    } catch {}
     clearDemoData();
     setMsg(t("dm.cleared"));
   };
@@ -123,22 +131,10 @@ function DemoCard() {
 
 function DataHealthCard() {
   const { lang } = useWird();
-  // Initializers (not effects): readQuarantine/readHealth are SSR-safe
-  // (empty without window), so first client render matches SSR HTML.
-  const [quarantine, setQuarantine] = useState<QuarantineEntry[]>(() => {
-    try {
-      return readQuarantine();
-    } catch {
-      return [];
-    }
-  });
-  const [health, setHealth] = useState<HealthIssue[]>(() => {
-    try {
-      return readHealth();
-    } catch {
-      return [];
-    }
-  });
+  // Hydration-safe: static empties match SSR; real values load after mount.
+  const [quarantine, setQuarantine] = useState<QuarantineEntry[]>([]);
+  const [health, setHealth] = useState<HealthIssue[]>([]);
+  const [diag, setDiag] = useState<DiagnosticsSnapshot | null>(null);
   const refresh = () => {
     try {
       setQuarantine(readQuarantine());
@@ -146,13 +142,24 @@ function DataHealthCard() {
     try {
       setHealth(readHealth());
     } catch {}
+    try {
+      setDiag(collectDiagnostics());
+    } catch {}
   };
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-once hydration of diagnostics (static empties match SSR)
+    refresh();
+  }, []);
   const stamp = () => new Date().toISOString().slice(0, 10);
   const onExport = () => {
     try {
       downloadFile(
         `wird-diagnostics-${stamp()}.json`,
-        JSON.stringify({ exportedAt: new Date().toISOString(), quarantine, health }, null, 2),
+        JSON.stringify(
+          { exportedAt: new Date().toISOString(), summary: diag, quarantine, health },
+          null,
+          2,
+        ),
       );
     } catch {}
   };
@@ -162,11 +169,20 @@ function DataHealthCard() {
       localStorage.removeItem("wird-health-v1");
       setQuarantine([]);
       setHealth([]);
+      setDiag(collectDiagnostics());
     } catch {}
   };
   const fmt = (at: number) => {
     try {
       return new Date(at).toISOString().slice(0, 16).replace("T", " ");
+    } catch {
+      return "";
+    }
+  };
+  const fmtDate = (at: number) => {
+    if (!at) return lang === "ar" ? "أبدًا" : "never";
+    try {
+      return new Date(at).toISOString().slice(0, 10);
     } catch {
       return "";
     }
@@ -181,6 +197,13 @@ function DataHealthCard() {
             ? `الحجر الصحي: ${quarantine.length} · سجل التشخيص: ${health.length}. لا يُحذف شيء تلقائيًا — التالف يُحفظ هنا.`
             : `Quarantine: ${quarantine.length} · Diagnostics: ${health.length}. Nothing is auto-deleted — corrupt data is kept here.`}
         </p>
+        {diag && (
+          <p className="backup-msg">
+            {lang === "ar"
+              ? `الحسابات: ${diag.profiles} · مجموعات البيانات: ${diag.datasets} · مفاتيح مخزنة: ${diag.storedKeys} · آخر نسخة: ${fmtDate(diag.lastBackup.at)} (${diag.lastBackup.kind}) · آخر ترحيل: ${fmtDate(diag.lastMigrationAt)}`
+              : `Profiles: ${diag.profiles} · Datasets: ${diag.datasets} · Stored keys: ${diag.storedKeys} · Last backup: ${fmtDate(diag.lastBackup.at)} (${diag.lastBackup.kind}) · Last migration: ${fmtDate(diag.lastMigrationAt)}`}
+          </p>
+        )}
         {quarantine
           .slice(-5)
           .reverse()
@@ -236,6 +259,7 @@ export function AccountView({ onReset }: { onReset: () => void }) {
     try {
       const file = buildBackupFile();
       downloadFile(`wird-backup-${stamp()}.json`, JSON.stringify(file));
+      markBackup("export");
       setBackupMsg(t("bk.count", { n: file.count }));
     } catch {
       setBackupMsg(t("bk.fail"));
@@ -245,8 +269,9 @@ export function AccountView({ onReset }: { onReset: () => void }) {
     const pass = askPass(t("bk.passAsk"));
     if (!pass) return;
     try {
-      const payload = await encryptBackup(pass, collectBackup());
+      const payload = await encryptBackup(pass, wrapForEncryption(collectBackup()));
       downloadFile(`wird-backup-enc-${stamp()}.json`, payload);
+      markBackup("export");
       setBackupMsg(t("bk.okEnc"));
     } catch {
       setBackupMsg(t("bk.noenc"));
@@ -254,15 +279,26 @@ export function AccountView({ onReset }: { onReset: () => void }) {
   };
   const onImportFile = async (f: File | undefined) => {
     if (!f) return;
+    // Race guard: an async decrypt + a profile switch must never commit into
+    // the wrong profile — abort if the active profile changed underneath us.
+    const startedProfile = getActiveProfileId();
     try {
       const text = await f.text();
       let data: unknown = JSON.parse(text);
       if (data && typeof data === "object" && "enc" in (data as Record<string, unknown>)) {
         const pass = askPass(t("bk.impAsk"));
         if (!pass) return;
-        data = await decryptBackup(pass, text);
+        data = unwrapDecrypted(await decryptBackup(pass, text));
       } else {
         data = parseBackupFile(text);
+      }
+      if (getActiveProfileId() !== startedProfile) {
+        setBackupMsg(
+          lang === "ar"
+            ? "تغيّر الحساب أثناء الاستيراد — أُجهض الاستيراد."
+            : "Profile changed during import — import aborted.",
+        );
+        return;
       }
       // Dry-run first: warn before touching storage when entries need quarantine.
       try {
@@ -281,6 +317,7 @@ export function AccountView({ onReset }: { onReset: () => void }) {
         // preview throws only for shapes restore would also reject — fall through
       }
       const report = restoreBackupSafe(data);
+      markBackup("import");
       const suffix =
         report.skipped > 0
           ? lang === "ar"
@@ -454,7 +491,15 @@ export function AccountView({ onReset }: { onReset: () => void }) {
           <b>{t("ac.newdayT")}</b>
           <p>{t("ac.newdayS")}</p>
         </div>
-        <button type="button" onClick={onReset}>
+        <button
+          type="button"
+          onClick={() => {
+            try {
+              if (!window.confirm(t("ac.newdayAsk"))) return;
+            } catch {}
+            onReset();
+          }}
+        >
           {t("ac.newdayB")}
         </button>
       </article>

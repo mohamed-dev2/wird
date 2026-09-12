@@ -5,6 +5,7 @@ import {
   readHealth,
   readQuarantine,
   readRecord,
+  SCHEMAS,
   writeRecord,
   type StorageLike,
 } from "../schema";
@@ -38,17 +39,29 @@ function quotaStore(inner: StorageLike): StorageLike {
 }
 
 describe("schema layer", () => {
-  it("reads legacy bare values without migrating them in place", () => {
-    const st = memStore({ "wird-tasbeeh-v2": JSON.stringify({ day: "2026-09-12", value: 7 }) });
+  it("migrates legacy bare values deterministically, without rewriting disk", () => {
+    const bare = JSON.stringify({ day: "2026-09-12", value: 7 });
+    const st = memStore({ "wird-tasbeeh-v2": bare });
     const out = readRecord<{ day: string; value: number }>(
       st,
       "wird-tasbeeh-v2",
       "wird-tasbeeh-v2",
     );
-    expect(out.status).toBe("legacy");
+    expect(out.status).toBe("migrated");
     expect(out.value).toEqual({ day: "2026-09-12", value: 7 });
     // untouched on disk: still bare, no envelope injected
-    expect(st.getItem("wird-tasbeeh-v2")).toBe(JSON.stringify({ day: "2026-09-12", value: 7 }));
+    expect(st.getItem("wird-tasbeeh-v2")).toBe(bare);
+  });
+
+  it("migrations are deterministic and idempotent", () => {
+    const mig = SCHEMAS["wird-done-v2"]?.migrate;
+    expect(mig).toBeTypeOf("function");
+    const once = mig?.(["a", 1, "b"]);
+    expect(once).toEqual({ day: "", ids: ["a", "b"] });
+    expect(mig?.(once)).toEqual(once);
+    const numMig = SCHEMAS["wird-tasbeeh-v2"]?.migrate;
+    expect(numMig?.(33)).toEqual({ day: "", value: 33 });
+    expect(numMig?.(numMig?.(33))).toEqual({ day: "", value: 33 });
   });
 
   it("round-trips writes through envelopes", () => {

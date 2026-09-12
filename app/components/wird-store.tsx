@@ -32,7 +32,7 @@ import {
   type Habit,
 } from "../lib/wird";
 import { emptyDay, recordDay, type DayRecord, type History } from "../lib/history";
-import { drainNotices } from "../lib/schema";
+import { drainNotices, purgeQuarantineForPrefix } from "../lib/schema";
 import { normalizeDayMode } from "../lib/daymode";
 import { tr } from "../lib/strings";
 import type { PrayerTimes } from "../lib/prayer";
@@ -42,6 +42,7 @@ import {
   isUnlocked,
   loadProfiles,
   markUnlocked,
+  newProfileId,
   saveProfiles,
   setActiveProfileId,
   sha256Hex,
@@ -569,7 +570,7 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const createProfile = async (name: string, avatar: string, pin: string | null) => {
     const existing = loadProfiles();
     const first = existing.length === 0;
-    const id = `u-${Date.now()}`;
+    const id = newProfileId();
     const pinHash = pin ? await sha256Hex(pin) : null;
     const p: Profile = { id, name, avatar, pinHash, created: dayId() };
     const list = [...existing, p];
@@ -606,6 +607,10 @@ export function WirdProvider({ children }: { children: ReactNode }) {
         if (k && k.startsWith(`p_${id}_`)) drop.push(k);
       }
       for (const k of drop) localStorage.removeItem(k);
+      // Quarantine raws can hold that profile's data — never leave them behind.
+      try {
+        purgeQuarantineForPrefix(localStorage, `p_${id}_`);
+      } catch {}
     } catch {}
     if (getActiveProfileId() === id) {
       setActiveProfileId(null);

@@ -49,14 +49,15 @@ husky pre-commit (lint-staged) + commit-msg hooks.
 
 ## 2. Routes (pages)
 
-| Route       | File            | Purpose                                               |
-| ----------- | --------------- | ----------------------------------------------------- |
-| `/`         | `app/page.tsx`  | Today: hero, habits, rescue plan, goals, night review |
-| `/calendar` | `app/calendar/` | 30-day month grid, Friday plan                        |
-| `/insights` | `app/insights/` | Real stats, balance radar, coach brief, Hijri year    |
-| `/review`   | `app/review/`   | End-of-day checklist (tri-state) + score + mood       |
-| `/library`  | `app/library/`  | Tabs: Adhkar · Quran · Hadith · Paths · Dreams        |
-| `/account`  | `app/account/`  | Profile, backup, transfer, reminders, times, theme    |
+| Route       | File            | Purpose                                                                  |
+| ----------- | --------------- | ------------------------------------------------------------------------ |
+| `/`         | `app/page.tsx`  | Today: hero, habits, rescue plan, goals, night review                    |
+| `/calendar` | `app/calendar/` | 30-day month grid, Friday plan                                           |
+| `/insights` | `app/insights/` | Real stats, balance radar, coach brief, Hijri year                       |
+| `/review`   | `app/review/`   | End-of-day checklist (tri-state) + score + mood                          |
+| `/library`  | `app/library/`  | Tabs: Adhkar · Quran · Hadith · Paths · Dreams                           |
+| `/account`  | `app/account/`  | Profile, backup, transfer, reminders, times, theme                       |
+| `/recovery` | `app/recovery/` | Last-resort recovery: inspect, emergency export, restore, surgical reset |
 
 Shared chrome (sidebar, bottom nav, header, zikr dock, login gate) lives in
 `app/components/shell.tsx`; all state in `app/components/wird-store.tsx`
@@ -118,7 +119,8 @@ Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-theme-v1`, `wird-lang-v1`, `wird-reminders-v1`, `wird-mosque-v1`,
 `wird-prayer-times-v1`, `wird-autolock-v1`, `wird-recovery-v1`,
 `wird-pinlock`, `wird-pinlock-*`, `wird-unlocked` (sessionStorage),
-`wird-quarantine-v1`, `wird-health-v1` (diagnostics, see below).
+`wird-quarantine-v1`, `wird-health-v1`, `wird-last-backup-v1`
+(diagnostics, see below).
 
 Helpers: `loadFromStorage` / `saveToStorage` (`lib/wird.ts`, profile-aware),
 `useStoredState` (`lib/use-stored-state.ts`, hydration-safe), `nsKey`
@@ -137,46 +139,89 @@ Integrity layer (`lib/schema.ts`, zero-loss contract):
   serve fallback) → migrate → validate → normalize-salvage → quarantine.
   Malformed records land in `wird-quarantine-v1` (last 20, ~200KB cap) with
   their raw bytes; events append to `wird-health-v1` (last 50).
+  Pre-envelope v1 shapes (bare array/number/string under daily keys) migrate
+  to `{day:"", …}` (undated legacy); daily loaders show `day:""` as current
+  only when the data provably came from storage (`readTrusted`), so
+  corruption/missing keys can never masquerade as legacy.
 - Write path: validate first; when a collection has salvageable items it
   heals on write (persists the valid subset, quarantines rejects) instead
   of refusing the whole dataset; quota failures return `{ ok:false,
 quota:true }` and raise an in-memory notice (a full store cannot persist
   the notice itself).
 - Import (`lib/crypto.ts`): `previewRestore` dry-runs any backup map;
-  `restoreBackupSafe` snapshots overwritten keys, applies valid entries,
-  salvages partial ones, quarantines the rest, and rolls the snapshot back
-  on mid-restore failure. `restoreBackup` keeps its `(data) => number`
-  signature for existing callers. Exports are manifest-wrapped
-  (`buildBackupFile` → `{ v:2, app:"wird", exportedAt, count, data }`);
+  `restoreBackupSafe` classifies EVERYTHING first (zero applicable entries
+  → rejected before a single write, not even quarantine), then snapshots,
+  applies valid, salvages partial, quarantines corrupt, and rolls the
+  snapshot back on mid-restore failure. `restoreBackup` keeps its
+  `(data) => number` signature for existing callers. Exports are
+  manifest-wrapped (`buildBackupFile` → `{ v:2, app, format, appVersion,
+exportedAt, encrypted:false, count, datasets:{version,records}, data }`);
+  encrypted transfers wrap the same manifest INSIDE the ciphertext
+  (`wrapForEncryption`/`unwrapDecrypted`, legacy raw maps still accepted);
+  every success stamps `wird-last-backup-v1` (`{at,kind}`) for diagnostics.
   `parseBackupFile` still accepts legacy v1 and raw key maps.
 - UI: account page has an import pre-flight confirm (corrupt/salvageable
   counts), double-confirm wipe (quarantine + health survive a wipe), and a
   data-health card (counts, last entries, diagnostics export, log clear).
   The provider shows a quota banner (from drained notices) and a multi-tab
   banner on `storage` events — reload is always explicit, never auto-merge.
+- Local diagnostics (`lib/diagnostics.ts`, counts only — no personal
+  content): profiles, datasets, stored/quarantined/future-version keys, last
+  backup, last migration, service-worker and transfer readiness; emergency
+  export (`buildEmergencyExport`) with an honest recovered/corrupt/skipped
+  report for manual rescue.
+- Performance posture: saves stay per-key on change (no full-store
+  serialization per interaction); validation is O(dataset) with tiny
+  datasets; backup encryption, QR chunking, gzip, and emergency export run
+  on demand from explicit buttons only; quarantine/health are capped lists.
 
 Download filenames (not storage, also matched by the checker):
-`wird-backup-*`, `wird-backup-enc-*`, `wird-diagnostics-*`.
+`wird-backup-*`, `wird-backup-enc-*`, `wird-diagnostics-*`,
+`wird-emergency-*`.
 
 ## 5. Profiles, login & recovery
 
-- Profiles: name + avatar + optional 4–8 digit PIN (`lib/profiles.ts`).
+- Profiles: name + avatar + optional 4–8 digit PIN (`lib/profiles.ts`); ids
+  are `crypto.randomUUID()` (timestamp ids could collide across devices on
+  import). Registry, verifiers, and demo seeds all flow through the schema
+  layer; deleting a profile also purges its quarantine raws (health entries
+  carry no payload and stay for forensics).
 - PINs stored as SHA-256 (`wird-pin:<pin>` domain); 5 wrong tries → 30s lockout.
 - Auto-lock timer re-locks after inactivity (configurable, off/5/15/30/60 min).
 - Recovery: 12-word BIP39 phrases (`lib/recovery.ts`, wordlist bundled at
   `public/data/bip39-en.txt`) reset forgotten PINs; verifiers in
   `wird-recovery-v1`. Tested against the official zero-entropy vector.
-- Switching profile reloads the app so no cross-profile state leaks.
+  Phrases are shown once on demand, never logged (zero `console.*` in `app/`),
+  never in URLs, never persisted (only the verifier, scoped per profile id —
+  a phrase for A cannot silently reset B), cleared from state after use, and
+  resetting still requires the new PIN (phrase ≠ auth shortcut).
+- Switching profile reloads the app so no cross-profile state leaks; every
+  async import captures the active profile id first and aborts if it changed
+  mid-decrypt, so imports can never commit into the wrong profile.
+- Catastrophic failure → `/recovery` (independent of the main store):
+  storage-health inspection, emergency export, backup restore, per-dataset
+  surgical reset, full erase only by typing DELETE.
 
 ## 6. Moving to another device
 
 Account → transfer card (`app/components/transfer.tsx`):
 
 1. **Encrypted file** — AES-GCM export/import (also the plain-JSON option).
-2. **QR snapshot** — PIN-encrypted + gzipped payload as animated `WIRD1:i/n:`
-   codes; camera scanner assembles in any order (`lib/transfer.ts`).
+   Fresh 128-bit salt + 96-bit IV per backup, PBKDF2-SHA256 120k, GCM auth
+   rejects tampering; passwords live only in memory, failures are generic
+   (`bk.bad` / `tr.badPin` — no crypto internals leak).
+2. **QR snapshot** — PIN-encrypted + gzipped manifest envelope as animated
+   `WIRD1:i/n:` codes; scanner assembles in any order (`lib/transfer.ts`).
+   Hardened: structural chunk check (`isSaneChunk`, ≤600 chunks ≈ 1MB —
+   bigger must use files), per-session lock (foreign-`n` chunks never mix),
+   duplicates collapse, contaminated sets refuse assembly, staged progress
+   (verify → decrypt → validate → import), nothing commits before preview +
+   validated restore.
 3. **Local Wi-Fi pair** — WebRTC DataChannel with manual SDP exchange,
    host-candidates only: no STUN, no server, no internet (`lib/lan.ts`).
+   Hardened: malformed SDP → pair-code error (not "wrong password"),
+   20s connect timeout, bounded LAN payload (≤8 parts, ≤32MB), empty
+   payload explained, sessions closed on unmount, validated restore only.
 4. **Recovery phrase** — resets PINs; backup files restore content.
 
 ## 7. Internationalization & themes
@@ -205,8 +250,10 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   least-privilege `Permissions-Policy` (mic allowed for self = voice logging),
   production-only CSP (script `unsafe-inline` is a documented Next.js
   requirement; fonts self-hosted so no font CDN needed).
-- AES-GCM backups (PBKDF2 120k), PINs hashed, recovery verifiers hashed,
-  no `dangerouslySetInnerHTML` (tafsir HTML stripped via detached node).
+- AES-GCM backups (PBKDF2 120k, random salt/IV per backup, GCM tamper
+  detection, generic failure messages, passwords never stored/logged),
+  PINs hashed, recovery verifiers hashed, no `dangerouslySetInnerHTML`
+  (tafsir HTML stripped via detached node).
 - Privacy page principle: nothing leaves the device except user-initiated
   transfers/shares; one-tap wipe in Account.
 
@@ -214,10 +261,20 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
 
 - `npm run typecheck` (strict + `noUncheckedIndexedAccess`), `npm run lint`
   (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`.
-- Vitest: history/coach/recovery/transfer/demo logic (16+ tests).
+- Vitest: history/coach/recovery/transfer/demo logic plus the reliability
+  suites — `schema` (envelopes, quarantine, salvage, future-versions,
+  quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
+  two-phase zero-write rejection, snapshot rollback, salvage),
+  `crypto-security` (round-trip, wrong password, GCM tamper, malformed
+  payloads, salt/IV freshness, legacy compat), `daily` (midnight rollover,
+  multi-day absence, legacy bare shapes, monotonic `recordDay`),
+  `isolation` (namespacing, adoption, id uniqueness, quarantine purge),
+  `fuzz` (seeded: validators/read/write never throw, valid state
+  round-trips), transfer edges (duplicates, order, contamination, bounds).
 - Playwright (prod server): toggles persist, routes render, theme/lang persist,
-  tilt vars, transfer QR + recovery flows; hydration-error listener fails the
-  run on mismatch.
+  tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
+  export, corruption survival + quarantine, A/B profile isolation across
+  switches and reloads; hydration-error listener fails the run on mismatch.
 - CI (`.github/workflows/ci.yml`): install → typecheck → lint → unit → e2e →
   build → audit → docs:check.
 
@@ -237,6 +294,15 @@ domain so OG/canonical URLs are exact. Any static-capable host works with
   `npm run clean` first.
 - **E2E fails locally** → e2e runs against a production server by design
   (`next dev` HMR sockets break in sandboxes); ensure ports 3119+ are free.
+- **App looks broken / data suspect** → open `/recovery`: storage health,
+  per-dataset statuses, emergency export, backup restore, surgical reset.
+  Corrupt records are quarantined (`wird-quarantine-v1`), never silently
+  emptied — export diagnostics from Account → data-health card before
+  resetting anything.
+- **"Couldn't save: storage is full"** → export a backup first, then delete
+  old data (demo/history); the banner names the failing dataset.
+- **Data changed in another tab** → banner offers an explicit reload;
+  the app never auto-merges across tabs.
 
 ## 13. Keeping docs fresh
 

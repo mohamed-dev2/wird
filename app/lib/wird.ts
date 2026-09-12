@@ -313,19 +313,49 @@ export function parseArDigits(s: string): string {
 
 type DailyList = { day: string; ids: string[] };
 
+/**
+ * Trusted read: data counts only when it actually came from storage
+ * (ok / legacy / migrated). Quarantine fallbacks, missing keys, and future
+ * versions resolve to the caller fallback — this is what keeps corruption
+ * from silently becoming an empty dataset, and missing keys from
+ * masquerading as undated legacy (day:"").
+ */
+function readTrusted<T>(key: string): T | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const { value, status } = readRecord<T>(window.localStorage, nsKey(key), key);
+    return status === "ok" || status === "legacy" || status === "migrated" ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 export function loadDailyList(key: string, fallback: string[], today: string): string[] {
-  const raw = loadFromStorage<DailyList | string[]>(key, fallback);
+  const raw = readTrusted<DailyList | string[]>(key) ?? fallback;
   if (Array.isArray(raw)) return raw; // migrate v1 shape
-  if (raw && typeof raw === "object" && raw.day === today && Array.isArray(raw.ids)) return raw.ids;
+  // day:"" = undated legacy migrated from a bare value: shown as current,
+  // exactly like the old code showed bare values. Next save stamps today.
+  if (
+    raw &&
+    typeof raw === "object" &&
+    Array.isArray(raw.ids) &&
+    (raw.day === today || raw.day === "")
+  )
+    return raw.ids;
   return fallback;
 }
 
 type DailyNumber = { day: string; value: number };
 
 export function loadDailyNumber(key: string, fallback: number, today: string): number {
-  const raw = loadFromStorage<DailyNumber | number>(key, fallback);
+  const raw = readTrusted<DailyNumber | number>(key) ?? fallback;
   if (typeof raw === "number") return raw; // migrate v1 shape
-  if (raw && typeof raw === "object" && raw.day === today && typeof raw.value === "number")
+  if (
+    raw &&
+    typeof raw === "object" &&
+    (raw.day === today || raw.day === "") &&
+    typeof raw.value === "number"
+  )
     return raw.value;
   return fallback;
 }
@@ -333,8 +363,13 @@ export function loadDailyNumber(key: string, fallback: number, today: string): n
 type DailyText = { day: string; text: string };
 
 export function loadDailyText(key: string, fallback: string, today: string): string {
-  const raw = loadFromStorage<DailyText | null>(key, null);
-  if (raw && typeof raw === "object" && raw.day === today && typeof raw.text === "string")
+  const raw = readTrusted<DailyText | null>(key);
+  if (
+    raw &&
+    typeof raw === "object" &&
+    (raw.day === today || raw.day === "") &&
+    typeof raw.text === "string"
+  )
     return raw.text;
   return fallback;
 }

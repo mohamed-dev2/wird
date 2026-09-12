@@ -4,7 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import jsQR from "jsqr";
 import { copyText } from "../lib/clipboard";
-import { collectBackup, decryptBackup, encryptBackup, restoreBackup } from "../lib/crypto";
+import {
+  collectBackup,
+  decryptBackup,
+  encryptBackup,
+  markBackup,
+  previewRestore,
+  restoreBackupSafe,
+  unwrapDecrypted,
+  wrapForEncryption,
+} from "../lib/crypto";
 import {
   assembleChunks,
   chunkPayload,
@@ -12,8 +21,10 @@ import {
   encodeChunk,
   gunzipFromB64,
   gzipToB64,
+  isSaneChunk,
 } from "../lib/transfer";
 import { lanAnswer, lanApplyAnswer, lanOffer } from "../lib/lan";
+import { getActiveProfileId } from "../lib/profiles";
 import { loadVerifiers, newRecoveryPhrase, saveVerifier } from "../lib/recovery";
 import { useT } from "../lib/i18n";
 import { useWird } from "./wird-store";
@@ -54,7 +65,7 @@ function QrShow() {
     if (pin.trim().length < 4 || busy) return;
     setBusy(true);
     try {
-      const payload = await encryptBackup(pin.trim(), collectBackup());
+      const payload = await encryptBackup(pin.trim(), wrapForEncryption(collectBackup()));
       const b64 = await gzipToB64(payload);
       setChunks(chunkPayload(b64).map(encodeChunk));
       setIdx(0);
@@ -108,9 +119,21 @@ function QrScan() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const gotRef = useRef(got);
+  // Session lock: chunks from a different transfer (different n) are foreign
+  // and must never mix into this assembly. Resets when scanning restarts.
+  const sessionN = useRef(0);
   useEffect(() => {
     gotRef.current = got;
   }, [got]);
+
+  const stopScan = () => {
+    setOn(false);
+    setGot(new Map());
+    setTotal(0);
+    sessionN.current = 0;
+    setMsg("");
+    setErr("");
+  };
 
   useEffect(() => {
     if (!on) return;
@@ -130,14 +153,21 @@ function QrScan() {
           const code = jsQR(img.data, img.width, img.height);
           if (code?.data) {
             const c = decodeChunk(code.data);
-            if (c) {
-              setTotal(c.n);
-              setGot((prev) => {
-                if (prev.get(c.i)) return prev;
-                const next = new Map(prev);
-                next.set(c.i, c.payload);
-                return next;
-              });
+            // Malformed, out-of-range, or oversized chunks are ignored;
+            // duplicates collapse in the Map; out-of-order is fine.
+            if (c && isSaneChunk(c)) {
+              if (sessionN.current !== 0 && sessionN.current !== c.n) {
+                // Foreign session — never mix payloads.
+              } else {
+                if (gotRef.current.size === 0) sessionN.current = c.n;
+                setTotal(c.n);
+                setGot((prev) => {
+                  if (prev.get(c.i)) return prev;
+                  const next = new Map(prev);
+                  next.set(c.i, c.payload);
+                  return next;
+                });
+              }
             }
           }
         } catch {}
@@ -171,15 +201,36 @@ function QrScan() {
   const apply = async () => {
     setErr("");
     setMsg("");
+    // Race guard: abort if the active profile changed during the async pipeline.
+    const startedProfile = getActiveProfileId();
     try {
       const b64 = assembleChunks(gotRef.current, total);
       if (!b64 || pin.trim().length < 4) return;
+      setMsg(t("tr.stVerify"));
       const payload = await gunzipFromB64(b64, true);
-      const data = await decryptBackup(pin.trim(), payload);
-      const n = restoreBackup(data);
-      setMsg(`${t("tr.restored")} (${n})`);
+      setMsg(t("tr.stDecrypt"));
+      const data = unwrapDecrypted(await decryptBackup(pin.trim(), payload));
+      if (getActiveProfileId() !== startedProfile) {
+        setErr(t("tr.switched"));
+        setMsg("");
+        return;
+      }
+      setMsg(t("tr.stValidate"));
+      previewRestore(data);
+      const report = restoreBackupSafe(data);
+      markBackup("import");
+      setMsg(
+        report.skipped > 0
+          ? t("tr.partial", { a: report.applied, q: report.skipped })
+          : `${t("tr.restored")} (${report.applied})`,
+      );
+      // Fresh session for any next transfer — never reuse these chunks.
+      setGot(new Map());
+      setTotal(0);
+      sessionN.current = 0;
     } catch {
       setErr(t("tr.badPin"));
+      setMsg("");
     }
   };
 
@@ -187,7 +238,7 @@ function QrScan() {
     <div className="transfer-pane">
       <p className="chart-caption">{t("tr.pointCam")}</p>
       <div className="backup-actions">
-        <button type="button" onClick={() => (on ? setOn(false) : (setErr(""), setOn(true)))}>
+        <button type="button" onClick={() => (on ? stopScan() : (setErr(""), setOn(true)))}>
           {on ? t("tr.stop") : t("tr.startCam")}
         </button>
         {total > 0 && (
@@ -265,7 +316,7 @@ function LanSend() {
     try {
       await lanApplyAnswer(s.pc, answer.trim());
     } catch {
-      setStatus(t("tr.badPin"));
+      setStatus(t("tr.badCode"));
       return;
     }
     // wait for the channel to open (receiver side)
@@ -273,17 +324,17 @@ function LanSend() {
       await new Promise((r) => setTimeout(r, 500));
     }
     if (!openRef.current) {
-      setStatus(t("tr.badPin"));
+      setStatus(t("tr.timeout"));
       return;
     }
     try {
-      const payload = await encryptBackup(pin.trim(), collectBackup());
+      const payload = await encryptBackup(pin.trim(), wrapForEncryption(collectBackup()));
       const b64 = await gzipToB64(payload);
       const body = JSON.stringify({ n: 1, parts: [b64] });
       s.send(`WIRCLAN:${body}`);
       setStatus(t("tr.sent"));
     } catch {
-      setStatus(t("tr.badPin"));
+      setStatus(t("tr.failed"));
     }
   };
 
@@ -361,12 +412,16 @@ function LanReceive() {
         onOpen: () => setStatus(t("tr.connected")),
         onMessage: (text) => {
           try {
+            // Validate before buffering: bounded parts, bounded total size.
+            // A failed transfer is never partially applied (see apply()).
             const body = text.startsWith("WIRCLAN:") ? text.slice(8) : text;
-            const d = JSON.parse(body) as { parts?: string[] };
-            if (d.parts) {
-              partsRef.current = d.parts;
-              setStatus(t("tr.sent"));
-            }
+            const d = JSON.parse(body) as { parts?: unknown };
+            if (!Array.isArray(d.parts) || d.parts.length === 0 || d.parts.length > 8) return;
+            if (!d.parts.every((p) => typeof p === "string" && p.length <= 8_000_000)) return;
+            const joined = (d.parts as string[]).join("");
+            if (joined.length === 0 || joined.length > 32_000_000) return;
+            partsRef.current = d.parts as string[];
+            setStatus(t("tr.sent"));
           } catch {}
         },
         onClose: () => {},
@@ -374,18 +429,38 @@ function LanReceive() {
       sessionRef.current = s;
       setAnswer(s.code);
     } catch {
-      setStatus(t("tr.badPin"));
+      setStatus(t("tr.badCode"));
     }
   };
 
   const apply = async () => {
+    const startedProfile = getActiveProfileId();
     try {
       const b64 = partsRef.current.join("");
-      if (!b64 || pin.trim().length < 4) return;
+      if (!b64) {
+        setStatus(t("tr.noData"));
+        return;
+      }
+      if (pin.trim().length < 4) return;
+      setStatus(t("tr.stVerify"));
       const payload = await gunzipFromB64(b64, true);
-      const data = await decryptBackup(pin.trim(), payload);
-      const n = restoreBackup(data);
-      setMsg(`${t("tr.restored")} (${n})`);
+      setStatus(t("tr.stDecrypt"));
+      const data = unwrapDecrypted(await decryptBackup(pin.trim(), payload));
+      if (getActiveProfileId() !== startedProfile) {
+        setStatus(t("tr.switched"));
+        return;
+      }
+      setStatus(t("tr.stValidate"));
+      previewRestore(data);
+      const report = restoreBackupSafe(data);
+      markBackup("import");
+      partsRef.current = [];
+      setStatus("");
+      setMsg(
+        report.skipped > 0
+          ? t("tr.partial", { a: report.applied, q: report.skipped })
+          : `${t("tr.restored")} (${report.applied})`,
+      );
     } catch {
       setStatus(t("tr.badPin"));
     }

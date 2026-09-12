@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { dayId, QURAN_GOAL_PAGES } from "../lib/wird";
-import { nsKey } from "../lib/profiles";
+import { dayId, loadFromStorage, QURAN_GOAL_PAGES, saveToStorage } from "../lib/wird";
 import { useT } from "../lib/i18n";
 import { useWird } from "../components/wird-store";
 
@@ -38,14 +37,9 @@ function statusLabel(t: (k: string) => string, s: Status): string {
 }
 
 function loadReviews(): Record<string, SavedReview> {
-  try {
-    const raw = localStorage.getItem(nsKey("wird-reviews-v1"));
-    if (!raw) return {};
-    const v = JSON.parse(raw) as unknown;
-    return v && typeof v === "object" ? (v as Record<string, SavedReview>) : {};
-  } catch {
-    return {};
-  }
+  // Enveloped + validated like every other dataset (bare legacy maps still
+  // read; malformed entries are salvaged with quarantine, never trusted).
+  return loadFromStorage<Record<string, SavedReview>>("wird-reviews-v1", {});
 }
 
 export default function ReviewPage() {
@@ -113,7 +107,7 @@ export default function ReviewPage() {
     try {
       const all = loadReviews();
       all[todayId] = rec;
-      localStorage.setItem(nsKey("wird-reviews-v1"), JSON.stringify(all));
+      saveToStorage("wird-reviews-v1", all);
     } catch {}
     saveReview({ day: todayId, ids: done, pages: quranPages, score, mood: mood ?? undefined });
     setLoadedScore(score);

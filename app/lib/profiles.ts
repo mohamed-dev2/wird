@@ -1,3 +1,5 @@
+import { readRecord, writeRecord } from "./schema";
+
 export type Profile = {
   id: string;
   name: string;
@@ -48,9 +50,8 @@ export function nsKey(key: string): string {
 
 export function loadProfiles(): Profile[] {
   try {
-    const raw = localStorage.getItem("wird-profiles-v1");
-    const v = raw ? (JSON.parse(raw) as unknown) : [];
-    return Array.isArray(v) ? (v as Profile[]) : [];
+    const { value } = readRecord<Profile[]>(localStorage, "wird-profiles-v1", "wird-profiles-v1");
+    return Array.isArray(value) ? value : [];
   } catch {
     return [];
   }
@@ -58,8 +59,21 @@ export function loadProfiles(): Profile[] {
 
 export function saveProfiles(list: Profile[]): void {
   try {
-    localStorage.setItem("wird-profiles-v1", JSON.stringify(list));
+    writeRecord(localStorage, "wird-profiles-v1", "wird-profiles-v1", list);
   } catch {}
+}
+
+/** Collision-resistant profile id (timestamp ids could collide across devices on import). */
+export function newProfileId(): string {
+  try {
+    if (typeof crypto !== "undefined" && "randomUUID" in crypto) return `u-${crypto.randomUUID()}`;
+  } catch {}
+  try {
+    const b = crypto.getRandomValues(new Uint8Array(8));
+    const hex = [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
+    return `u-${Date.now()}-${hex}`;
+  } catch {}
+  return `u-${Date.now()}-${Math.floor(Math.random() * 1e9)}`;
 }
 
 /** Move existing single-user keys under the given profile (first-run adoption). */

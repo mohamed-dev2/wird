@@ -38,6 +38,24 @@ export async function gunzipFromB64(b64: string, gzipped: boolean): Promise<stri
 
 export type QrChunk = { i: number; n: number; payload: string };
 
+/** Sanity ceiling: ~600 chunks ≈ 1MB payload. Anything bigger is rejected
+ * before it can exhaust memory, and must use the encrypted-file path. */
+export const QR_MAX_CHUNKS = 600;
+
+/** Structural check for a decoded chunk (session lock happens in the UI). */
+export function isSaneChunk(c: QrChunk): boolean {
+  return (
+    Number.isInteger(c.i) &&
+    Number.isInteger(c.n) &&
+    c.n >= 1 &&
+    c.n <= QR_MAX_CHUNKS &&
+    c.i >= 1 &&
+    c.i <= c.n &&
+    c.payload.length > 0 &&
+    c.payload.length <= 4096
+  );
+}
+
 export function chunkPayload(b64: string, size = 1800): QrChunk[] {
   const parts: QrChunk[] = [];
   const n = Math.max(1, Math.ceil(b64.length / size));
