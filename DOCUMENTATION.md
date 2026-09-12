@@ -139,7 +139,8 @@ Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-prayer-times-v1`, `wird-autolock-v1`, `wird-recovery-v1`,
 `wird-pinlock`, `wird-pinlock-*`, `wird-unlocked` (sessionStorage),
 `wird-quarantine-v1`, `wird-health-v1`, `wird-last-backup-v1`,
-`wird-guide-log-v1`, `wird-privacy-names-v1` (diagnostics, see below).
+`wird-guide-log-v1`, `wird-privacy-names-v1`, `wird-analytics-optout-v1`,
+`wird-vault-v1` (diagnostics, see below).
 
 Helpers: `loadFromStorage` / `saveToStorage` (`lib/wird.ts`, profile-aware),
 `useStoredState` (`lib/use-stored-state.ts`, hydration-safe), `nsKey`
@@ -221,6 +222,16 @@ Download filenames (not storage, also matched by the checker):
   (`wird-privacy-names-v1`, Account → privacy); PIN fields use
   `autocomplete="new-password"` + no spellcheck against autofill and
   shoulder-surfing dictionaries.
+- PIN hardening: trivial PINs rejected at set-time; destructive backup
+  actions (plain export, wipe) re-verify the profile PIN inline when one
+  is set; recovery verifiers are per-profile salted (v1) with legacy
+  unsalted (v0) hashes still accepted.
+- Duress PIN (optional, explained in UI before setting): opens a shared
+  blank decoy profile, counts nothing against lockout, leaves real data
+  locked. Must differ from the real PIN.
+- Reflection vault (optional, strongly discouraged in UI): AES-GCM
+  reflection encryption with session-only keys; forgetting the passphrase
+  loses the data permanently by design. See `docs/PRIVACY.md`.
 - Catastrophic failure → `/recovery` (independent of the main store):
   storage-health inspection, emergency export, backup restore, per-dataset
   surgical reset, full erase only by typing DELETE.
@@ -270,7 +281,7 @@ Account → transfer card (`app/components/transfer.tsx`):
 - `npm audit` clean (CI-gated); 5 runtime deps only.
 - Headers (`next.config.ts`): `X-Content-Type-Options`, `X-Frame-Options:
 DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
-  least-privilege `Permissions-Policy` (mic allowed for self = voice logging),
+  least-privilege `Permissions-Policy` (camera/mic/geolocation/payment all denied — voice logging was removed rather than leak audio to cloud STT),
   production-only CSP (script `unsafe-inline` is a documented Next.js
   requirement; fonts self-hosted so no font CDN needed).
 - AES-GCM backups (PBKDF2 120k, random salt/IV per backup, GCM tamper
@@ -304,7 +315,11 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   windows, weekday gating, honest time-of-day null, Quran/mem/adhkar,
   goals/challenges/pledges, gratitude + mood metadata, heatmap relativity,
   month deltas, what-changed, friction, insight gating, milestones, data
-  quality, DST safety, volatility, analytics→companion pipeline).
+  quality, DST safety, volatility, analytics→companion pipeline),
+  `prayer` (day-arc fractions incl. overnight wrap, next-prayer agreement),
+  `vault` (setup/unlock/lock/disable, generic failures, no plaintext
+  residue), weak-PIN + duress round-trips (in `isolation`), salted +
+  legacy verifiers (in `recovery`).
 - Playwright (prod server): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across
@@ -348,6 +363,9 @@ domain so OG/canonical URLs are exact. Any static-capable host works with
 1. Every `wird-*` storage key literal in `app/` is named in §4 above.
 2. Every route directory under `app/` is named in §2 above.
 3. AR/EN dictionary key parity (same check as `check_keys.py` logic).
+
+`npm run comments:check` (`scripts/check-comments.mjs`) asserts every
+non-test source file opens with a purposeful 2+ line header comment.
 
 When adding a key, route, or feature: document it here in the same PR —
 CI fails otherwise.

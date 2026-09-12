@@ -27,6 +27,7 @@ npm run test       # Vitest unit tests (100+)
 npm run test:e2e   # Playwright e2e (production server)
 npm run format     # Prettier write
 npm run docs:check # verify docs match code (keys + routes + parity)
+npm run comments:check # every source file has a purpose header
 npm run clean      # wipe .next + tsbuildinfo (run after major upgrades)
 ```
 
@@ -42,6 +43,7 @@ Node 22 (`.nvmrc`). CI (`.github/workflows/ci.yml`) runs typecheck → lint → 
 - **العودة**: شاشة رجوع متدرجة حسب عمق الغياب (3/7/14/30/90 يومًا) + سلّم تنبيهات محلية + تسجيل صوتي + مواقيت يدوية بعدّادات حية + وضع المسجد.
 - **الخصوصية**: تصدير عادي/مشفر (AES-GCM ببيان سلامة)، استيراد ذرّي متحقق، مسح شامل بتأكيد مزدوج — صفحة حسابي.
 - **الاسترداد** (`/recovery`): بيئة طوارئ مستقلة لفحص التخزين والتصدير الطارئ والاسترجاع.
+- **أمان إضافي (اختياري)**: رمز إكراه يفتح حسابًا فارغًا، خزنة مشفرة للتأملات (غير مستحسنة — موثقة المخاطر)، إخفاء الأسماء على القفل، تعتيم التبويب المخفي، مسح الحافظة تلقائيًا.
 - **التجربة**: عربي/إنجليزي (RTL/LTR، 770+ مفتاحًا بفحص تكافؤ)، فاتح/ليلي/أسود، PWA (تثبيت + عمل دون إنترنت)، حركات هادئة تحترم تقليل الحركة، طباعة للتقارير.
 
 ## البنية | Structure
@@ -73,7 +75,7 @@ app/
 
 ## الأمان | Security
 
-Security headers + production-only strict CSP (`next.config.ts`), `X-Powered-By` hidden, mic allowed for self (voice logging), `npm audit` clean, encrypted backups with fresh salt/IV per file, profile-id scoping + quarantine purge on delete, one-tap wipe, input-safe rendering. Details: `DOCUMENTATION.md` §9.
+Security headers + production-only strict CSP (`next.config.ts`), `X-Powered-By` hidden, camera/mic/geolocation denied by policy (voice logging removed — cloud transcription couldn't stay private), `npm audit` clean, encrypted backups with fresh salt/IV per file, profile-id scoping + quarantine purge on delete, one-tap wipe, input-safe rendering. Details: `DOCUMENTATION.md` §9.
 
 ## الخصوصية | Privacy
 

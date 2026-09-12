@@ -1,3 +1,7 @@
+// Shell: sidebar/nav/header/zikr chrome + login gating. Owns cross-cutting
+// effects only: pointer-tilt delegation, auto-lock timer, install prompt.
+// Never reads feature state during render.
+
 "use client";
 
 import Link from "next/link";
@@ -11,7 +15,6 @@ type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: string }>;
 };
-import { isVoiceSupported, listenOnce, matchCommand } from "../lib/voice";
 import { useWird } from "./wird-store";
 
 export function Shell({ children }: { children: ReactNode }) {
@@ -25,9 +28,6 @@ export function Shell({ children }: { children: ReactNode }) {
     setZikrCount,
     zikrName,
     setZikrName,
-    toggle,
-    setTasbeeh,
-    setFastType,
     activeProfile,
     authReady,
     unlocked,
@@ -37,14 +37,7 @@ export function Shell({ children }: { children: ReactNode }) {
     lock,
   } = useWird();
   const t = useT();
-  const [voiceOn, setVoiceOn] = useState(false);
-  const [listening, setListening] = useState(false);
-  const [heard, setHeard] = useState("");
   const [installEvt, setInstallEvt] = useState<BeforeInstallPromptEvent | null>(null);
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- feature-detect once after mount (SSR has no window)
-    setVoiceOn(isVoiceSupported());
-  }, []);
   useEffect(() => {
     // Subtle pointer tilt for [data-tilt] cards: desktop pointers only,
     // disabled with reduced motion. Delegated — survives route changes.
@@ -97,11 +90,6 @@ export function Shell({ children }: { children: ReactNode }) {
     };
   }, []);
   useEffect(() => {
-    if (!heard) return;
-    const id = window.setTimeout(() => setHeard(""), 4000);
-    return () => window.clearTimeout(id);
-  }, [heard]);
-  useEffect(() => {
     if (!autoLock || autoLock <= 0) return;
     let id: number | undefined;
     const arm = () => {
@@ -125,28 +113,18 @@ export function Shell({ children }: { children: ReactNode }) {
     window.addEventListener("beforeinstallprompt", onPrompt);
     return () => window.removeEventListener("beforeinstallprompt", onPrompt);
   }, []);
-  const runVoice = async () => {
-    if (listening) return;
-    setListening(true);
-    try {
-      const text = await listenOnce();
-      if (!text) {
-        setHeard(t("header.heardFail"));
-        return;
-      }
-      const cmd = matchCommand(text);
-      if (!cmd) {
-        setHeard(t("header.heardTry", { t: text }));
-        return;
-      }
-      if (cmd === "tasbeeh-plus") setTasbeeh((c) => Math.min(33, c + 1));
-      else if (cmd === "fast-log") setFastType((cur) => cur ?? "نافلة");
-      else toggle(cmd);
-      setHeard(t("header.heardOk", { t: text }));
-    } finally {
-      setListening(false);
-    }
-  };
+  useEffect(() => {
+    // Privacy screen: blur app content while the tab is hidden (shoulder
+    // surfing via task switchers / screen share). Blur, NOT lock — locking
+    // here would break copy-paste transfer flows across tabs/apps.
+    const onVis = () => {
+      try {
+        document.body.classList.toggle("tab-hidden", document.hidden);
+      } catch {}
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
   const isActive = (id: string) => {
     const href = NAV_HREFS[id] ?? "/";
     return href === "/" ? pathname === "/" : (pathname?.startsWith(href) ?? false);
@@ -204,18 +182,6 @@ export function Shell({ children }: { children: ReactNode }) {
             <Link href="/calendar" className="date-button">
               ‹ <span>{t("header.today")}</span> {gregLabel} ›
             </Link>
-            {voiceOn && (
-              <button
-                type="button"
-                className="mic-btn"
-                onClick={() => void runVoice()}
-                aria-pressed={listening}
-                aria-label={t("header.voice")}
-                title={t("header.voice")}
-              >
-                {listening ? "…" : "🎙"}
-              </button>
-            )}
             {installEvt && (
               <button
                 type="button"
@@ -232,7 +198,6 @@ export function Shell({ children }: { children: ReactNode }) {
               </button>
             )}
           </div>
-          {heard && <p className="heard-msg">{heard}</p>}
         </header>
         {children}
       </section>

@@ -1,3 +1,6 @@
+// AR/EN string dictionary (770+ keys). Religious/user content stays Arabic
+// by convention; AR↔EN key parity is enforced by docs:check in CI. Copy
+// under cm|tw|ret|an|goals is additionally scanned by guidance-safety tests.
 import type { Lang } from "../components/wird-store";
 
 const AR: Record<string, string> = {
@@ -15,10 +18,6 @@ const AR: Record<string, string> = {
   "header.greet": "صباح النور، محمد",
   "header.sub": "كل خطوة صغيرة تقرّبك. جعل الله يومك عامرًا بذكره.",
   "header.today": "اليوم",
-  "header.voice": "تسجيل صوتي",
-  "header.heardFail": "لم أسمع شيئًا — حاول مجددًا",
-  "header.heardTry": "سمعت: «{t}» — جرّب: سجلت الفجر",
-  "header.heardOk": "✓ سُجّل: {t}",
   "hero.pill": "رحلتك اليوم · يوم {mode}",
   "hero.title": "يومك يُبنى خطوةً خطوة",
   "hero.progress": "أنجزت {c} من {t} — والثبات على القليل خير من الانقطاع.",
@@ -704,6 +703,24 @@ const AR: Record<string, string> = {
   "auth.logout": "تبديل الحساب",
   "auth.hidden": "حساب خاص",
   "auth.hideNames": "إخفاء الأسماء على شاشة القفل",
+  "auth.pausePersonal": "إيقاف التخصيص (بلا سجل إرشاد)",
+  "auth.duress": "رمز إكراه (اختياري)",
+  "auth.duressExp":
+    "رمز الإكراه للطوارئ فقط: عند إدخاله بدل رقمك الحقيقي، يُفتح حساب فارغ لا يُظهر بياناتك. لا يمس بياناتك الحقيقية ولا يُلغي قفلها. اتركه فارغًا للإلغاء.",
+  "auth.duressAsk": "أدخل رمز إكراه (4-8 أرقام، مختلف عن رقمك):",
+  "auth.duressSet": "تم حفظ رمز الإكراه ✓",
+  "auth.duressOff": "أُلغي رمز الإكراه",
+  "auth.duressSame": "يجب أن يختلف عن رقمك الحقيقي",
+  "auth.decoyName": "زائر",
+  "vault.lockedT": "تأملاتك مقفلة",
+  "vault.unlock": "فتح",
+  "vault.setup": "تشفير التأملات (غير مستحسن)",
+  "vault.disable": "إيقاف تشفير التأملات",
+  "vault.bad": "كلمة سر خاطئة",
+  "vault.passAsk": "كلمة سر الخزنة (4 أحرف على الأقل):",
+  "vault.warn":
+    "تحذير صريح — لا ننصح بهذا: نسيان كلمة السر يعني فقدان تأملاتك نهائيًا، ولا حتى عبارة الاسترداد تفتحها. صدّر نسخة احتياطية أولًا. تشفير الجهاز يكفي معظم الناس. متابعة؟",
+  "auth.weakPin": "رقم سهل التخمين — اختر رقمًا آخر",
   "qr.showEn": "الترجمة الإنجليزية",
   "qr.tafsir": "التفسير",
   "qr.play": "استمع",
@@ -799,10 +816,6 @@ const EN: Record<string, string> = {
   "header.greet": "Good morning, Mohamed",
   "header.sub": "Every small step brings you closer.",
   "header.today": "Today",
-  "header.voice": "Voice log",
-  "header.heardFail": "Didn't catch that — try again",
-  "header.heardTry": "Heard: “{t}” — try: Fajr done",
-  "header.heardOk": "✓ Logged: {t}",
   "hero.pill": "Today's journey · a {mode} day",
   "hero.title": "Your day is built one step at a time",
   "hero.progress": "Completed {c} of {t} — steady and small beats stopping.",
@@ -1503,6 +1516,24 @@ const EN: Record<string, string> = {
   "auth.logout": "Switch account",
   "auth.hidden": "Private account",
   "auth.hideNames": "Hide names on the lock screen",
+  "auth.pausePersonal": "Pause personalization (no guide log)",
+  "auth.duress": "Duress PIN (optional)",
+  "auth.duressExp":
+    "Emergency-only duress PIN: entering it instead of your real PIN opens a blank account showing none of your data. Your real data stays locked and untouched. Leave empty to cancel.",
+  "auth.duressAsk": "Enter a duress PIN (4-8 digits, different from yours):",
+  "auth.duressSet": "Duress PIN saved ✓",
+  "auth.duressOff": "Duress PIN removed",
+  "auth.duressSame": "Must differ from your real PIN",
+  "auth.decoyName": "Guest",
+  "vault.lockedT": "Reflections locked",
+  "vault.unlock": "Unlock",
+  "vault.setup": "Encrypt reflections (not recommended)",
+  "vault.disable": "Disable reflection encryption",
+  "vault.bad": "Wrong passphrase",
+  "vault.passAsk": "Vault passphrase (4+ characters):",
+  "vault.warn":
+    "Frank warning — we recommend against this: forgetting the passphrase loses your reflections forever, and not even the recovery phrase opens it. Export a backup first. Device encryption is enough for most people. Continue?",
+  "auth.weakPin": "Too easy to guess — pick a different PIN",
   "qr.showEn": "English translation",
   "qr.tafsir": "Tafsir",
   "qr.play": "Listen",

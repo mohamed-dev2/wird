@@ -6,9 +6,10 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
   {
-    // microphone allowed for self: on-device voice logging needs it
+    // microphone fully disabled: voice logging was removed (cloud STT
+    // could not stay private), so no feature needs the mic anymore
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(self), geolocation=(), payment=()",
+    value: "camera=(), microphone=(), geolocation=(), payment=()",
   },
 ];
 
