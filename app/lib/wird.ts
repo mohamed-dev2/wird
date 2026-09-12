@@ -267,6 +267,7 @@ export function diffDays(fromId: string, toId: string): number {
 }
 
 import { nsKey } from "./profiles";
+import { pushNotice, readRecord, writeRecord } from "./schema";
 
 export function dayId(d = new Date()): string {
   const y = d.getFullYear();
@@ -278,9 +279,9 @@ export function dayId(d = new Date()): string {
 export function loadFromStorage<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
-    const raw = window.localStorage.getItem(nsKey(key));
-    if (raw == null) return fallback;
-    return JSON.parse(raw) as T;
+    const store = window.localStorage;
+    const { value } = readRecord<T>(store, nsKey(key), key);
+    return value ?? fallback;
   } catch {
     return fallback;
   }
@@ -288,7 +289,8 @@ export function loadFromStorage<T>(key: string, fallback: T): T {
 
 export function saveToStorage(key: string, value: unknown): void {
   try {
-    window.localStorage.setItem(nsKey(key), JSON.stringify(value));
+    const res = writeRecord(window.localStorage, nsKey(key), key, value);
+    if (!res.ok && res.quota) pushNotice({ kind: "quota", key, at: Date.now() });
   } catch {
     // storage unavailable (private mode) — ignore, app still works in-memory
   }

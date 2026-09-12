@@ -117,7 +117,8 @@ Persistent: `wird-customs-v1`, `wird-duas-v1`, `wird-goals-v1`,
 Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-theme-v1`, `wird-lang-v1`, `wird-reminders-v1`, `wird-mosque-v1`,
 `wird-prayer-times-v1`, `wird-autolock-v1`, `wird-recovery-v1`,
-`wird-pinlock`, `wird-pinlock-*`, `wird-unlocked` (sessionStorage).
+`wird-pinlock`, `wird-pinlock-*`, `wird-unlocked` (sessionStorage),
+`wird-quarantine-v1`, `wird-health-v1` (diagnostics, see below).
 
 Helpers: `loadFromStorage` / `saveToStorage` (`lib/wird.ts`, profile-aware),
 `useStoredState` (`lib/use-stored-state.ts`, hydration-safe), `nsKey`
@@ -125,8 +126,37 @@ Helpers: `loadFromStorage` / `saveToStorage` (`lib/wird.ts`, profile-aware),
 matches, then hydrates stored values on mount — never read storage during
 render (see `docs/adr` decision in git history: hydration fix).
 
+Integrity layer (`lib/schema.ts`, zero-loss contract):
+
+- Every dataset has a versioned `Schema` { version, validate, normalize?,
+  migrate?, fallback } in `SCHEMAS`. Validators never strip unknown fields;
+  migrations must spread old data.
+- New writes are enveloped `{ __wird: { v, updatedAt }, d }`; legacy bare
+  values still read as v0 and are never rewritten in place.
+- Read path: parse → unwrap → future-version guard (preserve untouched,
+  serve fallback) → migrate → validate → normalize-salvage → quarantine.
+  Malformed records land in `wird-quarantine-v1` (last 20, ~200KB cap) with
+  their raw bytes; events append to `wird-health-v1` (last 50).
+- Write path: validate first; when a collection has salvageable items it
+  heals on write (persists the valid subset, quarantines rejects) instead
+  of refusing the whole dataset; quota failures return `{ ok:false,
+quota:true }` and raise an in-memory notice (a full store cannot persist
+  the notice itself).
+- Import (`lib/crypto.ts`): `previewRestore` dry-runs any backup map;
+  `restoreBackupSafe` snapshots overwritten keys, applies valid entries,
+  salvages partial ones, quarantines the rest, and rolls the snapshot back
+  on mid-restore failure. `restoreBackup` keeps its `(data) => number`
+  signature for existing callers. Exports are manifest-wrapped
+  (`buildBackupFile` → `{ v:2, app:"wird", exportedAt, count, data }`);
+  `parseBackupFile` still accepts legacy v1 and raw key maps.
+- UI: account page has an import pre-flight confirm (corrupt/salvageable
+  counts), double-confirm wipe (quarantine + health survive a wipe), and a
+  data-health card (counts, last entries, diagnostics export, log clear).
+  The provider shows a quota banner (from drained notices) and a multi-tab
+  banner on `storage` events — reload is always explicit, never auto-merge.
+
 Download filenames (not storage, also matched by the checker):
-`wird-backup-*`, `wird-backup-enc-*`.
+`wird-backup-*`, `wird-backup-enc-*`, `wird-diagnostics-*`.
 
 ## 5. Profiles, login & recovery
 

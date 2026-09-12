@@ -32,6 +32,7 @@ import {
   type Habit,
 } from "../lib/wird";
 import { emptyDay, recordDay, type DayRecord, type History } from "../lib/history";
+import { drainNotices } from "../lib/schema";
 import { normalizeDayMode } from "../lib/daymode";
 import { tr } from "../lib/strings";
 import type { PrayerTimes } from "../lib/prayer";
@@ -159,6 +160,10 @@ export type WirdStore = {
   autoLock: number;
   setAutoLock: Dispatch<SetStateAction<number>>;
   lock: () => void;
+  storeNotice: string | null;
+  dismissStoreNotice: () => void;
+  tabStale: boolean;
+  reloadTab: () => void;
 };
 
 export type Theme = "light" | "dark" | "oled";
@@ -216,6 +221,8 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const [authReady, setAuthReady] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [autoLock, setAutoLock] = useState(15);
+  const [storeNotice, setStoreNotice] = useState<string | null>(null);
+  const [tabStale, setTabStale] = useState(false);
   useEffect(() => {
     // Mount-once hydration: stored values are client-only, so they load here
     // (after mount) to keep the first client render identical to SSR HTML.
@@ -269,6 +276,30 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     setMounted(true);
     setAuthReady(true);
   }, []);
+  useEffect(() => {
+    // Multi-tab + quota watch: never auto-merge (zero-loss) — the tab that
+    // changed storage wins only when the user explicitly reloads here.
+    if (!mounted) return;
+    const id = window.setInterval(() => {
+      try {
+        const notes = drainNotices();
+        const quota = notes.find((n) => n.kind === "quota");
+        if (quota) setStoreNotice(quota.key);
+      } catch {}
+    }, 4000);
+    const onStorage = (e: StorageEvent) => {
+      try {
+        if (e.key && (e.key.startsWith("wird-") || e.key.includes("_wird-"))) {
+          setTabStale(true);
+        }
+      } catch {}
+    };
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.clearInterval(id);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [mounted]);
   const quranRunning = quranSeconds > 0;
   useEffect(() => {
     if (!quranRunning) return;
@@ -748,6 +779,82 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     autoLock,
     setAutoLock,
     lock,
+    storeNotice,
+    dismissStoreNotice: () => setStoreNotice(null),
+    tabStale,
+    reloadTab: () => {
+      try {
+        window.location.reload();
+      } catch {}
+    },
   };
-  return <WirdContext.Provider value={value}>{children}</WirdContext.Provider>;
+  return (
+    <WirdContext.Provider value={value}>
+      {storeNotice && (
+        <div
+          role="alert"
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 60,
+            padding: "10px 14px",
+            background: "#7f1d1d",
+            color: "#fff",
+            fontSize: 14,
+            display: "flex",
+            gap: 12,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span>
+            {lang === "ar"
+              ? `تعذّر الحفظ: مساحة التخزين ممتلئة (${storeNotice}). صدّر نسخة احتياطية ثم احذف عناصر قديمة.`
+              : `Couldn't save: storage is full (${storeNotice}). Export a backup, then delete old items.`}
+          </span>
+          <button type="button" onClick={() => setStoreNotice(null)} aria-label="dismiss">
+            ✕
+          </button>
+        </div>
+      )}
+      {tabStale && (
+        <div
+          role="status"
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 60,
+            padding: "10px 14px",
+            background: "#1e3a8a",
+            color: "#fff",
+            fontSize: 14,
+            display: "flex",
+            gap: 12,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span>
+            {lang === "ar"
+              ? "تغيّرت البيانات في نافذة أخرى — أعد التحميل لرؤيتها (لن يُفقد شيء)."
+              : "Data changed in another tab — reload to see it (nothing is lost)."}
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              try {
+                window.location.reload();
+              } catch {}
+            }}
+          >
+            {lang === "ar" ? "تحديث" : "Reload"}
+          </button>
+          <button type="button" onClick={() => setTabStale(false)} aria-label="dismiss">
+            ✕
+          </button>
+        </div>
+      )}
+      {children}
+    </WirdContext.Provider>
+  );
 }

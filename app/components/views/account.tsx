@@ -3,11 +3,14 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import {
+  buildBackupFile,
   collectBackup,
   decryptBackup,
   downloadFile,
   encryptBackup,
-  restoreBackup,
+  parseBackupFile,
+  previewRestore,
+  restoreBackupSafe,
 } from "../../lib/crypto";
 import { DEFAULT_REMINDERS, ensurePermission, fireNotification } from "../../lib/notify";
 import { buildDemo, clearDemoData, mergeHistoryDemo, saveDemoReviews } from "../../lib/demo";
@@ -17,6 +20,12 @@ import { useStoredState } from "../../lib/use-stored-state";
 import { useT } from "../../lib/i18n";
 import { useWird } from "../wird-store";
 import { Transfer } from "../transfer";
+import {
+  readHealth,
+  readQuarantine,
+  type HealthIssue,
+  type QuarantineEntry,
+} from "../../lib/schema";
 
 function AppearanceCard() {
   const t = useT();
@@ -112,6 +121,92 @@ function DemoCard() {
   );
 }
 
+function DataHealthCard() {
+  const { lang } = useWird();
+  // Initializers (not effects): readQuarantine/readHealth are SSR-safe
+  // (empty without window), so first client render matches SSR HTML.
+  const [quarantine, setQuarantine] = useState<QuarantineEntry[]>(() => {
+    try {
+      return readQuarantine();
+    } catch {
+      return [];
+    }
+  });
+  const [health, setHealth] = useState<HealthIssue[]>(() => {
+    try {
+      return readHealth();
+    } catch {
+      return [];
+    }
+  });
+  const refresh = () => {
+    try {
+      setQuarantine(readQuarantine());
+    } catch {}
+    try {
+      setHealth(readHealth());
+    } catch {}
+  };
+  const stamp = () => new Date().toISOString().slice(0, 10);
+  const onExport = () => {
+    try {
+      downloadFile(
+        `wird-diagnostics-${stamp()}.json`,
+        JSON.stringify({ exportedAt: new Date().toISOString(), quarantine, health }, null, 2),
+      );
+    } catch {}
+  };
+  const onClear = () => {
+    try {
+      localStorage.removeItem("wird-quarantine-v1");
+      localStorage.removeItem("wird-health-v1");
+      setQuarantine([]);
+      setHealth([]);
+    } catch {}
+  };
+  const fmt = (at: number) => {
+    try {
+      return new Date(at).toISOString().slice(0, 16).replace("T", " ");
+    } catch {
+      return "";
+    }
+  };
+  return (
+    <article className="new-day" id="data-health-card">
+      <span>🩺</span>
+      <div>
+        <b>{lang === "ar" ? "سلامة البيانات" : "Data health"}</b>
+        <p>
+          {lang === "ar"
+            ? `الحجر الصحي: ${quarantine.length} · سجل التشخيص: ${health.length}. لا يُحذف شيء تلقائيًا — التالف يُحفظ هنا.`
+            : `Quarantine: ${quarantine.length} · Diagnostics: ${health.length}. Nothing is auto-deleted — corrupt data is kept here.`}
+        </p>
+        {quarantine
+          .slice(-5)
+          .reverse()
+          .map((q, i) => (
+            <p className="backup-msg" key={`${q.at}-${i}`}>
+              {q.key} · {q.reason} · {fmt(q.at)}
+            </p>
+          ))}
+        <div className="backup-actions">
+          <button type="button" onClick={onExport}>
+            {lang === "ar" ? "تصدير التشخيص" : "Export diagnostics"}
+          </button>
+          <button type="button" onClick={refresh}>
+            {lang === "ar" ? "تحديث" : "Refresh"}
+          </button>
+          {(quarantine.length > 0 || health.length > 0) && (
+            <button type="button" className="danger" onClick={onClear}>
+              {lang === "ar" ? "مسح السجلات" : "Clear logs"}
+            </button>
+          )}
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export function AccountView({ onReset }: { onReset: () => void }) {
   const [backupMsg, setBackupMsg] = useState("");
   const t = useT();
@@ -127,6 +222,7 @@ export function AccountView({ onReset }: { onReset: () => void }) {
     toggle,
     done,
     customs,
+    lang,
   } = useWird();
   const [openRow, setOpenRow] = useState<string | null>(null);
   const askName = askPrompt;
@@ -138,9 +234,9 @@ export function AccountView({ onReset }: { onReset: () => void }) {
   const stamp = () => new Date().toISOString().slice(0, 10);
   const onExportPlain = () => {
     try {
-      const data = collectBackup();
-      downloadFile(`wird-backup-${stamp()}.json`, JSON.stringify({ v: 1, plain: true, data }));
-      setBackupMsg(t("bk.count", { n: Object.keys(data).length }));
+      const file = buildBackupFile();
+      downloadFile(`wird-backup-${stamp()}.json`, JSON.stringify(file));
+      setBackupMsg(t("bk.count", { n: file.count }));
     } catch {
       setBackupMsg(t("bk.fail"));
     }
@@ -165,11 +261,33 @@ export function AccountView({ onReset }: { onReset: () => void }) {
         const pass = askPass(t("bk.impAsk"));
         if (!pass) return;
         data = await decryptBackup(pass, text);
-      } else if (data && typeof data === "object" && "data" in (data as Record<string, unknown>)) {
-        data = (data as { data: unknown }).data;
+      } else {
+        data = parseBackupFile(text);
       }
-      const n = restoreBackup(data);
-      setBackupMsg(t("bk.restored", { n }));
+      // Dry-run first: warn before touching storage when entries need quarantine.
+      try {
+        const pre = previewRestore(data);
+        if (pre.invalid > 0 || pre.salvagable > 0) {
+          const warn =
+            lang === "ar"
+              ? `الملف فيه ${pre.invalid} عنصر تالف و${pre.salvagable} قابل للإنقاذ الجزئي من أصل ${pre.total}. سيُحفظ التالف في الحجر الصحي بدل حذفه. متابعة؟`
+              : `Backup has ${pre.invalid} corrupt and ${pre.salvagable} partially-salvageable of ${pre.total} entries. Corrupt ones go to quarantine, never deleted. Continue?`;
+          if (!window.confirm(warn)) {
+            setBackupMsg(t("bk.bad"));
+            return;
+          }
+        }
+      } catch {
+        // preview throws only for shapes restore would also reject — fall through
+      }
+      const report = restoreBackupSafe(data);
+      const suffix =
+        report.skipped > 0
+          ? lang === "ar"
+            ? ` (تُرك ${report.skipped} في الحجر الصحي)`
+            : ` (${report.skipped} quarantined)`
+          : "";
+      setBackupMsg(t("bk.restored", { n: report.applied }) + suffix);
     } catch {
       setBackupMsg(t("bk.bad"));
     }
@@ -178,7 +296,16 @@ export function AccountView({ onReset }: { onReset: () => void }) {
     try {
       if (!window.confirm(t("bk.wipeAsk"))) return;
       const data = collectBackup();
-      for (const k of Object.keys(data)) localStorage.removeItem(k);
+      const n = Object.keys(data).length;
+      const second =
+        lang === "ar"
+          ? `تأكيد أخير: سيُمسح ${n} عنصرًا من هذا الجهاز نهائيًا (مع بقاء سجل التشخيص). لا يمكن التراجع بدون نسخة احتياطية. متابعة؟`
+          : `Final check: this permanently erases ${n} items from this device (diagnostics log kept). No undo without a backup. Continue?`;
+      if (!window.confirm(second)) return;
+      for (const k of Object.keys(data)) {
+        if (k === "wird-quarantine-v1" || k === "wird-health-v1") continue;
+        localStorage.removeItem(k);
+      }
       setBackupMsg(t("bk.wiped"));
     } catch {
       setBackupMsg(t("bk.wipeFail"));
@@ -363,6 +490,7 @@ export function AccountView({ onReset }: { onReset: () => void }) {
           />
         </div>
       </article>
+      <DataHealthCard />
       <article className="new-day">
         <span>⏰</span>
         <div>
