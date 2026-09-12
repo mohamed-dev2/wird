@@ -41,6 +41,9 @@ export function HadithFull({
   const [debounced, setDebounced] = useState("");
   const [jump, setJump] = useState("");
   const [page, setPage] = useState(0);
+  // One open action menu at a time — same floating choice-list pattern as
+  // the ayah rows (trigger reveals, menu floats above the card).
+  const [menuFor, setMenuFor] = useState<string | null>(null);
 
   const pickBook = (id: FullBookId) => {
     setBook(null);
@@ -181,6 +184,11 @@ export function HadithFull({
           {slice.map((h) => {
             const id = fullHadithId(book.id, h.num);
             const read = readIds.includes(id);
+            const menuOpen = menuFor === id;
+            const pick = (fn: () => void) => () => {
+              setMenuFor(null);
+              fn();
+            };
             return (
               <article key={id} id={`fh-${h.num}`} className={`hadith-card${read ? " read" : ""}`}>
                 <p>{h.text}</p>
@@ -193,32 +201,60 @@ export function HadithFull({
                       ? topicAr(book.sections[String(h.book)] ?? "")
                       : (book.sections[String(h.book)] ?? "")}
                   </span>
-                  <span className="hadith-tools">
-                    <button
-                      type="button"
-                      onClick={() => toggleRead(id)}
-                      aria-pressed={read}
-                      aria-label={t("hd.read")}
-                    >
-                      {read ? "✓" : "○"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => copy(h.text, `${book.ar} ${h.num}`)}
-                      aria-label={t("hd.copy")}
-                    >
-                      📋
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => toggleFav(id)}
-                      aria-pressed={favs.includes(id)}
-                      aria-label={t("hd.favAria")}
-                    >
-                      {favs.includes(id) ? "★" : "☆"}
-                    </button>
-                  </span>
+                  <button
+                    type="button"
+                    className="choice-trigger"
+                    aria-label={`${t("hd.menu")} ${h.num}`}
+                    aria-haspopup="menu"
+                    aria-expanded={menuOpen}
+                    onClick={() => setMenuFor(menuOpen ? null : id)}
+                  >
+                    ⋯
+                  </button>
                 </div>
+                {menuOpen && (
+                  <>
+                    <button
+                      type="button"
+                      className="choice-backdrop"
+                      aria-label={t("qr.close")}
+                      onClick={() => setMenuFor(null)}
+                      tabIndex={-1}
+                    />
+                    <span
+                      className="choice-menu"
+                      role="menu"
+                      aria-label={`${t("hd.menu")} ${h.num}`}
+                      onKeyDown={(e) => {
+                        if (e.key === "Escape") setMenuFor(null);
+                      }}
+                    >
+                      <button
+                        type="button"
+                        role="menuitemcheckbox"
+                        aria-checked={read}
+                        onClick={pick(() => toggleRead(id))}
+                      >
+                        <span aria-hidden>{read ? "✓" : "○"}</span> {t("hd.read")}
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={pick(() => copy(h.text, `${book.ar} ${h.num}`))}
+                      >
+                        <span aria-hidden>📋</span> {t("hd.copy")}
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitemcheckbox"
+                        aria-checked={favs.includes(id)}
+                        onClick={pick(() => toggleFav(id))}
+                      >
+                        <span aria-hidden>{favs.includes(id) ? "★" : "☆"}</span> {t("hd.favAria")}
+                      </button>
+                    </span>
+                  </>
+                )}
               </article>
             );
           })}

@@ -18,6 +18,11 @@ import { useStoredState } from "../../lib/use-stored-state";
 import { useT } from "../../lib/i18n";
 import { useWird } from "../wird-store";
 
+// Quran reader: offline mushaf (bundled JSON) + Clear-Quran English +
+// tafsir sheet + per-ayah audio. Reading order in this file:
+// persisted state → bundle loading → derived lists (counts/verses/search)
+// → audio + tafsir effects → toolbar → mushaf (ayah rows with floating
+// action menus) → tafsir dialog.
 export function QuranReader() {
   const t = useT();
   const { lang } = useWird();
@@ -37,6 +42,9 @@ export function QuranReader() {
   const [tafsirSrc, setTafsirSrc] = useStoredState("wird-tafsir-src-v1", TAFSIRS[0]?.id ?? "");
   const [tafsirText, setTafsirText] = useState<string | null>(null);
   const [tafsirState, setTafsirState] = useState<"idle" | "loading" | "error">("idle");
+  // Which ayah's floating action menu is open (one at a time). The menu is
+  // a real choice-list rendered ABOVE the verse — never inline behind text.
+  const [menuFor, setMenuFor] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -314,9 +322,18 @@ export function QuranReader() {
           <article className="mushaf" style={{ fontSize }}>
             <h3>سورة {SURAH_NAMES[surah - 1]}</h3>
             {verses.map((a) => {
+              // One ayah row: sacred text first, actions hidden behind a
+              // single ⋯ trigger. Hover/focus reveals the trigger; activating
+              // it opens a floating choice-list menu above the verse.
               const key = ayahKey(a.surah, a.ayah);
               const isMark = bookmark.surah === a.surah && bookmark.ayah === a.ayah;
               const isPlaying = playing?.surah === a.surah && playing?.ayah === a.ayah;
+              const menuOpen = menuFor === key;
+              const closeMenu = () => setMenuFor(null);
+              const pick = (fn: () => void) => () => {
+                closeMenu();
+                fn();
+              };
               return (
                 <span
                   key={key}
@@ -328,37 +345,65 @@ export function QuranReader() {
                   {a.text}
                   <b className="ayah-end">۝{a.ayah}</b>
                   {showEn && enMap?.get(key) && <span className="ayah-en">{enMap.get(key)}</span>}
-                  <span className="ayah-tools">
-                    <button
-                      type="button"
-                      onClick={() => setPlaying({ surah: a.surah, ayah: a.ayah })}
-                      aria-label={t("qr.play")}
-                    >
-                      ▶
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => openTafsir(a.surah, a.ayah)}
-                      aria-label={t("qr.tafsir")}
-                    >
-                      📖
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setBookmark({ surah: a.surah, ayah: a.ayah })}
-                      aria-label={t("qr.mark")}
-                    >
-                      🔖
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => toggleMem(key)}
-                      aria-pressed={hasMem(key)}
-                      aria-label={t("qr.mem")}
-                    >
-                      {hasMem(key) ? "★" : "☆"}
-                    </button>
-                  </span>
+                  <button
+                    type="button"
+                    className="ayah-trigger"
+                    aria-label={`${t("qr.menu")} ${a.surah}:${a.ayah}`}
+                    aria-haspopup="menu"
+                    aria-expanded={menuOpen}
+                    onClick={() => setMenuFor(menuOpen ? null : key)}
+                  >
+                    ⋯
+                  </button>
+                  {menuOpen && (
+                    <>
+                      <button
+                        type="button"
+                        className="ayah-menu-backdrop"
+                        aria-label={t("qr.close")}
+                        onClick={closeMenu}
+                        tabIndex={-1}
+                      />
+                      <span
+                        className="ayah-menu"
+                        role="menu"
+                        aria-label={`${t("qr.menu")} ${a.surah}:${a.ayah}`}
+                        onKeyDown={(e) => {
+                          if (e.key === "Escape") closeMenu();
+                        }}
+                      >
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={pick(() => setPlaying({ surah: a.surah, ayah: a.ayah }))}
+                        >
+                          <span aria-hidden>▶</span> {t("qr.play")}
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={pick(() => openTafsir(a.surah, a.ayah))}
+                        >
+                          <span aria-hidden>📖</span> {t("qr.tafsir")}
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={pick(() => setBookmark({ surah: a.surah, ayah: a.ayah }))}
+                        >
+                          <span aria-hidden>🔖</span> {t("qr.mark")}
+                        </button>
+                        <button
+                          type="button"
+                          role="menuitemcheckbox"
+                          aria-checked={hasMem(key)}
+                          onClick={pick(() => toggleMem(key))}
+                        >
+                          <span aria-hidden>{hasMem(key) ? "★" : "☆"}</span> {t("qr.mem")}
+                        </button>
+                      </span>
+                    </>
+                  )}
                 </span>
               );
             })}

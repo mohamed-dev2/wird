@@ -85,3 +85,30 @@ test("card tilt sets 3d vars on hover", async ({ page }) => {
     .poll(() => card.evaluate((el) => (el as HTMLElement).style.getPropertyValue("--rx") !== ""))
     .toBe(true);
 });
+
+test("ayah hover opens a floating choice-list menu, memorize persists", async ({ page }) => {
+  await ensureProfile(page);
+  await page.goto("/library");
+  await page.getByRole("button", { name: "القرآن" }).click();
+  const trigger = page.locator(".ayah-trigger").first();
+  await expect(trigger).toBeVisible({ timeout: 20000 });
+  await trigger.click();
+  const menu = page.locator(".ayah-menu").first();
+  await expect(menu).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: /استمع|Listen/ })).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: /تفسير|Tafsir/ })).toBeVisible();
+  await menu.getByRole("menuitemcheckbox", { name: /حفظ|Memorized/ }).click();
+  await expect(menu).toBeHidden();
+  await page.reload();
+  await page.goto("/library");
+  await page.getByRole("button", { name: "القرآن" }).click();
+  const trigger2 = page.locator(".ayah-trigger").first();
+  await expect(trigger2).toBeVisible({ timeout: 20000 });
+  await trigger2.click();
+  await expect(
+    page
+      .locator(".ayah-menu")
+      .first()
+      .getByRole("menuitemcheckbox", { name: /حفظ|Memorized/ }),
+  ).toHaveAttribute("aria-checked", "true");
+});

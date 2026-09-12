@@ -29,6 +29,9 @@ tools to move between devices.
 13. [Keeping docs fresh](#keeping-docs-fresh)
 14. [Adaptive companion](#14-adaptive-companion)
 15. [Analytics methodology](docs/ANALYTICS.md)
+16. [Companion decisions](docs/COMPANION.md)
+17. [Privacy model](docs/PRIVACY.md)
+18. [Testing guide](docs/TESTING.md)
 
 ## 1. Quick start
 

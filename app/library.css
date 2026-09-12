@@ -1,3 +1,11 @@
+/* =====================================================================
+   Library styles (app/library + Quran reader + hadith browser)
+   Sections: tabs/chips · mushaf + ayah rows · floating choice-lists ·
+   hadith cards · tafsir sheet · responsive tweaks at the end.
+   Conventions: logical properties (inset-inline-*) for RTL, theme vars
+   from tokens.css (never hardcode light-only colors for chrome).
+   ===================================================================== */
+
 .lib-tabs {
   margin-bottom: 14px;
   position: sticky;
@@ -258,7 +266,13 @@
   color: var(--gold-deep);
 }
 
+/* ---- Floating choice-lists (ayah rows + hadith cards) ----
+   Sacred text first; actions hide behind one ⋯ trigger. Hover/focus
+   reveals the trigger; activating it opens a labeled list ABOVE the
+   content — never inline behind text. inset-inline-* = RTL-correct. */
+
 .ayah {
+  position: relative; /* anchor for the floating menu */
   border-radius: 6px;
   padding: 1px 2px;
 }
@@ -270,34 +284,116 @@
   white-space: nowrap;
 }
 
-.ayah-tools {
-  display: inline-flex;
-  gap: 2px;
-  margin-right: 6px;
+.hadith-card {
+  position: relative; /* anchor for the floating menu */
+}
+
+/* The ⋯ trigger: hidden until hovered/focused (fine pointers); always
+   visible on touch, and while its menu is open. */
+.ayah-trigger,
+.choice-trigger {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.75em;
+  line-height: 1;
+  padding: 3px 7px;
+  margin-inline-start: 6px;
+  vertical-align: middle;
 }
 
 @media (pointer: fine) {
-  .ayah-tools {
+  .ayah-trigger,
+  .choice-trigger {
     opacity: 0;
     transition: opacity 0.18s ease;
   }
-  .ayah:hover .ayah-tools,
-  .ayah:focus-within .ayah-tools {
+  .ayah:hover .ayah-trigger,
+  .ayah:focus-within .ayah-trigger,
+  .ayah-trigger[aria-expanded="true"],
+  .hadith-card:hover .choice-trigger,
+  .hadith-card:focus-within .choice-trigger,
+  .choice-trigger[aria-expanded="true"] {
     opacity: 1;
   }
 }
 
-.ayah-tools button {
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  font-size: 0.8em;
-  opacity: 0.45;
-  padding: 2px;
+.ayah-trigger:hover,
+.ayah-trigger:focus-visible,
+.choice-trigger:hover,
+.choice-trigger:focus-visible {
+  color: var(--ink);
+  border-color: var(--gold);
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
 }
 
-.ayah-tools button:hover {
-  opacity: 1;
+/* Transparent layer that closes the menu on any outside tap/click. */
+.ayah-menu-backdrop,
+.choice-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 29;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
+/* The floating choice-list itself. */
+.ayah-menu,
+.choice-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  inset-inline-start: 0;
+  z-index: 30;
+  display: grid;
+  gap: 2px;
+  min-width: 170px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+
+.ayah-menu button[role="menuitem"],
+.ayah-menu button[role="menuitemcheckbox"],
+.choice-menu button[role="menuitem"],
+.choice-menu button[role="menuitemcheckbox"] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  text-align: start;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.ayah-menu button[role="menuitem"]:hover,
+.ayah-menu button[role="menuitem"]:focus-visible,
+.ayah-menu button[role="menuitemcheckbox"]:hover,
+.ayah-menu button[role="menuitemcheckbox"]:focus-visible,
+.choice-menu button[role="menuitem"]:hover,
+.choice-menu button[role="menuitem"]:focus-visible,
+.choice-menu button[role="menuitemcheckbox"]:hover,
+.choice-menu button[role="menuitemcheckbox"]:focus-visible {
+  background: var(--brand-soft);
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+.ayah-menu button [aria-hidden],
+.choice-menu button [aria-hidden] {
+  width: 1.4em;
+  text-align: center;
 }
 
 .ayah.mem {
@@ -395,32 +491,6 @@
 .grade-other {
   background: var(--surface-2);
   color: var(--muted);
-}
-
-.hadith-tools {
-  margin-right: auto;
-  display: flex;
-  gap: 2px;
-}
-
-.hadith-tools button {
-  border: 0;
-  background: transparent;
-  font-size: 15px;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 8px;
-  opacity: 0.65;
-}
-
-.hadith-tools button:hover {
-  opacity: 1;
-  background: var(--brand-soft);
-}
-
-.hadith-tools button[aria-pressed="true"] {
-  opacity: 1;
-  color: var(--gold-deep);
 }
 
 .full-promo {

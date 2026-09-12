@@ -92,5 +92,8 @@ Security headers + production-only strict CSP (`next.config.ts`), `X-Powered-By`
 
 ## التوثيق الكامل
 
-- `DOCUMENTATION.md` — الدليل الشامل (13 قسمًا + المرشد التكيفي + المنهجية).
+- `DOCUMENTATION.md` — الدليل الشامل (المعمارية، البيانات، الأمان، الجودة).
 - `docs/ANALYTICS.md` — منهجية التحليلات بالتفصيل.
+- `docs/COMPANION.md` — كيف يتخذ المرشد قراراته.
+- `docs/PRIVACY.md` — نموذج الخصوصية وما الذي يغادر الجهاز ومتى.
+- `docs/TESTING.md` — تشغيل البوابات وكتابة الاختبارات.
