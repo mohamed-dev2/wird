@@ -1,3 +1,6 @@
+// Manual prayer times ("HH:MM" per prayer id): next-prayer countdown,
+// Arabic durations, and the dayArc() prev→next fraction that drives the
+// prayer-arc visual. Invalid entries are ignored, never crash.
 export type PrayerTimes = Record<string, string>; // prayerId -> "HH:MM"
 
 export const PRAYER_ORDER = ["fajr", "dhuhr", "asr", "maghrib", "isha"];

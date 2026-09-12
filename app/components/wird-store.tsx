@@ -1,3 +1,8 @@
+// WirdProvider: the single source of client state. First render uses static
+// fallbacks (SSR-identical); a mount-once effect hydrates every slice from
+// storage, and per-slice effects persist back when mounted. Profile switches
+// and logout reload the page deliberately — no cross-profile state survives.
+
 "use client";
 
 import {
@@ -33,6 +38,14 @@ import {
 } from "../lib/wird";
 import { emptyDay, recordDay, type DayRecord, type History } from "../lib/history";
 import { drainNotices, purgeQuarantineForPrefix } from "../lib/schema";
+import {
+  disableVault,
+  lockVault,
+  setupVault,
+  unlockVault,
+  vaultStatus,
+  writeVaultText,
+} from "../lib/vault";
 import { normalizeDayMode } from "../lib/daymode";
 import { tr } from "../lib/strings";
 import type { PrayerTimes } from "../lib/prayer";
@@ -91,6 +104,11 @@ export type WirdStore = {
   setForgetDone: Dispatch<SetStateAction<string[]>>;
   reflection: string;
   setReflection: Dispatch<SetStateAction<string>>;
+  vaultState: "off" | "locked" | "open";
+  unlockVaultText: (pass: string) => Promise<boolean>;
+  lockVaultText: () => void;
+  enableVaultText: (pass: string) => Promise<void>;
+  disableVaultText: (pass: string) => Promise<void>;
   partial: string[];
   snoozed: string[];
   togglePartial: (id: string) => void;
@@ -210,6 +228,37 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   const [filter, setFilter] = useState<"all" | "done" | "todo">("all");
   const [forgetDone, setForgetDone] = useState<string[]>([]);
   const [reflection, setReflection] = useState("");
+  const [vaultState, setVaultState] = useState<"off" | "locked" | "open">("off");
+
+  /** Unlock the vault for this session; loads today's text on success. */
+  const unlockVaultText = async (pass: string): Promise<boolean> => {
+    try {
+      const v = await unlockVault(pass);
+      const t = dayId();
+      setReflection(v.day === t ? v.text : "");
+      setVaultState("open");
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  const lockVaultText = () => {
+    lockVault();
+    setReflection("");
+    setVaultState("locked");
+  };
+  /** Enable: encrypts today's text and removes the plaintext key. */
+  const enableVaultText = async (pass: string): Promise<void> => {
+    await setupVault(pass, dayId(), reflection);
+    setVaultState("open");
+  };
+  /** Disable: needs the passphrase; restores plaintext afterwards. */
+  const disableVaultText = async (pass: string): Promise<void> => {
+    const v = await disableVault(pass);
+    saveToStorage("wird-reflection-v2", { day: v.day || dayId(), text: v.text });
+    setReflection(v.day === dayId() ? v.text : "");
+    setVaultState("off");
+  };
   const [partial, setPartial] = useState<string[]>([]);
   const [snoozed, setSnoozed] = useState<string[]>([]);
   const [rampReduced, setRampReduced] = useState(false);
@@ -259,7 +308,15 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     setIntention(loadFromStorage("wird-intention-v1", DEFAULT_INTENTION));
     setRemindPrayer(loadFromStorage("wird-remind-v1", false));
     setForgetDone(loadDailyList("wird-forget-v2", [], t));
-    setReflection(loadDailyText("wird-reflection-v2", "", t));
+    // Vault (discouraged, opt-in): when a vault record exists the plaintext
+    // key is gone by construction — stay locked until the user unlocks.
+    if (vaultStatus() === "off") {
+      setReflection(loadDailyText("wird-reflection-v2", "", t));
+      setVaultState("off");
+    } else {
+      setReflection("");
+      setVaultState("locked");
+    }
     setPartial(loadDailyList("wird-partial-v2", [], t));
     setSnoozed(loadDailyList("wird-snoozed-v2", [], t));
     setRampReduced(loadFromStorage("wird-ramp-v1", false));
@@ -361,8 +418,14 @@ export function WirdProvider({ children }: { children: ReactNode }) {
   }, [mounted, forgetDone]);
   useEffect(() => {
     if (!mounted) return;
+    // Vault on: locked sessions must NEVER overwrite the vault with "".
+    if (vaultState === "locked") return;
+    if (vaultState === "open") {
+      void writeVaultText(dayId(), reflection).catch(() => {});
+      return;
+    }
     saveToStorage("wird-reflection-v2", { day: dayId(), text: reflection });
-  }, [mounted, reflection]);
+  }, [mounted, reflection, vaultState]);
   useEffect(() => {
     if (!mounted) return;
     saveToStorage("wird-partial-v2", { day: dayId(), ids: partial });
@@ -733,6 +796,11 @@ export function WirdProvider({ children }: { children: ReactNode }) {
     setForgetDone,
     reflection,
     setReflection,
+    vaultState,
+    unlockVaultText,
+    lockVaultText,
+    enableVaultText,
+    disableVaultText,
     partial,
     snoozed,
     togglePartial,

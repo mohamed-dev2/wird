@@ -47,6 +47,9 @@ export const HEALTH_KEY = "wird-health-v1";
 const QUARANTINE_MAX = 20;
 const QUARANTINE_RAW_MAX = 4096;
 const HEALTH_MAX = 50;
+// Forensic retention: entries older than this are pruned on write, so the
+// quarantine/health logs cannot grow into a permanent shadow archive.
+const LOG_TTL_MS = 30 * 86400000;
 
 function browserStorage(): StorageLike | null {
   try {
@@ -346,6 +349,12 @@ export const SCHEMAS: Record<string, Schema> = {
   "wird-guide-log-v1": S(1, isArr, () => []),
   "wird-adhkar-log-v1": S(1, isObj, () => ({})),
   "wird-privacy-names-v1": S(1, isBool, () => false),
+  "wird-analytics-optout-v1": S(1, isBool, () => false),
+  "wird-vault-v1": S(
+    1,
+    (v) => typeof v === "object" && v !== null,
+    () => ({}),
+  ),
 };
 
 // ---------- quarantine + health (global, unprefixed keys) ----------
@@ -364,7 +373,11 @@ export function readQuarantine(store?: StorageLike | null): QuarantineEntry[] {
 
 function saveQuarantine(store: StorageLike, list: QuarantineEntry[]): void {
   try {
-    store.setItem(QUARANTINE_KEY, JSON.stringify(list.slice(-QUARANTINE_MAX)));
+    const cutoff = Date.now() - LOG_TTL_MS;
+    store.setItem(
+      QUARANTINE_KEY,
+      JSON.stringify(list.filter((e) => e.at >= cutoff).slice(-QUARANTINE_MAX)),
+    );
   } catch {}
 }
 
@@ -402,7 +415,8 @@ export function readHealth(store?: StorageLike | null): HealthIssue[] {
 
 export function logHealth(store: StorageLike, key: string, kind: HealthKind): void {
   try {
-    const list = readHealth(store);
+    const cutoff = Date.now() - LOG_TTL_MS;
+    const list = readHealth(store).filter((h) => h.at >= cutoff);
     list.push({ key, at: Date.now(), kind });
     store.setItem(HEALTH_KEY, JSON.stringify(list.slice(-HEALTH_MAX)));
   } catch {}

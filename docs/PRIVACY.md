@@ -39,6 +39,32 @@ must stay empty (CI-linted culture, review-enforced).
 - Names are hidden on lock/login screens when enabled (Account → privacy
   → `wird-privacy-names-v1`); PIN fields opt out of autocomplete and
   spellcheck.
+- The tab blurs its content while hidden (`body.tab-hidden`), so task
+  switchers and screen shares show nothing legible — without locking the
+  session (transfer copy-paste keeps working).
+- Transfer codes auto-clear from the clipboard after 60s.
+- Trivial PINs (1234, repeats, runs) are rejected at set-time.
+- Plain export and wipe re-verify the profile PIN inline when one is set.
+- Recovery verifiers are per-profile salted; legacy unsalted hashes still
+  verify (backward compatible, never downgraded).
+- Plain backups carry a tamper-evident checksum (`integrity`); imports
+  reject mismatches before touching storage (encrypted backups rely on
+  GCM auth instead). The checksum is NOT cryptographic — it catches
+  accidents and casual edits, documented as such in code.
+- The import pre-flight names how many profiles a backup contains.
+- Quarantine and health logs auto-expire entries older than 30 days on
+  write (forensics, not a shadow archive).
+- Personalization can be paused (`wird-analytics-optout-v1`): no guide
+  log is written.
+- Voice logging was REMOVED (not disabled): browser speech recognition
+  sends audio to vendor cloud servers, which cannot stay private. The
+  microphone is denied by `Permissions-Policy`.
+- Duress PIN (optional, off by default): a second PIN that opens a shared
+  blank decoy profile. Explained in full before setting; must differ from
+  the real PIN; never counts against lockout; real data stays locked.
+- Reflection vault (optional, strongly discouraged in UI): AES-GCM with
+  session-only keys; a forgotten passphrase = permanent loss, stated
+  upfront; setup demands an explicit warning confirm + a prior backup.
 - Recovery phrases are shown once, never logged, never persisted (only
   the verifier), and never grant access by themselves.
 - Analytics inputs never leave; the only analytics artifact that can

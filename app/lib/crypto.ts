@@ -312,6 +312,7 @@ export type BackupFileV2 = {
   exportedAt: string;
   encrypted: false;
   count: number;
+  integrity: string;
   datasets: Record<string, BackupDatasetInfo>;
   data: Record<string, string>;
 };
@@ -351,9 +352,56 @@ export function buildBackupFile(): BackupFileV2 {
     exportedAt: new Date().toISOString(),
     encrypted: false,
     count: Object.keys(data).length,
+    integrity: checksumStr(JSON.stringify(data)),
     datasets: describeDatasets(data),
     data,
   };
+}
+
+/** cyrb53 hex: tamper-EVIDENT checksum for plain backups (GCM already
+ *  authenticates encrypted ones). NOT cryptographic — detects accidents
+ *  and casual edits, not a dedicated attacker. Documented as such. */
+export function checksumStr(s: string): string {
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16);
+}
+
+/** Verify a parsed backup file's integrity claim. True when the file makes
+ *  no claim (legacy) — absence of evidence is reported, never punishment. */
+export function verifyBackupIntegrity(parsed: unknown): boolean {
+  try {
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return true;
+    const rec = parsed as Record<string, unknown>;
+    if (typeof rec.integrity !== "string" || !rec.data || typeof rec.data !== "object") {
+      return true;
+    }
+    return checksumStr(JSON.stringify(rec.data)) === rec.integrity;
+  } catch {
+    return true;
+  }
+}
+
+/** Distinct profile ids contained in a backup map (for pre-import review). */
+export function profilesInBackup(data: unknown): string[] {
+  try {
+    if (!data || typeof data !== "object" || Array.isArray(data)) return [];
+    const out = new Set<string>();
+    for (const k of Object.keys(data as Record<string, unknown>)) {
+      const m = /^p_([^_]+)_/.exec(k);
+      if (m?.[1]) out.add(m[1]);
+    }
+    return [...out];
+  } catch {
+    return [];
+  }
 }
 
 /**

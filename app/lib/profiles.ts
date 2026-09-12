@@ -1,3 +1,6 @@
+// Profiles: ids, namespacing (p_<id>_), adoption, PIN hashing.
+// Registry reads/writes go through the schema layer; deleting a profile
+// also purges its quarantine raws. See docs/PRIVACY.md for boundaries.
 import { readRecord, writeRecord } from "./schema";
 
 export type Profile = {
@@ -5,6 +8,8 @@ export type Profile = {
   name: string;
   avatar: string;
   pinHash: string | null;
+  /** Optional duress PIN hash: unlocks a shared blank decoy instead. */
+  duressPinHash?: string | null;
   created: string;
 };
 
@@ -22,6 +27,7 @@ const GLOBAL_KEYS = new Set([
   "wird-quarantine-v1",
   "wird-health-v1",
   "wird-privacy-names-v1",
+  "wird-analytics-optout-v1",
 ]);
 
 let activeId: string | null = null;
@@ -98,6 +104,46 @@ export function adoptKeys(profileId: string): void {
 export async function sha256Hex(s: string): Promise<string> {
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`wird-pin:${s}`));
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Trivially guessable PINs are rejected at set-time (shoulder surfing +
+// smudge attacks guess these first). Not a strength meter — just a floor.
+const WEAK_PINS = new Set([
+  "0000",
+  "1111",
+  "2222",
+  "3333",
+  "4444",
+  "5555",
+  "6666",
+  "7777",
+  "8888",
+  "9999",
+  "1234",
+  "4321",
+  "1212",
+  "1122",
+  "000000",
+  "111111",
+  "123456",
+  "654321",
+  "12345678",
+  "87654321",
+]);
+
+export function isWeakPin(pin: string): boolean {
+  const digits = pin.replace(/\D/g, "");
+  if (digits.length !== pin.length || digits.length < 4) return true;
+  if (WEAK_PINS.has(digits)) return true;
+  // monotone runs (e.g. 5678, 9876) of any length
+  let up = true;
+  let down = true;
+  for (let i = 1; i < digits.length; i++) {
+    const d = (digits.charCodeAt(i) ?? 0) - (digits.charCodeAt(i - 1) ?? 0);
+    if (d !== 1) up = false;
+    if (d !== -1) down = false;
+  }
+  return up || down;
 }
 
 export function isUnlocked(id: string): boolean {

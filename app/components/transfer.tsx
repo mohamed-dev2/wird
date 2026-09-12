@@ -1,3 +1,7 @@
+// Device-to-device transfer card: QR show/scan, LAN send/receive, recovery
+// phrase. Every import path runs preview → validated safe-restore and aborts
+// if the active profile changed mid-decrypt (never commits wrong-profile).
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -25,7 +29,7 @@ import {
 } from "../lib/transfer";
 import { lanAnswer, lanApplyAnswer, lanOffer } from "../lib/lan";
 import { getActiveProfileId } from "../lib/profiles";
-import { loadVerifiers, newRecoveryPhrase, saveVerifier } from "../lib/recovery";
+import { loadVerifiers, newRecoveryPhrase, saveVerifierSalted } from "../lib/recovery";
 import { useT } from "../lib/i18n";
 import { useWird } from "./wird-store";
 
@@ -338,7 +342,9 @@ function LanSend() {
     }
   };
 
-  const copy = copyText;
+  // Transfer codes are secrets-in-transit: clear them from the clipboard
+  // after 60s so they don't linger for other apps to read.
+  const copy = (text: string) => copyText(text, 60000);
 
   return (
     <div className="transfer-pane">
@@ -466,7 +472,9 @@ function LanReceive() {
     }
   };
 
-  const copy = copyText;
+  // Transfer codes are secrets-in-transit: clear them from the clipboard
+  // after 60s so they don't linger for other apps to read.
+  const copy = (text: string) => copyText(text, 60000);
 
   return (
     <div className="transfer-pane">
@@ -526,9 +534,10 @@ function Recovery() {
 
   const generate = async () => {
     try {
-      const { words: w, verifier } = await newRecoveryPhrase();
+      const { words: w } = await newRecoveryPhrase();
       if (activeProfile) {
-        saveVerifier(activeProfile.id, verifier);
+        // Salted per-profile verifier (legacy unsalted hashes still verify).
+        await saveVerifierSalted(activeProfile.id, w);
         setHas(true);
       }
       setWords(w);

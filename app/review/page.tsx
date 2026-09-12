@@ -1,3 +1,7 @@
+// Review page (/review): tri-state nightly checklist + score/mood/gratitude.
+// Submits write BOTH the per-day review record (enveloped) and the history
+// merge. Includes one honest night-context line for strong/low/return days.
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";

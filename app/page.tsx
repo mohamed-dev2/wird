@@ -1,3 +1,9 @@
+// Today page (/): hero, companion card, return screen, rescue plan, habits,
+// Quran/adhkar/dua/goals/challenges/pledges, night reflection, kids, qada.
+// The return screen REPLACES the whole page when stage > 0 (never stacked).
+// Storage reads happen only in mount effects / event handlers — never during
+// render — so SSR HTML always matches (see docs/TESTING.md hydration rule).
+
 "use client";
 
 import { useWird } from "./components/wird-store";
@@ -6,6 +12,48 @@ import { fastLabel, PRAYER_ID } from "./lib/daymode";
 import { EditModal } from "./components/edit-modal";
 import { NowView } from "./components/views/now";
 import { PrayerArc } from "./components/prayer-arc";
+
+// Inline vault unlock (locked reflections): password + button only, generic
+// failure message. Session-scoped — reload locks again by design.
+function VaultUnlock() {
+  const t = useT();
+  const { unlockVaultText } = useWird();
+  const [pass, setPass] = useState("");
+  const [err, setErr] = useState("");
+  return (
+    <div className="backup-actions">
+      <p className="eyebrow">🔒 {t("vault.lockedT")}</p>
+      <label className="time-label">
+        {t("vault.passAsk")}
+        <input
+          type="password"
+          autoComplete="new-password"
+          spellCheck={false}
+          value={pass}
+          onChange={(e) => setPass(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              const v = pass;
+              setPass("");
+              void unlockVaultText(v).then((ok) => setErr(ok ? "" : t("vault.bad")));
+            }
+          }}
+        />
+      </label>
+      <button
+        type="button"
+        onClick={() => {
+          const v = pass;
+          setPass("");
+          void unlockVaultText(v).then((ok) => setErr(ok ? "" : t("vault.bad")));
+        }}
+      >
+        {t("vault.unlock")}
+      </button>
+      {err && <p className="backup-msg">{err}</p>}
+    </div>
+  );
+}
 import { CompanionCard, VerseCard } from "./components/companion";
 import {
   assessUser,
@@ -83,6 +131,7 @@ export default function TodayPage() {
     setForgetDone,
     reflection,
     setReflection,
+    vaultState,
     partial,
     snoozed,
     togglePartial,
@@ -276,7 +325,9 @@ export default function TodayPage() {
   useEffect(() => {
     if (!guidance || !cmReady || !frozenLog) return;
     // Persist for future sessions; frozenLog stays untouched in-session.
+    // Respects the analytics opt-out: no guide-log writes when paused.
     try {
+      if (loadFromStorage("wird-analytics-optout-v1", false)) return;
       logGuidance((k, v) => saveToStorage(k, v), frozenLog, guidance.logKind, todayStr);
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps -- log once per selected guidance
@@ -1637,12 +1688,16 @@ export default function TodayPage() {
         <div className="reflection">
           <p className="eyebrow">{t("night.journalEyebrow")}</p>
           <h3>{t("night.journalQ")}</h3>
-          <textarea
-            value={reflection}
-            onChange={(e) => setReflection(e.target.value)}
-            placeholder={t("night.journalPh")}
-            aria-label={t("night.journalQ")}
-          />
+          {vaultState === "locked" ? (
+            <VaultUnlock />
+          ) : (
+            <textarea
+              value={reflection}
+              onChange={(e) => setReflection(e.target.value)}
+              placeholder={t("night.journalPh")}
+              aria-label={t("night.journalQ")}
+            />
+          )}
           <span>{t("night.journalNote")}</span>
         </div>
       </section>

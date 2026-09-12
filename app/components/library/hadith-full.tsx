@@ -1,3 +1,7 @@
+// Full 9-book hadith browser: lazy per-book JSON, search, pagination,
+// read/fav/copy per hadith via a floating choice-list menu (same pattern
+// as the ayah rows). Favorites/reads persist per profile.
+
 "use client";
 
 import { useEffect, useMemo, useState } from "react";

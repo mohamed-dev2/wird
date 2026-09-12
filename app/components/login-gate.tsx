@@ -1,9 +1,13 @@
+// LoginGate: first-run onboarding, profile picker, PIN unlock with lockout,
+// and PIN reset via recovery phrase. Verifiers are compared per-profile-id,
+// so one profile's phrase can never silently reset another's PIN.
+
 "use client";
 
 import { useState } from "react";
 import { useT } from "../lib/i18n";
-import { AVATARS, loadProfiles, saveProfiles, sha256Hex } from "../lib/profiles";
-import { loadVerifiers, recoveryVerifier, verifyPhrase } from "../lib/recovery";
+import { AVATARS, isWeakPin, loadProfiles, saveProfiles, sha256Hex } from "../lib/profiles";
+import { loadVerifiers, verifierMatches, verifyPhrase } from "../lib/recovery";
 import { useWird } from "./wird-store";
 
 export function LoginGate() {
@@ -40,15 +44,19 @@ export function LoginGate() {
         setErr(t("rc.badWords"));
         return;
       }
-      const verifier = await recoveryVerifier(words.trim().split(/\s+/));
+      // Salted (v1) and legacy unsalted (v0) verifiers both accepted.
       const saved = loadVerifiers()[activeProfile.id];
-      if (!saved || saved !== verifier) {
+      if (!(await verifierMatches(saved, words.trim().split(/\s+/)))) {
         setErr(t("rc.badWords"));
         return;
       }
       const pinV = newPin.replace(/\D/g, "");
       if (pinV.length < 4) {
         setErr(t("auth.pin"));
+        return;
+      }
+      if (isWeakPin(pinV)) {
+        setErr(t("auth.weakPin"));
         return;
       }
       const pinHash = await sha256Hex(pinV);
@@ -100,13 +108,43 @@ export function LoginGate() {
     }
     setBusy(true);
     void unlockProfile(v)
-      .then((ok) => {
-        if (!ok) {
-          noteFail();
-          setErr(t("auth.wrongPin"));
-        }
+      .then(async (ok) => {
+        if (ok) return;
+        // Real PIN failed: check the duress PIN (a match opens the shared
+        // blank decoy and counts NOTHING against the real lockout).
+        try {
+          const h = await sha256Hex(v);
+          if (activeProfile?.duressPinHash && h === activeProfile.duressPinHash) {
+            openDecoy();
+            return;
+          }
+        } catch {}
+        noteFail();
+        setErr(t("auth.wrongPin"));
       })
       .finally(() => setBusy(false));
+  };
+  // Shared blank decoy: created once, reused by every duress unlock. It is
+  // an ordinary empty profile — nothing about it reveals the real data.
+  const openDecoy = () => {
+    try {
+      const list = loadProfiles();
+      if (!list.some((p) => p.id === "u-decoy")) {
+        list.push({
+          id: "u-decoy",
+          name: t("auth.decoyName"),
+          avatar: "🌙",
+          pinHash: null,
+          created: new Date().toISOString().slice(0, 10),
+        });
+        saveProfiles(list);
+      }
+      setErr("");
+      setPinTry("");
+      switchProfile("u-decoy");
+    } catch {
+      setErr(t("auth.wrongPin"));
+    }
   };
 
   if (!authReady) {
@@ -220,6 +258,11 @@ export function LoginGate() {
     const submit = () => {
       const n = name.trim();
       if (!n || busy) return;
+      const pinV = pin.trim();
+      if (pinV && isWeakPin(pinV)) {
+        setErr(t("auth.weakPin"));
+        return;
+      }
       setBusy(true);
       void createProfile(n, avatar, pin.trim() ? pin.trim() : null).finally(() => setBusy(false));
     };

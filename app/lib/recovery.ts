@@ -1,3 +1,6 @@
+// BIP39-style 12-word recovery phrases + per-profile SHA-256 verifiers.
+// Plaintext phrases are NEVER persisted (verifier only), never logged, and
+// cleared from component state after use. See docs/PRIVACY.md.
 import { readRecord, writeRecord } from "./schema";
 
 let wordsCache: Promise<string[]> | null = null;
@@ -95,17 +98,19 @@ export async function verifyPhrase(input: string): Promise<Uint8Array | null> {
   }
 }
 
-export async function recoveryVerifier(words: string[]): Promise<string> {
-  return sha256HexRaw(`wird-recovery:${words.join(" ")}`);
+export async function recoveryVerifier(words: string[], salt = ""): Promise<string> {
+  return sha256HexRaw(`wird-recovery:${salt}:${words.join(" ")}`);
 }
 
-export function loadVerifiers(): Record<string, string> {
+export type VerifierRecord = { v: 1; salt: string; hash: string } | string;
+
+export function loadVerifiers(): Record<string, VerifierRecord> {
   try {
     // Routed through the integrity layer: malformed maps fall back to {}
     // and the raw bytes are quarantined instead of crashing auth.
     // NOTE: namespaced per active profile by the caller (see profiles.ts);
     // entries inside are keyed by profileId as a second scope.
-    const { value } = readRecord<Record<string, string>>(
+    const { value } = readRecord<Record<string, VerifierRecord>>(
       localStorage,
       namespacedRecoveryKey(),
       "wird-recovery-v1",
@@ -128,9 +133,49 @@ function namespacedRecoveryKey(): string {
 }
 
 export function saveVerifier(profileId: string, verifier: string): void {
+  // Legacy callers pass a bare hash (unsalted v0 format); it is stored with
+  // an empty salt so old comparisons keep working. Prefer saveVerifierSalted.
   try {
     const all = loadVerifiers();
     all[profileId] = verifier;
     writeRecord(localStorage, namespacedRecoveryKey(), "wird-recovery-v1", all);
   } catch {}
+}
+
+/** Salted verifier: per-profile random salt defeats precomputed tables. */
+export async function saveVerifierSalted(profileId: string, words: string[]): Promise<void> {
+  const salt = randomSalt();
+  const hash = await recoveryVerifier(words, salt);
+  try {
+    const all = loadVerifiers();
+    all[profileId] = { v: 1, salt, hash };
+    writeRecord(localStorage, namespacedRecoveryKey(), "wird-recovery-v1", all);
+  } catch {}
+}
+
+function randomSalt(): string {
+  try {
+    const b = crypto.getRandomValues(new Uint8Array(16));
+    return [...b].map((x) => x.toString(16).padStart(2, "0")).join("");
+  } catch {
+    return `${Date.now()}-${Math.floor(Math.random() * 1e9)}`;
+  }
+}
+
+/** True when the words match the stored verifier (either format). */
+export async function verifierMatches(
+  stored: VerifierRecord | undefined,
+  words: string[],
+): Promise<boolean> {
+  if (stored == null) return false;
+  try {
+    if (typeof stored === "string") {
+      // v0 legacy: unsalted hash
+      return (await recoveryVerifier(words, "")) === stored;
+    }
+    if (stored && typeof stored === "object" && typeof stored.hash === "string") {
+      return (await recoveryVerifier(words, stored.salt ?? "")) === stored.hash;
+    }
+  } catch {}
+  return false;
 }

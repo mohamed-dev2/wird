@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
   adoptKeys,
   getActiveProfileId,
+  isWeakPin,
   nsKey,
   newProfileId,
   setActiveProfileId,
@@ -74,5 +75,32 @@ describe("profile namespace isolation", () => {
     const rest = readQuarantine(st);
     expect(rest.length).toBe(1);
     expect(rest[0]?.key).toBe("p_bbb_wird-done-v2");
+  });
+
+  it("rejects trivial PINs, accepts real ones", () => {
+    for (const weak of ["1234", "0000", "1111", "4321", "123456", "5678", "12", "abcd"]) {
+      expect(isWeakPin(weak), weak).toBe(true);
+    }
+    for (const ok of ["4829", "917305", "20491357", "3571"]) {
+      expect(isWeakPin(ok), ok).toBe(false);
+    }
+  });
+
+  it("profile registry round-trips duress hashes through validation", async () => {
+    const { saveProfiles, loadProfiles, sha256Hex: h } = await import("../profiles");
+    const duress = await h("9999");
+    saveProfiles([
+      {
+        id: "a",
+        name: "A",
+        avatar: "🌙",
+        pinHash: await h("4829"),
+        duressPinHash: duress,
+        created: "2026-09-12",
+      },
+    ]);
+    const back = loadProfiles();
+    expect(back[0]?.duressPinHash).toBe(duress);
+    expect(back[0]?.pinHash).not.toBe(duress);
   });
 });

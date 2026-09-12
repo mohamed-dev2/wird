@@ -10,6 +10,7 @@ npm run test        # vitest run (unit, ~100+ tests)
 npm run test:e2e    # playwright (production server, serial)
 npm run build
 npm run docs:check  # keys + routes + AR/EN parity
+npm run comments:check  # 2+ line purpose header in every source file
 npm audit
 ```
 
@@ -17,7 +18,11 @@ npm audit
 
 Pure logic only — no DOM, no storage beyond in-memory mocks:
 
-| File                          | Covers                                                                                |
+| File | Covers |
+|---|---|---|
+| `prayer` | day-arc fractions incl. overnight wrap, next-prayer agreement |
+
+| `vault`                       | setup/unlock/lock/disable, generic failures, no plaintext residue                     |
 | ----------------------------- | ------------------------------------------------------------------------------------- |
 | `schema`                      | envelopes, quarantine, salvage, future versions, quota, caps, migration idempotence   |
 | `crypto-restore`              | manifest, dry-run, two-phase zero-write rejection, rollback                           |
