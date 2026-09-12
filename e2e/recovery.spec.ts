@@ -2,12 +2,12 @@ import { expect, test, type Page } from "@playwright/test";
 
 async function ensureProfile(page: Page, name = "اختبار") {
   await page.goto("/");
+  // Strict: every test gets a fresh context, so the gate MUST appear.
   const start = page.getByRole("button", { name: /ابدأ رحلتك|إضافة حساب/ });
-  if (await start.isVisible({ timeout: 8000 }).catch(() => false)) {
-    await page.getByPlaceholder("الاسم الكريم…").fill(name);
-    await start.click();
-    await expect(page.locator("aside.sidebar")).toBeVisible({ timeout: 20000 });
-  }
+  await expect(start).toBeVisible({ timeout: 30000 });
+  await page.getByPlaceholder("الاسم الكريم…").fill(name);
+  await start.click();
+  await expect(page.locator("aside.sidebar")).toBeVisible({ timeout: 30000 });
 }
 
 function watchHydration(page: Page) {

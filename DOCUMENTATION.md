@@ -27,6 +27,7 @@ tools to move between devices.
 11. [Deployment](#11-deployment)
 12. [Troubleshooting](#12-troubleshooting)
 13. [Keeping docs fresh](#keeping-docs-fresh)
+14. [Adaptive companion](#14-adaptive-companion)
 
 ## 1. Quick start
 
@@ -71,12 +72,15 @@ rescue plan (one-now, Quran timer session, daily dua), ramp card, intention
 card, Friday card, favorites, don't-forget, tawbah, moment grid (next prayer
 countdown, intention, tasbih counter), filterable habit cards, extras grid,
 Quran callout, adhkar tags, dua card, goals + challenges + pledges, night
-reflection (persisted textarea), return screen after ≥3 absent days, kids
-quests, qada / fasting / breaker cards, Ramadan banner in Ramadan.
+reflection (persisted textarea), tiered return screen after ≥3 absent days
+(short/gentle/journey/deep-restart + optional tawbah path for ≥14 days),
+adaptive companion card (one ranked guidance + verified verse/hadith, see
+§14), kids quests, qada / fasting / breaker cards, Ramadan banner in Ramadan.
 
 **Review (`/review`)** — auto-built checklist from today's real data plus six
 heart-check items; tri-state (done/partial/missed); mood + gratitude; weighted
-score saved immutably per day (`wird-reviews-v1`, merged into history).
+score saved immutably per day (`wird-reviews-v1`, merged into history);
+one-line night context for strong/low/return days (see §14).
 
 **Insights (`/insights`)** — period pills (1–365d buckets), weekly bars, 4
 metrics, coach brief (at-risk → neglect → pace → lift + praise), 6-axis
@@ -119,8 +123,8 @@ Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-theme-v1`, `wird-lang-v1`, `wird-reminders-v1`, `wird-mosque-v1`,
 `wird-prayer-times-v1`, `wird-autolock-v1`, `wird-recovery-v1`,
 `wird-pinlock`, `wird-pinlock-*`, `wird-unlocked` (sessionStorage),
-`wird-quarantine-v1`, `wird-health-v1`, `wird-last-backup-v1`
-(diagnostics, see below).
+`wird-quarantine-v1`, `wird-health-v1`, `wird-last-backup-v1`,
+`wird-guide-log-v1` (diagnostics, see below).
 
 Helpers: `loadFromStorage` / `saveToStorage` (`lib/wird.ts`, profile-aware),
 `useStoredState` (`lib/use-stored-state.ts`, hydration-safe), `nsKey`
@@ -270,11 +274,18 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   multi-day absence, legacy bare shapes, monotonic `recordDay`),
   `isolation` (namespacing, adoption, id uniqueness, quarantine purge),
   `fuzz` (seeded: validators/read/write never throw, valid state
-  round-trips), transfer edges (duplicates, order, contamination, bounds).
+  round-trips), transfer edges (duplicates, order, contamination, bounds),
+  `companion` (26 user states, ranking, fatigue/once-ever, rotation, core,
+  log caps), `content` (verse refs exist in bundle, legacy refs parse,
+  hadith resolve with grade+ref, per-theme coverage), `guidance-safety`
+  (AR+EN key presence, no revelation markers, no shame/ruling/heart claims,
+  distinct source labels).
 - Playwright (prod server): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across
-  switches and reloads; hydration-error listener fails the run on mismatch.
+  switches and reloads, companion return journeys (fresh start, 10-day
+  gentle return with working action, 95-day deep restart with tawbah path,
+  no-shame scan); hydration-error listener fails the run on mismatch.
 - CI (`.github/workflows/ci.yml`): install → typecheck → lint → unit → e2e →
   build → audit → docs:check.
 
@@ -314,3 +325,40 @@ domain so OG/canonical URLs are exact. Any static-capable host works with
 
 When adding a key, route, or feature: document it here in the same PR —
 CI fails otherwise.
+
+## 14. Adaptive companion
+
+Local, deterministic, offline guidance layer (`lib/companion.ts`,
+`lib/content.ts`, `components/companion.tsx`). No AI service, no network,
+no analytics — pure functions over existing history/state, memoized in
+components.
+
+- **Engine**: `assessUser()` derives 26 internal states (first use, new
+  user, first week, active, consistent, momentum, improving, slipping,
+  struggling, quiet, 4 absence depths, returning, rebuilding, strong
+  return, repeated restarts, overload, challenge milestone, strong/low/
+  recovery day, Friday, Ramadan, post-Ramadan) with personal-baseline
+  metrics (never global scores) and high/medium/low confidence. Low
+  confidence yields only gentle generic states — never specific claims.
+- **Ranking**: return family → today shapes → milestones → trends →
+  calendar overlays (Friday/Ramadan merge as one line into the card when
+  another state leads). One card maximum on Today; milestones fire once
+  ever per identity; repeats are suppressed for 3 days
+  (`wird-guide-log-v1`, capped at 30) — the UI shows nothing rather than
+  nagging.
+- **Content**: verse _references only_ resolve at runtime against the
+  bundled Uthmani + Clear-Quran datasets (missing → renders nothing);
+  hadith resolve against the curated library with book + grade + ref.
+  Quran / Hadith / Wird-suggestion blocks are visually and semantically
+  separated; guidance copy is scanned by tests for revelation markers,
+  rulings, shame, and heart-claims.
+- **Surfaces**: adaptive card on Today (one action: rescue/review/core/
+  intention/tawbah/quran/friday), tiered return screen (3/7/14/30/90-day
+  copy + optional tawbah fresh-start path for ≥14 days, Friday merge),
+  rescue-plan context line, night-review line. Destructive-adjacent actions
+  (new-day reset, demo clear) confirm explicitly; reflections/moods never
+  leave the device and never enter share images (stats only).
+- **Safety rules**: no shame, no rulings, no iman/sincerity/acceptance
+  claims, no dream interpretation, no medical claims, kids get the same
+  gentle copy, prayer times are referenced (never "you missed X" unless
+  tracked).

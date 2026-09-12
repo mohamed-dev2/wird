@@ -5,7 +5,20 @@ import { modeLabel, MODES, prayerName, useT } from "./lib/i18n";
 import { fastLabel, PRAYER_ID } from "./lib/daymode";
 import { EditModal } from "./components/edit-modal";
 import { NowView } from "./components/views/now";
+import { CompanionCard, VerseCard } from "./components/companion";
+import {
+  assessUser,
+  coreDeeds,
+  loadGuideLog,
+  logGuidance,
+  rotateIndex,
+  selectGuidance,
+  type CompanionInput,
+  type GuideLog,
+} from "./lib/companion";
+import { hadithForTheme, parseVerseRef, versesForTheme } from "./lib/content";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useRouter } from "next/navigation";
 import {
   sections,
   extras,
@@ -17,6 +30,7 @@ import {
   FAST_TYPES,
   dayId,
   diffDays,
+  hijriParts,
   loadFromStorage,
   saveToStorage,
 } from "./lib/wird";
@@ -80,6 +94,9 @@ export default function TodayPage() {
     removeQada,
     qadaOpen,
     fastType,
+    history,
+    allHabits,
+    activeProfile,
     setFastType,
     breaker,
     setBreaker,
@@ -152,6 +169,165 @@ export default function TodayPage() {
       : reminders.tone === "strict"
         ? Math.max(returnStage(absentDays), absentDays >= 3 ? 2 : 0)
         : returnStage(absentDays);
+
+  // ---- Companion engine (§2): pure assessment, memoized, mount-gated so
+  // SSR/first render stay identical (no card until after hydration). ----
+  // Fatigue reads a mount-frozen log snapshot: the selection stays stable
+  // for the session (no log→reselect cascade); the effect below persists
+  // today's entry for FUTURE sessions only.
+  const todayStr = dayId();
+  const [cmReady, setCmReady] = useState(false);
+  const [cmDismissed, setCmDismissed] = useState<string | null>(null);
+  const [showTawbah, setShowTawbah] = useState(false);
+  const [frozenLog, setFrozenLog] = useState<GuideLog | null>(null);
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-once companion hydration (no card pre-mount, matches SSR)
+      setFrozenLog(loadGuideLog(loadFromStorage));
+    } catch {}
+    setCmReady(true);
+  }, []);
+
+  const challengesDone = useMemo(() => {
+    const out: { id: string; title: string; end: string }[] = [];
+    for (const c of challenges) {
+      if (c.checks.length < c.target) continue;
+      const ms = Date.parse(`${c.start}T12:00:00Z`) + c.target * 86400000;
+      if (!Number.isFinite(ms)) continue;
+      const end = new Date(ms).toISOString().slice(0, 10);
+      if (diffDays(end, todayStr) <= 7) out.push({ id: c.id, title: c.title, end });
+    }
+    return out.sort((a, b) => (a.end < b.end ? 1 : -1));
+  }, [challenges, todayStr]);
+
+  const recentReviews = useMemo(() => {
+    try {
+      const all = loadFromStorage<Record<string, { mood?: unknown; gratitude?: unknown }>>(
+        "wird-reviews-v1",
+        {},
+      );
+      return Object.keys(all)
+        .sort()
+        .slice(-5)
+        .map((k) => all[k])
+        .filter((r): r is { mood?: unknown; gratitude?: unknown } => !!r && typeof r === "object");
+    } catch {
+      return [];
+    }
+  }, []);
+
+  const companionInput: CompanionInput = useMemo(() => {
+    const moods = recentReviews.map((r) =>
+      r.mood === "good" || r.mood === "ok" || r.mood === "low" ? r.mood : null,
+    );
+    return {
+      today: todayStr,
+      hour: new Date().getHours(),
+      isFriday,
+      ramadan,
+      hijriMonth: hijriParts(new Date())?.month ?? null,
+      history,
+      doneToday: done,
+      totalToday: allHabits.length,
+      lastSeen,
+      createdDay: activeProfile?.created ?? null,
+      commitments:
+        allHabits.length + customGoals.length + challenges.length + pledges.length + qadaOpen,
+      deedIds: allHabits.map((h) => h.id),
+      challengesDone: challengesDone.map(({ id, title }) => ({ id, title })),
+      recentMoods: moods,
+      gratitudeRecent: recentReviews.some(
+        (r) => typeof r.gratitude === "string" && r.gratitude.trim().length > 0,
+      ),
+      hasKids: kids.length > 0,
+    };
+  }, [
+    todayStr,
+    isFriday,
+    ramadan,
+    history,
+    done,
+    allHabits,
+    lastSeen,
+    activeProfile,
+    customGoals,
+    challenges,
+    pledges,
+    qadaOpen,
+    challengesDone,
+    recentReviews,
+    kids,
+  ]);
+
+  const assessment = useMemo(
+    () => (cmReady ? assessUser(companionInput) : null),
+    [cmReady, companionInput],
+  );
+  const guidance = useMemo(
+    () =>
+      cmReady && assessment && frozenLog
+        ? selectGuidance(assessment, companionInput, frozenLog, challengesDone[0])
+        : null,
+    [cmReady, assessment, companionInput, frozenLog, challengesDone],
+  );
+  useEffect(() => {
+    if (!guidance || !cmReady || !frozenLog) return;
+    // Persist for future sessions; frozenLog stays untouched in-session.
+    try {
+      logGuidance((k, v) => saveToStorage(k, v), frozenLog, guidance.logKind, todayStr);
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- log once per selected guidance
+  }, [guidance?.logKind]);
+
+  const guideVerse = useMemo(() => {
+    if (!guidance) return null;
+    const opts = versesForTheme(guidance.theme);
+    if (opts.length === 0) return null;
+    return opts[rotateIndex(todayStr, guidance.theme, opts.length)] ?? null;
+  }, [guidance, todayStr]);
+  const guideHadith = useMemo(() => {
+    if (!guidance) return null;
+    const opts = hadithForTheme(guidance.theme);
+    if (opts.length === 0) return null;
+    return opts[rotateIndex(todayStr, `h:${guidance.theme}`, opts.length)] ?? null;
+  }, [guidance, todayStr]);
+  const guideCoreTitles = useMemo(() => {
+    if (!guidance || guidance.action !== "core") return [];
+    const ids = coreDeeds(
+      history,
+      allHabits.map((h) => h.id),
+      todayStr,
+    );
+    return ids.map((id) => allHabits.find((h) => h.id === id)?.title ?? id);
+  }, [guidance, history, allHabits, todayStr]);
+  const overlayNote = useMemo(() => {
+    if (!guidance || !cmReady) return null;
+    if (guidance.state === "RAMADAN" || guidance.state === "FRIDAY") return null;
+    if (assessment?.overlays.ramadan) return t("cm.mergeRamadan");
+    if (assessment?.overlays.friday) return t("cm.mergeFriday");
+    return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- overlay text for the selected guidance
+  }, [guidance, assessment, cmReady]);
+
+  const scrollToId = (id: string) => {
+    try {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch {}
+  };
+  const router = useRouter();
+  const handleGuideAction = (kind: string) => {
+    try {
+      if (kind === "rescue") scrollToId("rescue-plan");
+      else if (kind === "review") router.push("/review");
+      else if (kind === "core") {
+        setMinimumPlan(true);
+        scrollToId("rescue-plan");
+      } else if (kind === "intention") editIntention();
+      else if (kind === "tawbah") setShowTawbah(true);
+      else if (kind === "quran") router.push("/library");
+      else if (kind === "friday") scrollToId("friday-card");
+    } catch {}
+  };
   const returnVerses = versesForStage(stage as 0 | 1 | 2 | 3);
 
   useEffect(() => {
@@ -323,24 +499,55 @@ export default function TodayPage() {
   };
 
   if (stage > 0 && !returnGone) {
+    // Welcome-back evolves with absence depth (2.4): short / gentle reset /
+    // return journey / deep restart — never the same screen, never shaming.
+    const tier =
+      absentDays >= 90
+        ? "vlong"
+        : absentDays >= 30 || stage >= 3
+          ? "long"
+          : stage === 2
+            ? "med"
+            : "short";
     return (
       <>
         <section className="return-screen">
           <span className="return-moon">🌙</span>
           <p className="eyebrow">{t("ret.absent", { n: absentDays })}</p>
-          <h2>{t("ret.title")}</h2>
-          {returnVerses.map((v, i) => (
-            <blockquote key={i}>
-              <p>﴿{v.text}﴾</p>
-              <cite>{v.ref}</cite>
-            </blockquote>
-          ))}
+          <h2>{t(`ret.${tier}T`)}</h2>
+          <p>{t(`ret.${tier}S`)}</p>
+          {isFriday && <p>{t("cm.mergeFriday")}</p>}
+          {returnVerses.map((v, i) => {
+            const p = parseVerseRef(v.ref);
+            return p ? <VerseCard key={i} surah={p.surah} ayah={p.ayah} /> : null;
+          })}
+          {absentDays >= 14 && (
+            <div className="tawbah-card">
+              <h3>{t("tw.t")}</h3>
+              <p>{t("tw.s")}</p>
+              <div className="return-actions">
+                <button
+                  type="button"
+                  className="review-submit"
+                  onClick={() => {
+                    editIntention();
+                    setReturnGone(true);
+                  }}
+                >
+                  {t("tw.intention")}
+                </button>
+                <button type="button" className="linklike" onClick={() => setReturnGone(true)}>
+                  {t("tw.continue")}
+                </button>
+              </div>
+            </div>
+          )}
           <div className="return-actions">
             <button type="button" className="review-submit" onClick={() => setReturnGone(true)}>
-              ابدأ من جديد 🤍
+              {t("ret.back")}
             </button>
             <button type="button" className="linklike" onClick={() => setReturnGone(true)}>
-              أكمل يومك عادي
+              {t("ret.continue")}
             </button>
           </div>
         </section>
@@ -419,6 +626,40 @@ export default function TodayPage() {
             </div>
             <div className="hero-deco">✦</div>
           </section>
+          {cmReady && guidance && guidance.logKind !== cmDismissed && (
+            <>
+              <CompanionCard
+                guidance={guidance}
+                verse={guideVerse}
+                hadith={guideHadith}
+                overlayNote={overlayNote}
+                coreTitles={guideCoreTitles}
+                onAction={(g) => handleGuideAction(g.action)}
+                onDismiss={() => setCmDismissed(guidance.logKind)}
+              />
+              {showTawbah && (
+                <div className="tawbah-card">
+                  <h3>{t("tw.t")}</h3>
+                  <p>{t("tw.s")}</p>
+                  <div className="return-actions">
+                    <button
+                      type="button"
+                      className="review-submit"
+                      onClick={() => {
+                        editIntention();
+                        setShowTawbah(false);
+                      }}
+                    >
+                      {t("tw.intention")}
+                    </button>
+                    <button type="button" className="linklike" onClick={() => setShowTawbah(false)}>
+                      {t("tw.continue")}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
           <section className="mode-bar">
             <div>
               <b>{t("mode.title")}</b>
@@ -486,12 +727,15 @@ export default function TodayPage() {
               <small>{t("tools.customSub")}</small>
             </button>
           </section>
-          <section className="rescue-plan">
+          <section className="rescue-plan" id="rescue-plan">
             <div className="rescue-top">
               <div>
                 <p className="eyebrow">{t("rescue.eyebrow")}</p>
                 <h2>{t("rescue.title")}</h2>
                 <p>{t("rescue.sub")}</p>
+                {cmReady && guidance?.action === "rescue" && guidance.reasonKey && (
+                  <p className="cm-why">{t(guidance.reasonKey, guidance.reasonVars)}</p>
+                )}
               </div>
               <span>✦</span>
             </div>
@@ -641,7 +885,7 @@ export default function TodayPage() {
               </div>
             </article>
           </section>
-          <section className="friday-card">
+          <section className="friday-card" id="friday-card">
             <span>☾</span>
             <div>
               <p className="eyebrow">

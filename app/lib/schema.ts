@@ -343,6 +343,7 @@ export const SCHEMAS: Record<string, Schema> = {
       kind: "none",
     }),
   ),
+  "wird-guide-log-v1": S(1, isArr, () => []),
 };
 
 // ---------- quarantine + health (global, unprefixed keys) ----------

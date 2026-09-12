@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { dayId, loadFromStorage, QURAN_GOAL_PAGES, saveToStorage } from "../lib/wird";
+import { dayId, hijriParts, loadFromStorage, QURAN_GOAL_PAGES, saveToStorage } from "../lib/wird";
+import { assessUser, selectGuidance } from "../lib/companion";
 import { useT } from "../lib/i18n";
 import { useWird } from "../components/wird-store";
 
@@ -44,7 +45,18 @@ function loadReviews(): Record<string, SavedReview> {
 
 export default function ReviewPage() {
   const t = useT();
-  const { done, quranPages, fastType, tasbeeh, allHabits, saveReview } = useWird();
+  const {
+    done,
+    quranPages,
+    fastType,
+    tasbeeh,
+    allHabits,
+    saveReview,
+    history,
+    challenges,
+    isFriday,
+    ramadan,
+  } = useWird();
   const todayId = useMemo(() => dayId(), []);
   const [statuses, setStatuses] = useState<Record<string, Status>>({});
   const [mood, setMood] = useState<Mood>(null);
@@ -101,6 +113,41 @@ export default function ReviewPage() {
   const grade = score >= 85 ? t("rv.g85") : score >= 60 ? t("rv.g60") : t("rv.gLow");
   const gradeTitle =
     loadedScore >= 85 ? t("rv.g85") : loadedScore >= 60 ? t("rv.g60") : t("rv.gLow");
+
+  // Night context (2.39): one honest line for the states that matter at
+  // night — no card, no logging (Today owns the guidance log).
+  const nightLine = useMemo(() => {
+    try {
+      const todayId = dayId();
+      const inp = {
+        today: todayId,
+        hour: new Date().getHours(),
+        isFriday,
+        ramadan,
+        hijriMonth: hijriParts(new Date())?.month ?? null,
+        history,
+        doneToday: done,
+        totalToday: allHabits.length,
+        lastSeen: loadFromStorage<string | null>("wird-lastseen-v1", null),
+        createdDay: null,
+        commitments: allHabits.length + challenges.length,
+        deedIds: allHabits.map((h) => h.id),
+        challengesDone: [],
+        recentMoods: [],
+        gratitudeRecent: false,
+        hasKids: false,
+      };
+      const g = selectGuidance(assessUser(inp), inp, []);
+      if (!g) return null;
+      if (!["STRONG_DAY", "LOW_DAY", "RETURNING", "REBUILDING", "RECOVERY_DAY"].includes(g.state)) {
+        return null;
+      }
+      return t(g.bodyKey, g.vars);
+    } catch {
+      return null;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- night snapshot per mount/day
+  }, []);
 
   const submit = () => {
     const rec = { items: { ...statuses }, score, mood, gratitude };
@@ -169,6 +216,7 @@ export default function ReviewPage() {
         <p className="eyebrow">{t("rv.heroE")}</p>
         <h2>{t("rv.heroT")}</h2>
         <p>{t("rv.heroS")}</p>
+        {nightLine && <p className="cm-why">{nightLine}</p>}
         <div className="review-progress">
           <b>{score}٪</b>
           <span>

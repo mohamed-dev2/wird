@@ -2,12 +2,14 @@ import { expect, test, type Page } from "@playwright/test";
 
 async function ensureProfile(page: Page) {
   await page.goto("/");
+  // Strict: every test gets a fresh context, so the gate MUST appear.
+  // (A silent skip here used to convert slow first paints into confusing
+  // downstream failures.)
   const start = page.getByRole("button", { name: /ابدأ رحلتك|إضافة حساب/ });
-  if (await start.isVisible({ timeout: 8000 }).catch(() => false)) {
-    await page.getByPlaceholder("الاسم الكريم…").fill("اختبار");
-    await start.click();
-    await expect(page.locator("aside.sidebar")).toBeVisible({ timeout: 20000 });
-  }
+  await expect(start).toBeVisible({ timeout: 30000 });
+  await page.getByPlaceholder("الاسم الكريم…").fill("اختبار");
+  await start.click();
+  await expect(page.locator("aside.sidebar")).toBeVisible({ timeout: 30000 });
 }
 
 test("today loads, toggles persist, no hydration errors", async ({ page }) => {

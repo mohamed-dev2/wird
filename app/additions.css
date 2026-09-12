@@ -974,3 +974,113 @@
     padding: 4px 12px;
   }
 }
+
+/* Companion card (§2): one adaptive card. Source blocks are visually
+   distinct: Quran (green) vs Hadith (gold) vs Wird suggestion (plain). */
+.companion-card {
+  margin-top: 13px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 18px;
+  display: grid;
+  gap: 10px;
+}
+
+.companion-card h2 {
+  font-size: 17px;
+  margin: 0;
+}
+
+.companion-card > p {
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.9;
+}
+
+.cm-label {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin: 0;
+  font-weight: 700;
+}
+
+.cm-why {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.cm-merge {
+  font-size: 12px;
+  color: var(--gold-deep);
+}
+
+.cm-core {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cm-verse,
+.cm-hadith {
+  margin: 0;
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.cm-verse {
+  background: rgba(20, 114, 93, 0.08);
+  border: 1px solid #14725d;
+}
+
+.cm-verse p:not(.cm-label) {
+  font-size: 15px;
+  line-height: 2.1;
+  margin: 6px 0 0;
+}
+
+.cm-hadith {
+  background: rgba(245, 206, 115, 0.12);
+  border: 1px solid var(--gold);
+}
+
+.cm-hadith p:not(.cm-label):not(.cm-en) {
+  font-size: 13px;
+  line-height: 2;
+  margin: 6px 0 0;
+}
+
+.cm-en {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.cm-verse cite,
+.cm-hadith cite {
+  display: block;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+.tawbah-card {
+  margin-top: 12px;
+  border: 1px dashed var(--gold);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.tawbah-card h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.tawbah-card p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.9;
+}
