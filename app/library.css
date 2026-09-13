@@ -1200,3 +1200,22 @@
     box-shadow: var(--shadow-md);
   }
 }
+
+/* L60 — offscreen cards skip rendering until scrolled to (long books). */
+.hadith-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 140px;
+}
+
+/* L61 — same treatment for the other long card lists. */
+.dream-card,
+.path-book,
+.lib-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 120px;
+}
+
+/* L62 — document cross-fades where the platform offers view transitions. */
+@view-transition {
+  navigation: auto;
+}

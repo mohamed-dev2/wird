@@ -59,14 +59,27 @@ export function normalizeAr(s: string): string {
 export function searchAyahs(ayahs: Ayah[], query: string, limit = 40): Ayah[] {
   const q = normalizeAr(query);
   if (q.length < 2) return [];
+  const texts = normTexts(ayahs);
   const out: Ayah[] = [];
-  for (const a of ayahs) {
-    if (normalizeAr(a.text).includes(q)) {
-      out.push(a);
+  for (let i = 0; i < ayahs.length; i++) {
+    if ((texts[i] ?? "").includes(q)) {
+      const a = ayahs[i];
+      if (a) out.push(a);
       if (out.length >= limit) break;
     }
   }
   return out;
+}
+
+// Normalized corpus, computed once per loaded list: search previously paid
+// ~7 regexes per ayah per keystroke; now it pays that once per bundle.
+const normCache = new WeakMap<Ayah[], string[]>();
+function normTexts(ayahs: Ayah[]): string[] {
+  const hit = normCache.get(ayahs);
+  if (hit) return hit;
+  const texts = ayahs.map((a) => normalizeAr(a.text));
+  normCache.set(ayahs, texts);
+  return texts;
 }
 
 export function ayahKey(surah: number, ayah: number): string {

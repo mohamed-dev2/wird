@@ -2216,6 +2216,28 @@ select {
   }
 }
 
+/* G61 — day cards skip offscreen rendering (long Today scrolls). */
+.new-day {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 160px;
+}
+
+/* G62 — replaced media never overflows its frame. */
+img,
+svg,
+video {
+  max-inline-size: 100%;
+}
+
+/* G63 — reduced-data users skip decorative motion too (content unaffected). */
+@media (prefers-reduced-data: reduce) {
+  .hero-deco,
+  .ayah.playing,
+  .hadith-card {
+    animation: none;
+  }
+}
+
 /* 40 — Reduced-data users skip decorative shimmer (content still loads). */
 @media (prefers-reduced-data: reduce) {
   .skel,

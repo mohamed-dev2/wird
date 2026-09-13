@@ -60,6 +60,32 @@ Data that is large and not immediately needed is code-split and lazy:
 - `lib/quran.ts` corpus loads on mount but behind `Suspense`; pages
   `/library`, `/review`, `/insights` do not block on Quran data.
 - Tafsir CDN calls are per-ayah, never bulk-fetched.
+- Mirror books (Ahmed/Darimi) download + parse once per session: the
+  Arabic book and the EN map derive from one shared payload
+  (`loadMirrorRaw`), never two downloads.
+
+## Search cost (precomputed once, scanned per keystroke)
+
+- Quran search normalizes the 6,236-ayah corpus once per loaded bundle
+  (`WeakMap` in `quran.ts`); keystrokes then scan strings only.
+- Full-book search uses per-hadith `ntext` normalized at load, plus a
+  memoized Arabic+EN index per book/EN-map (`hadith-full.tsx`); no
+  per-keystroke regex storms over 7k-record books.
+
+## Render cost (long lists)
+
+- Offscreen cards skip rendering via `content-visibility: auto` with
+  `contain-intrinsic-size` fallbacks (`.hadith-card`, `.dream-card`,
+  `.path-book`, `.lib-card`, `.new-day`).
+- Heavy views memoize derivations (`analytics-layers.tsx`,
+  `insights/page.tsx`); analytics over a 5-year history runs in ~1s
+  total (`analytics-perf.test.ts` budgets).
+
+## Offline cache bounds
+
+- The service worker caps runtime caches at 120 entries
+  (`trimRuntime` in `public/sw.js`); precache + a year of chunk churn
+  fits easily. Version bumps purge everything on activate.
 
 ## What to profile before merging
 

@@ -9,9 +9,12 @@
 //   English absent upstream). Documented honestly in
 //   docs/features/hadith.md; revisit only with a reviewed source.
 import { fetchWithTimeout } from "./net";
+import { normalizeAr } from "./quran";
 export type FullHadith = {
   num: number;
   text: string;
+  /** Normalized once at load so keystroke search never re-normalizes. */
+  ntext: string;
   book: number;
   ref: string;
 };
@@ -62,6 +65,28 @@ const MIRROR_FILES: Partial<Record<FullBookId, string>> = {
 type MirrorPayload = { hadiths?: unknown; chapters?: unknown };
 
 const mirrorCache = new Map<FullBookId, Promise<FullBook>>();
+// One fetch + one parse per mirror book: both the Arabic book and the EN
+// map derive from this shared payload instead of downloading twice.
+const mirrorRaw = new Map<FullBookId, Promise<MirrorPayload>>();
+
+function loadMirrorRaw(id: FullBookId): Promise<MirrorPayload> {
+  const hit = mirrorRaw.get(id);
+  if (hit) return hit;
+  const file = MIRROR_FILES[id];
+  const p = (
+    file
+      ? fetchWithTimeout(`${MIRROR_BASE}/${file}`).then((r) => {
+          if (!r.ok) throw new Error("mirror missing");
+          return r.json() as Promise<MirrorPayload>;
+        })
+      : Promise.reject(new Error("no mirror"))
+  ).catch((e) => {
+    mirrorRaw.delete(id);
+    throw e;
+  });
+  mirrorRaw.set(id, p);
+  return p;
+}
 
 function asRecord(v: unknown): Record<string, unknown> | null {
   return typeof v === "object" && v !== null && !Array.isArray(v)
@@ -82,7 +107,9 @@ function mirrorToBook(
       const num = typeof r?.idInBook === "number" ? r.idInBook : -1;
       const text = typeof r?.arabic === "string" ? r.arabic.trim() : "";
       const chap = typeof r?.chapterId === "number" ? r.chapterId : 0;
-      return num > 0 && text ? { num, text, book: chap, ref: `#${num}` } : null;
+      return num > 0 && text
+        ? { num, text, ntext: normalizeAr(text), book: chap, ref: `#${num}` }
+        : null;
     })
     .filter((h): h is FullHadith => h !== null);
   if (hadiths.length === 0) throw new Error("mirror empty");
@@ -101,16 +128,10 @@ function mirrorToBook(
 function loadMirrorBook(id: FullBookId): Promise<FullBook> {
   const hit = mirrorCache.get(id);
   if (hit) return hit;
-  const file = MIRROR_FILES[id];
   const meta = FULL_BOOKS.find((b) => b.id === id);
   const p = (
-    file && meta
-      ? fetchWithTimeout(`${MIRROR_BASE}/${file}`)
-          .then((r) => {
-            if (!r.ok) throw new Error("mirror missing");
-            return r.json() as Promise<MirrorPayload>;
-          })
-          .then((d) => mirrorToBook(id, meta, d))
+    meta
+      ? loadMirrorRaw(id).then((d) => mirrorToBook(id, meta, d))
       : Promise.reject(new Error("no mirror"))
   ).catch((e) => {
     mirrorCache.delete(id);
@@ -146,6 +167,7 @@ export function loadFullBook(id: FullBookId): Promise<FullBook> {
         hadiths: list.map((h) => ({
           num: h.hadithnumber,
           text: h.text ?? "",
+          ntext: normalizeAr(h.text ?? ""),
           book: h.reference?.book ?? 0,
           ref: `#${h.hadithnumber}`,
         })),
@@ -197,15 +219,9 @@ export function loadFullBookEn(id: FullBookId): Promise<Map<number, string>> {
   return p;
 }
 
-/** EN map straight from a cached mirror payload (no extra network). */
+/** EN map derived from the shared mirror payload (no extra download). */
 function mirrorEn(id: FullBookId): Promise<Map<number, string>> {
-  const file = MIRROR_FILES[id];
-  if (!file) return Promise.resolve(new Map());
-  return fetchWithTimeout(`${MIRROR_BASE}/${file}`)
-    .then((r) => {
-      if (!r.ok) throw new Error("mirror missing");
-      return r.json() as Promise<MirrorPayload>;
-    })
+  return loadMirrorRaw(id)
     .then((d) => {
       const m = new Map<number, string>();
       if (Array.isArray(d.hadiths)) {

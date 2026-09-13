@@ -137,4 +137,33 @@ describe("mirror books (Ahmed/Darimi)", () => {
     const fresh = await import("../hadith-full");
     await expect(fresh.loadFullBook("ahmed")).rejects.toThrow();
   });
+  it("book + EN derive from one download (no double fetch/parse)", async () => {
+    let calls = 0;
+    vi.stubGlobal(
+      "fetch",
+      fakeFetch(() => {
+        calls++;
+        return mirrorPayload;
+      }),
+    );
+    vi.resetModules();
+    const fresh = await import("../hadith-full");
+    const b = await fresh.loadFullBook("darimi");
+    const en = await fresh.loadFullBookEn("darimi");
+    expect(calls).toBe(1);
+    expect(b.count).toBe(2);
+    expect(en.get(1)).toBe("One");
+  });
+  it("precomputes normalized search text at load", async () => {
+    vi.stubGlobal(
+      "fetch",
+      fakeFetch(() => mirrorPayload),
+    );
+    vi.resetModules();
+    const fresh = await import("../hadith-full");
+    const { normalizeAr } = await import("../quran");
+    const b = await fresh.loadFullBook("ahmed");
+    const first = b.hadiths[0];
+    expect(first?.ntext).toBe(normalizeAr(first?.text ?? ""));
+  });
 });

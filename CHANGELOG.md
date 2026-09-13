@@ -5,6 +5,12 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Efficiency pass: mirror books download + parse once (shared payload
+  for Arabic + EN); Quran/hadith search normalizes once per loaded
+  corpus instead of per keystroke; offscreen cards skip rendering
+  (`content-visibility`); service-worker runtime caches capped at 120
+  entries; subtle cross-document transitions where supported.
+
 - Library content: English translations for all 10 full hadith books
   (lazy per-book `eng-*` editions, AR/EN toggle defaulting to UI language,
   EN-aware search; Arabic never waits on English); Tazkirul Quran added

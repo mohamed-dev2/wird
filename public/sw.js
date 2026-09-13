@@ -32,6 +32,32 @@ function cacheable(url) {
   return false;
 }
 
+// Runtime caches grow with every release's chunks: cap them so offline
+// storage stays bounded (precache + ~1 year of chunk churn fits easily).
+const RUNTIME_MAX = 120;
+function trimRuntime(cacheName) {
+  caches
+    .open(cacheName)
+    .then((c) =>
+      c.keys().then((keys) => {
+        const extra = keys.length - RUNTIME_MAX;
+        if (extra > 0) return Promise.all(keys.slice(0, extra).map((k) => c.delete(k)));
+        return undefined;
+      }),
+    )
+    .catch(() => undefined);
+}
+
+function putRuntime(cacheName, request, res) {
+  if (!res.ok) return res;
+  const copy = res.clone();
+  caches
+    .open(cacheName)
+    .then((c) => c.put(request, copy).then(() => trimRuntime(cacheName)))
+    .catch(() => undefined);
+  return res;
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
@@ -66,13 +92,7 @@ self.addEventListener("fetch", (event) => {
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
-        .then((res) => {
-          if (res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(request, copy));
-          }
-          return res;
-        })
+        .then((res) => putRuntime(CACHE, request, res))
         .catch(() =>
           caches.match(request).then((hit) => {
             if (hit) return hit;
@@ -86,33 +106,17 @@ self.addEventListener("fetch", (event) => {
   // runtime so the shell boots offline after one online visit.
   if (url.origin === self.location.origin && !cacheable(url)) {
     event.respondWith(
-      caches.match(request).then(
-        (hit) =>
-          hit ??
-          fetch(request).then((res) => {
-            if (res.ok) {
-              const copy = res.clone();
-              caches.open(CACHE).then((c) => c.put(request, copy));
-            }
-            return res;
-          }),
-      ),
+      caches
+        .match(request)
+        .then((hit) => hit ?? fetch(request).then((res) => putRuntime(CACHE, request, res))),
     );
     return;
   }
   if (!cacheable(url)) return;
   event.respondWith(
-    caches.match(request).then(
-      (hit) =>
-        hit ??
-        fetch(request).then((res) => {
-          if (res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE).then((c) => c.put(request, copy));
-          }
-          return res;
-        }),
-    ),
+    caches
+      .match(request)
+      .then((hit) => hit ?? fetch(request).then((res) => putRuntime(CACHE, request, res))),
   );
 });
 

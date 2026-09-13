@@ -97,20 +97,28 @@ export function HadithFull({
     return () => window.clearTimeout(id);
   }, [query]);
 
+  // Search index: Arabic normalized once at load (`ntext`), English
+  // lowercased once per EN-map load — keystrokes then scan strings only.
+  const indexed = useMemo(
+    () =>
+      book?.hadiths.map((h) => ({
+        h,
+        nen: enMap?.get(h.num)?.toLowerCase() ?? "",
+      })) ?? [],
+    [book, enMap],
+  );
+
   const filtered = useMemo(() => {
-    if (!book) return [];
-    let list = book.hadiths;
-    if (section !== "all") list = list.filter((h) => String(h.book) === section);
+    let list = indexed;
+    if (section !== "all") list = list.filter(({ h }) => String(h.book) === section);
     const q = normalizeAr(debounced.trim());
     const qEn = debounced.trim().toLowerCase();
     if (q.length >= 2)
       list = list.filter(
-        (h) =>
-          normalizeAr(h.text).includes(q) ||
-          (enMap?.get(h.num)?.toLowerCase().includes(qEn) ?? false),
+        ({ h, nen }) => h.ntext.includes(q) || (qEn.length >= 2 && nen.includes(qEn)),
       );
-    return list;
-  }, [book, section, debounced, enMap]);
+    return list.map(({ h }) => h);
+  }, [indexed, section, debounced]);
 
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE));
   const safePage = Math.min(page, pages - 1);
