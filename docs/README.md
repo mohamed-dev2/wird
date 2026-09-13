@@ -50,12 +50,14 @@ Every doc in this folder, one line each. The root `README.md` and
 - `ACCESSIBILITY.md` — a11y baseline, audits, known gaps.
 - `LOCALIZATION.md` — i18n design + rules.
 - `adr/` — Architecture Decision Records:
+  - `adr/ADR-000-template.md` — template for writing a new ADR
   - `adr/ADR-001.md` — local-first storage
   - `adr/ADR-002.md` — no cloud AI / no telemetry
   - `adr/ADR-003.md` — analytics architecture
   - `adr/ADR-004.md` — privacy model
   - `adr/ADR-005.md` — Quran data architecture
   - `adr/ADR-006.md` — localization strategy
+- `../GOVERNANCE.md` — decision process, ADR workflow, roles.
 
 ## Maintenance rules
 

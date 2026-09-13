@@ -48,6 +48,9 @@ tools to move between devices.
 32. [Architecture decision records](docs/adr/)
 33. [Features index](docs/features/README.md)
 34. [How to add a feature](docs/HOW_TO_ADD_A_FEATURE.md)
+35. [How to add a language](docs/HOW_TO_ADD_A_LANGUAGE.md)
+36. [How to add religious content](docs/HOW_TO_ADD_RELIGIOUS_CONTENT.md)
+37. [Governance](GOVERNANCE.md)
 
 ## 1. Quick start
 

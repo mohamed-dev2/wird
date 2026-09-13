@@ -86,6 +86,7 @@ app/
   docs/HOW_TO_ADD_A_LANGUAGE.md add/update a UI language
   docs/HOW_TO_ADD_RELIGIOUS_CONTENT.md  sourced religious-content guide
   SECURITY.md           threat model + vulnerability reporting
+  GOVERNANCE.md         decision process + ADR workflow
   GOOD_FIRST_ISSUES.md  beginner-friendly contribution suggestions
   CODEOWNERS            subsystem ownership
   .env.example          optional environment variables (no secrets)
