@@ -1,0 +1,76 @@
+# CODEOWNERS — subsystem ownership.
+# Syntax: path pattern followed by owner(s). "maintainers" stands in for
+# the actual team handles once the repo is public (replace with
+# @org/team or individual @handles).
+
+# Default reviewers for anything unmatched
+*                           @maintainers
+
+# Privacy + security: threat model, storage rules, vault, transfer, PIN
+SECURITY.md
+docs/PRIVACY_ARCHITECTURE.md
+docs/adr/ADR-002.md
+docs/adr/ADR-004.md
+app/lib/privacy.ts
+app/lib/vault.ts
+app/lib/crypto.ts
+app/lib/profiles.ts
+app/components/transfer.tsx
+app/components/login-gate.tsx
+
+# Analytics + adaptive guidance: formulas, insight rules, coach copy
+docs/ANALYTICS.md
+docs/COMPANION.md
+docs/features/analytics.md
+docs/features/coach.md
+docs/features/return-system.md
+app/lib/analytics.ts
+app/lib/companion.ts
+app/lib/coach.ts
+app/lib/history.ts
+app/lib/strings.ts
+
+# Religious content: datasets, attribution, authenticity gates
+app/lib/data/
+public/data/
+docs/HOW_TO_ADD_RELIGIOUS_CONTENT.md
+docs/features/quran.md
+docs/features/hadith.md
+docs/features/adhkar.md
+
+# Localization: AR/EN dictionary parity
+app/lib/i18n.ts
+app/lib/strings.ts
+docs/HOW_TO_ADD_A_LANGUAGE.md
+docs/LOCALIZATION.md
+
+# Accessibility: a11y CSS layer, motion gates, screen-reader behavior
+app/additions.css
+app/*.css
+docs/ACCESSIBILITY.md
+scripts/check-css.mjs
+
+# Storage + schema (zero-loss contract): migrations, quarantine
+app/lib/schema.ts
+docs/VERSIONING.md
+docs/features/storage.md
+
+# Docs + developer experience: architecture, ADRs, VS Code, CI
+docs/
+DOCUMENTATION.md
+README.md
+CONTRIBUTING.md
+GOOD_FIRST_ISSUES.md
+.vscode/
+.github/workflows/
+
+# Tests
+app/lib/__tests__/
+e2e/
+docs/TESTING.md
+
+# Gating scripts must be owned by maintainers: changing a gate is a
+# release-level decision.
+scripts/check-*.mjs
+.github/workflows/ci.yml
+package.json

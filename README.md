@@ -74,6 +74,21 @@ app/
   docs/ANALYTICS.md     analytics methodology (formulas, thresholds, confidence)
   docs/ARCHITECTURE.md  storage/data-flow conventions, zero-loss contract
   docs/COMPONENTS.md    component inventory + ownership
+  docs/README.md        full documentation index
+  docs/API.md           internal API/contracts, storage surface
+  docs/DOMAIN_MODELS.md canonical data shapes + persistence matrix
+  docs/VERSIONING.md    versioning, migrations, deprecation policy
+  docs/PRIVACY_ARCHITECTURE.md  how privacy is enforced structurally
+  docs/NETWORK.md       exhaustive network-request matrix
+  docs/adr/             architecture decision records (ADR-001…006)
+  docs/features/        per-feature documentation (analytics, coach, return system, …)
+  docs/HOW_TO_ADD_A_FEATURE.md  new-feature walkthrough
+  docs/HOW_TO_ADD_A_LANGUAGE.md add/update a UI language
+  docs/HOW_TO_ADD_RELIGIOUS_CONTENT.md  sourced religious-content guide
+  SECURITY.md           threat model + vulnerability reporting
+  GOOD_FIRST_ISSUES.md  beginner-friendly contribution suggestions
+  CODEOWNERS            subsystem ownership
+  .env.example          optional environment variables (no secrets)
 ```
 
 ## الأمان | Security
@@ -105,3 +120,9 @@ Security headers + production-only strict CSP (`next.config.ts`), `X-Powered-By`
 - `docs/ARCHITECTURE.md` — بنية التخزين ومسار البيانات.
 - `docs/COMPONENTS.md` — جرد المكونات ومسؤولياتها.
 - `CONTRIBUTING.md` — دليل المساهمة والبوابات.
+- `docs/README.md` — فهرس التوثيق الكامل.
+- `docs/PRIVACY_ARCHITECTURE.md` — كيف تُفرَض الخصوصية هيكليًا.
+- `docs/NETWORK.md` — مصفوفة طلبات الشبكة الكاملة.
+- `docs/VERSIONING.md` — الإصدارات، الهجرات، سياسة الإيقاف.
+- `docs/HOW_TO_ADD_RELIGIOUS_CONTENT.md` — إضافة محتوى شرعي موثّق.
+- `GOOD_FIRST_ISSUES.md` — مسائل مناسبة للانضمام.

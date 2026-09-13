@@ -2,9 +2,11 @@
 // 1. every `wird-*` storage key literal in app/ is named in §4
 // 2. every route directory under app/ is named in §2
 // 3. AR/EN dictionary key parity
+// 4. every internal markdown link resolves to a real file/header
+// 5. every file under docs/ is indexed in docs/README.md
 // Run: npm run docs:check (also runs in CI)
-import { readdirSync, readFileSync, statSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -70,6 +72,91 @@ if (onlyAr.length > 0 || onlyEn.length > 0) {
   failed = true;
 } else {
   console.log(`docs:check — dictionary parity ✓ (${arKeys.size} keys)`);
+}
+
+// 4. internal markdown links resolve (no broken relative links)
+const mdFiles = [];
+for (const d of [
+  join(ROOT, "docs"),
+  join(ROOT, "README.md"),
+  join(ROOT, "DOCUMENTATION.md"),
+  join(ROOT, "CONTRIBUTING.md"),
+  join(ROOT, "SECURITY.md"),
+  join(ROOT, "CHANGELOG.md"),
+  join(ROOT, "GOOD_FIRST_ISSUES.md"),
+]) {
+  if (statSync(d, { throwIfNoEntry: false })?.isDirectory()) {
+    for (const f of walkMd(d)) mdFiles.push(f);
+  } else if (statSync(d, { throwIfNoEntry: false })?.isFile()) {
+    mdFiles.push(d);
+  }
+}
+function walkMd(dir) {
+  const out = [];
+  for (const e of readdirSync(dir)) {
+    const p = join(dir, e);
+    if (statSync(p).isDirectory()) {
+      if (e === "node_modules") continue;
+      out.push(...walkMd(p));
+    } else if (/\.md$/.test(e)) {
+      out.push(p);
+    }
+  }
+  return out;
+}
+const brokenLinks = [];
+for (const f of mdFiles) {
+  const base = dirname(f);
+  for (const m of readFileSync(f, "utf8").matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
+    let target = m[1].trim();
+    if (/^(https?:|mailto:|#)/.test(target) || !target) continue;
+    const [pathPart, anchor] = target.split("#");
+    if (!pathPart) continue;
+    let resolved = resolve(base, pathPart);
+    if (!existsSync(resolved)) {
+      brokenLinks.push(`${relative(ROOT, f)} → ${target}`);
+      continue;
+    }
+    if (anchor) {
+      const line = (readFileSync(resolved, "utf8").split("\n") || []).find((l) => {
+        const s = l.replace(/^#{1,6}\s*/, "").trim();
+        return s.toLowerCase().replace(/[^a-z0-9]+/g, "-") === anchor.toLowerCase();
+      });
+      if (!line) brokenLinks.push(`${relative(ROOT, f)} → ${target} (bad anchor #${anchor})`);
+    }
+  }
+}
+if (brokenLinks.length > 0) {
+  console.error("docs:check — broken markdown links:");
+  for (const b of brokenLinks) console.error("  -", b);
+  failed = true;
+} else {
+  console.log(`docs:check — markdown links ✓ (${mdFiles.length} files)`);
+}
+
+// 5. docs inventory: every file under docs/ is indexed in docs/README.md
+//    (features/README.md is the accepted index for docs/features/*)
+const docFiles = walkMd(join(ROOT, "docs")).filter(
+  (f) => relative(join(ROOT, "docs"), f) !== "README.md",
+);
+const docIndex = readFileSync(join(ROOT, "docs", "README.md"), "utf8");
+const featureIndex = readFileSync(join(ROOT, "docs", "features", "README.md"), "utf8");
+const missingIndexed = docFiles.filter((f) => {
+  const rel = relative(join(ROOT, "docs"), f).split("\\").join("/");
+  const base = basename(f);
+  return (
+    !docIndex.includes(rel) &&
+    !featureIndex.includes(rel) &&
+    !docIndex.includes(base) &&
+    !featureIndex.includes(base)
+  );
+});
+if (missingIndexed.length > 0) {
+  console.error("docs:check — files under docs/ not indexed in docs/README.md:");
+  for (const f of missingIndexed) console.error("  -", relative(join(ROOT, "docs"), f));
+  failed = true;
+} else {
+  console.log(`docs:check — docs inventory ✓ (${docFiles.length} files)`);
 }
 
 if (failed) process.exit(1);

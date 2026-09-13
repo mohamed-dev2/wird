@@ -1,7 +1,7 @@
 # وِرد — Full Documentation
 
 > **Living document.** It is verified on every push by `npm run docs:check`
-> (see [Keeping docs fresh](#keeping-docs-fresh)). Last reviewed: 2026-09-11.
+> (see [Keeping docs fresh](#keeping-docs-fresh)). Last reviewed: 2026-09-13.
 
 Wird is a daily Islamic habits tracker — Next.js 16 + React 19, **100% on-device**.
 No database, no accounts server, no analytics beacon. Everything lives in the
@@ -36,6 +36,18 @@ tools to move between devices.
 20. [Components](docs/COMPONENTS.md)
 21. [Contributing](CONTRIBUTING.md)
 22. [Changelog](CHANGELOG.md)
+23. [Domain models](docs/DOMAIN_MODELS.md)
+24. [Internal API](docs/API.md)
+25. [Versioning & migrations](docs/VERSIONING.md)
+26. [Performance](docs/PERFORMANCE.md)
+27. [Error handling](docs/ERROR_HANDLING.md)
+28. [Localization](docs/LOCALIZATION.md)
+29. [Accessibility](docs/ACCESSIBILITY.md)
+30. [Privacy architecture](docs/PRIVACY_ARCHITECTURE.md)
+31. [Network access](docs/NETWORK.md)
+32. [Architecture decision records](docs/adr/)
+33. [Features index](docs/features/README.md)
+34. [How to add a feature](docs/HOW_TO_ADD_A_FEATURE.md)
 
 ## 1. Quick start
 

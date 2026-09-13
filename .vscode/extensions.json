@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint", // ESLint (gates use --max-warnings 0)
+    "esbenp.prettier-vscode", // Formatting — matches .prettierrc exactly
+    "ms-vscode.vscode-typescript-next", // Latest TS language features
+    "vitest.explorer", // Run vitest from the editor test explorer
+    "ms-playwright.playwright", // Debug e2e specs
+    "deque-systems.axe-devtools", // Accessibility audit while developing
+    "yzhang.markdown-all-in-one", // Markdown preview + TOC
+    "eamodio.gitlens" // History/blame for reviewers
+  ]
+}

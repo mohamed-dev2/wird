@@ -97,6 +97,14 @@ export function collectBackup(): Record<string, string> {
   return out;
 }
 
+/**
+ * @deprecated Use `restoreBackupSafe` to get a full `RestoreReport`
+ * (applied/skipped/quarantined counts and per-key details). This thin
+ * wrapper only returns the applied count and hides quarantine outcomes.
+ * Migration: `restoreBackup(data)` → `restoreBackupSafe(data).applied`.
+ * Removal target: next major version after the analytics era. Legacy
+ * callers inside the repo were migrated in v0.1.0.
+ */
 export function restoreBackup(data: unknown): number {
   return restoreBackupSafe(data).applied;
 }

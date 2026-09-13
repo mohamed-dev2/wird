@@ -28,3 +28,9 @@ playwright-report/
 
 # Vercel
 .vercel/
+
+# Local environment secrets — never commit real .env files.
+# Only the documented .env.example is tracked.
+.env
+.env.*
+!.env.example

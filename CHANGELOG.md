@@ -27,6 +27,23 @@ or architecture-level changes are listed.
   auto-clear, hidden-tab blur, analytics opt-out.
 - Purpose headers in every source file (`comments:check` gate).
 - New docs: ARCHITECTURE, COMPONENTS, CONTRIBUTING, CHANGELOG.
+- Open-source engineering layer: SECURITY.md (threat model + private
+  vulnerability reporting), CODEOWNERS, GOOD_FIRST_ISSUES.md, .env.example
+  (no secrets), .vscode workspace (tasks/extensions/settings/launch).
+- Docs suite: PRIVACY_ARCHITECTURE, NETWORK (exhaustive request matrix),
+  DOMAIN_MODELS, API (internal contracts), VERSIONING (migrations +
+  deprecation policy), PERFORMANCE, ERROR_HANDLING, LOCALIZATION,
+  ACCESSIBILITY, `docs/adr/` ADR-001…006, `docs/features/` per-feature
+  index, how-to guides (feature / language / religious content), directory
+  READMEs (`app`, `lib`, `components`, `e2e`, `scripts`,
+  `public/data` generated-data marker, `docs` index).
+- `app/lib/privacy.ts`: sensitivity classifier (`sensitivityOf`) + single
+  source-of-truth network manifest; fixes a `wird-reviews-v1` key typo in
+  the classifier's exact-match list.
+- `docs:check` extended: internal markdown-link resolver (anchor-aware) +
+  docs inventory gate; CI now also runs `format:check`, `comments:check`,
+  `css:check`; `diagnose` aggregates all local gates.
+- `restoreBackup` marked `@deprecated` (use `restoreBackupSafe`).
 
 ## v0.1.0 — analytics + companion era
 

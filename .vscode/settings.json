@@ -1,0 +1,23 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "files.eol": "\n",
+  "editor.rulers": [100],
+  "eslint.lintTask.enable": true,
+  "eslint.validate": ["typescript", "typescriptreact"],
+  "[typescript]": { "editor.formatOnSave": true },
+  "[typescriptreact]": { "editor.formatOnSave": true },
+  "[markdown]": { "editor.formatOnSave": true, "editor.rulers": [80] },
+  "files.exclude": {
+    ".next": true,
+    "node_modules": true,
+    "test-results": true,
+    "playwright-report": true,
+    "tsconfig.tsbuildinfo": true
+  }
+}
