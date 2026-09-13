@@ -3,14 +3,13 @@
 Curated, versioned content that ships with the app (O(1) lookups, no
 network). This is **source content**, not generated output.
 
-| file                                       | content                                                  |
-| ------------------------------------------ | -------------------------------------------------------- |
-| `wird.ts`                                  | catalog sections/habits (Arabic; versioned with the app) |
-| `quran.ts`                                 | surah metadata + corpus index                            |
-| `hadith.ts`                                | curated hadith selections                                |
-| `adhkar.ts`                                | daily remembrance groups                                 |
-| `goals.ts` / `challenges.ts` / `habits.ts` | feature catalogs                                         |
-| `dream.ts` / `qada.ts` / `kids.ts`         | feature datasets                                         |
+| file           | content                                                            |
+| -------------- | ------------------------------------------------------------------ |
+| `hadith.ts`    | curated famous hadith selections with English translations         |
+| `paths.ts`     | leveled learning roadmaps per Islamic science (4 levels each)      |
+| `surahs.ts`    | Madani-mushaf surah order + names (ayah counts derived at runtime) |
+| `topics-ar.ts` | English hadith-topic names mapped to Arabic                        |
+| `verses.ts`    | curated return-screen verse references (resolved at runtime)       |
 
 **Rules:**
 
@@ -19,5 +18,4 @@ network). This is **source content**, not generated output.
   content).
 - Generated/build artifacts live in `public/data/`, NOT here.
 - Changing a catalog entry that affects rendering must have a unit test
-  (e.g. every habit id has a translation key — `docs:check` enforces
-  coverage).
+  (e.g. every habit id has a translation key).

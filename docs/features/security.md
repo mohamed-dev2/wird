@@ -3,8 +3,9 @@
 Threat model, controls, and the documented security posture of Wird.
 
 - Authoritative doc: `SECURITY.md` (repo root).
-- Crypto: `app/lib/crypto.ts` (AES-256-GCM, PBKDF2 210k iters, per-salt
-  IVs), `app/lib/recovery.ts` (salted verification of the 24-word secret).
+- Crypto: `app/lib/crypto.ts` (AES-256-GCM, PBKDF2 120k iters, fresh salt
+  - IV per backup), `app/lib/recovery.ts` (salted verification of the
+    12-word BIP39 secret).
 - Auth boundary: profile PIN gate (`wird-profiles-v1` + salted `pinHash` /
   optional `duressPinHash`), `app/components/login-gate.tsx`.
 - Export hardening: backups carry header checksums, QR/LAN receive paths

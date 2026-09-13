@@ -63,9 +63,10 @@ the first and last line of defense for a fully-offline app.
   dynamic `new Function`.
 - **Supply chain**. Five runtime deps, pinned exact versions, `next build`
   - lockfile; `npm audit --audit-level=moderate` runs in CI on every PR.
-- **Browser features**. `Permissions-Policy` denies camera/mic/geolocation
-  (camera is only ever granted for the scan flow when the user taps
-  "start", and streams are torn down on stop).
+- **Browser features**. `Permissions-Policy` denies camera/mic/geolocation/
+  payment unconditionally (`next.config.ts`) — QR-code scanning uses file
+  upload, never the camera. Voice logging was removed rather than leak
+  audio to cloud transcription (ADR-002).
 
 ## Local storage security
 
@@ -94,7 +95,9 @@ the first and last line of defense for a fully-offline app.
 ## XSS / injection
 
 - React text-node-only rendering; CSP is strict in production
-  (script-src 'self', connect/media/mlx narrow allowlists — see
+  (`script-src 'self' 'unsafe-inline'` — a documented Next.js App Router
+  requirement; `connect-src` narrowed to `cdn.jsdelivr.net` +
+  `api.quran.com`, `media-src` to `everyayah.com` — see
   next.config.ts). The service worker and all bundles are same-origin.
 - No HTML is injected from user data; tafsir/hadith HTML is sanitized via
   `stripHtml` before it reaches the DOM.

@@ -5,7 +5,9 @@ Authoritative docs: `docs/LOCALIZATION.md` (reference) and
 
 - Dictionary: `app/lib/strings.ts` (AR/EN flat keys; AR is source of
   truth for user-facing wording).
-- Service: `app/lib/i18n.ts` (`Lang`, `useT`).
+- Service: `app/lib/i18n.ts` (`useT`, direction map); the `Lang` type
+  itself lives in `app/components/wird-store.tsx` (see TD-8 in
+  `docs/TECH_DEBT.md` for why).
 - Direction: app root is `lang="ar" dir="rtl"`; inline LTR rendering via
   logical CSS properties (enforced by `scripts/check-css.mjs`).
 

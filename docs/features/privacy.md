@@ -16,6 +16,6 @@ doc points to the enforcement surfaces; the full model is in
 - Guidance log: `wird-guide-log-v1` records what guidance was shown,
   capped/aged, and fully suppressed when analytics opt-out is on.
 
-**Rules:** `lib/` reads storage only through schema helpers; components
+**Rules:** `app/lib/` reads storage only through schema helpers; components
 never read storage during render (hydration rule); the app must keep
 working with all network access stripped (offline-first).

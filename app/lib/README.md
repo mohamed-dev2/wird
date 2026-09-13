@@ -8,7 +8,7 @@ browser, and every module documents its persistence + privacy footprint
 | -------------------------------------------------------- | -------------------------------------------- | ---------------------------------- | ----------------------- |
 | `crypto.ts`                                              | backup build/restore/encrypt                 | none                               | read/write + quarantine |
 | `vault.ts`                                               | sensitive records at rest                    | none                               | AES-GCM                 |
-| `recovery.ts`                                            | 24-word secret + salted verifier             | none                               | verifier only           |
+| `recovery.ts`                                            | 12-word BIP39 secret + salted verifier       | none                               | verifier only           |
 | `schema.ts`                                              | validation/migration/quarantine (foundation) | none                               | all keys                |
 | `wird.ts`                                                | load/save hooks + catalog                    | none                               | daily + catalog         |
 | `history.ts`                                             | DayRecord aggregation                        | none                               | `wird-history-v1`       |

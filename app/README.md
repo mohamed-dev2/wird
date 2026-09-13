@@ -4,14 +4,17 @@ Application source (Next.js App Router).
 
 ```
 app/
-├── (sections)/       # route group shells
+├── account/ calendar/ insights/ library/ recovery/ review/  # routes (one dir per page)
 ├── components/       # React components (views, library, overlays)
+├── lib/              # framework-free logic (see lib/README.md)
 ├── layout.tsx        # root <html lang="ar" dir="rtl">, skip link, toasts
-├── page.tsx          # entry route
-├── ServerClient.tsx  # generic SSR→client bridge used by pages
-├── globals.css       # tokens + base styles
-├── additions.css     # a11y, motion gates, forced-colors, print
-└── lib/              # framework-free logic (see lib/README.md)
+├── page.tsx          # entry route (Today)
+├── fonts.ts          # self-hosted fonts (next/font)
+├── robots.ts         # robots handler (never index app screens)
+├── sitemap.ts        # public routes only
+├── opengraph-image.tsx  # static brand OG image (no user data)
+├── tokens.css styles.css additions.css views.css rescue.css library.css
+└── lib/data/         # curated content source (see lib/data/README.md)
 ```
 
 - **Import direction (strict):** `components/*` may import `lib/*`;

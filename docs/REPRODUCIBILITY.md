@@ -82,7 +82,7 @@ npm run format:check   # Prettier
 npm run lint            # ESLint
 npm run css:check       # logical properties
 npm run comments:check  # purpose headers
-npm run docs:check      # key/route/parity + link/inventory
+npm run docs:check      # key/route/parity + link/inventory + quality + version stamp
 ```
 
 Or all at once:
