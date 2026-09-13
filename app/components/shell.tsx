@@ -245,7 +245,7 @@ export function Shell({ children }: { children: ReactNode }) {
                   void ev.prompt().catch(() => undefined);
                 }}
               >
-                📲
+                <span aria-hidden>📲</span>
               </button>
             )}
           </div>

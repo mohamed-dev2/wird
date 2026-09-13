@@ -1,18 +1,28 @@
 {
+  "id": "/",
   "name": "وِرد — رفيقك اليومي",
   "short_name": "وِرد",
   "description": "متابعة العبادات والأوراد اليومية — يعمل دون إنترنت",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "dir": "rtl",
   "lang": "ar",
   "background_color": "#fbfcfa",
   "theme_color": "#0e2a1f",
+  "categories": ["productivity", "lifestyle"],
   "shortcuts": [
     { "name": "اليوم", "url": "/" },
     { "name": "حصاد اليوم", "url": "/review" },
     { "name": "الأذكار", "url": "/library" }
   ],
-  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
