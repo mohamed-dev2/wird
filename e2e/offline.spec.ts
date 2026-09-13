@@ -190,3 +190,60 @@ test("true offline restart: launch, data, and writes survive airplane mode", asy
   await context.setOffline(false);
   expect(badLogs).toEqual([]);
 });
+
+test("nawawi view has no duplicate browse button (regression)", async ({ page }) => {
+  const badLogs = hydrateGuard(page);
+  await ensureProfile(page);
+  await page.goto("/library");
+  await page.getByRole("button", { name: /الحديث|Hadith/ }).click();
+  // Curated Nawawi renders inline; the raw-key duplicate button is gone.
+  await expect(page.locator(".hadith-lib")).toBeVisible();
+  await expect(page.getByRole("button", { name: /browseAll40|عرض الأربعين كاملة/ })).toHaveCount(0);
+  expect(badLogs).toEqual([]);
+});
+
+test("ahmed and darimi books are browsable (calm offline)", async ({ page, context }) => {
+  const badLogs = hydrateGuard(page);
+  await ensureProfile(page);
+  await page.goto("/library");
+  await page.getByRole("button", { name: /الحديث|Hadith/ }).click();
+  await page.getByRole("button", { name: /الكتب الكاملة|Full books/ }).click();
+  await expect(
+    page.locator(".hadith-full").getByRole("button", { name: /مسند أحمد|Musnad Ahmad/ }),
+  ).toBeVisible();
+  await expect(
+    page.locator(".hadith-full").getByRole("button", { name: /سنن الدارمي|Sunan al-Darimi/ }),
+  ).toBeVisible();
+  // Routing is wired: opening Ahmed offline fails calmly, never crashes.
+  await context.setOffline(true);
+  await page
+    .locator(".hadith-full")
+    .getByRole("button", { name: /مسند أحمد|Musnad Ahmad/ })
+    .click();
+  await expect(page.getByText(/تعذر التحميل|Load failed/)).toBeVisible({ timeout: 25000 });
+  await context.setOffline(false);
+  expect(badLogs).toEqual([]);
+});
+
+test("tafsir sheet lists the tazkirul source", async ({ page }) => {
+  const badLogs = hydrateGuard(page);
+  await ensureProfile(page);
+  await page.goto("/library");
+  await page.getByRole("button", { name: /القرآن|Quran/ }).click();
+  await expect(page.locator(".ayah").first()).toBeVisible({ timeout: 20000 });
+  await page.locator(".ayah-trigger").first().click();
+  await page.getByRole("menuitem", { name: /التفسير|Tafsir/ }).click();
+  await expect(page.getByRole("button", { name: /تذكير القرآن|Tazkirul Quran/ })).toBeVisible();
+  expect(badLogs).toEqual([]);
+});
+
+test("favorites filter label follows the ui language", async ({ page }) => {
+  const badLogs = hydrateGuard(page);
+  await ensureProfile(page);
+  await page.goto("/account");
+  await page.getByRole("button", { name: /^English$/ }).click();
+  await page.goto("/library");
+  await page.getByRole("button", { name: /Hadith/ }).click();
+  await expect(page.getByRole("button", { name: /★ Favorites/ })).toBeVisible();
+  expect(badLogs).toEqual([]);
+});

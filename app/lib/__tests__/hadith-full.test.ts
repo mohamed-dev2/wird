@@ -98,6 +98,27 @@ describe("mirror books (Ahmed/Darimi)", () => {
     expect(b.hadiths[0]).toMatchObject({ text: "matn one", book: 1, ref: "#1" });
     expect(b.sections).toEqual({ 1: "chapter one" });
   });
+  it("maps the second mirror book independently", async () => {
+    vi.stubGlobal(
+      "fetch",
+      fakeFetch(() => mirrorPayload),
+    );
+    const b = await loadFullBook("darimi");
+    expect(b.id).toBe("darimi");
+    expect(b.count).toBe(2);
+    expect(b.sections).toEqual({ 1: "chapter one" });
+  });
+  it("mirror EN failure resolves empty instead of rejecting", async () => {
+    vi.stubGlobal(
+      "fetch",
+      fakeFetch(() => {
+        throw new TypeError("fetch failed");
+      }),
+    );
+    vi.resetModules();
+    const fresh = await import("../hadith-full");
+    await expect(fresh.loadFullBookEn("darimi")).resolves.toEqual(new Map());
+  });
   it("derives the EN map from the same bilingual payload", async () => {
     vi.stubGlobal(
       "fetch",

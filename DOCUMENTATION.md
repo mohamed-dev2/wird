@@ -342,7 +342,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`
   (7 checks), `npm run comments:check`, `npm run css:check`,
   `npm run boundaries:check`, `npm run metrics` (informational report).
-- Vitest (172 tests, 22 files): history/coach/recovery/transfer/demo logic plus the reliability
+- Vitest (178 tests, 23 files): history/coach/recovery/transfer/demo logic plus the reliability
   suites — `schema` (envelopes, quarantine, salvage, future-versions,
   quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
   two-phase zero-write rejection, snapshot rollback, salvage),
@@ -369,7 +369,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   legacy verifiers (in `recovery`), `private-plans` (run math,
   history-preserving resets, neutral copy, generic reminders, schema
   round-trip).
-- Playwright (25 tests, prod server, serial `--workers=1` pinned in
+- Playwright (29 tests, prod server, serial `--workers=1` pinned in
   `npm run test:e2e`): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across
@@ -379,7 +379,9 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   private-plans lifecycle (create → check in → setback with history
   preserved), quick exit, URL/title leak scan, offline suite (external
   blocked + full browser offline: core flows, bundled search, plans,
-  calm CDN failures, true-offline restart);
+  calm CDN failures, true-offline restart, library regressions
+  (no-duplicate-button, Ahmed/Darimi chips, Tazkirul source, localized
+  fav label);
   hydration-error listener fails the run on mismatch.
 - CI (`.github/workflows/ci.yml`): `npm ci` → typecheck → lint →
   format:check → unit → Playwright chromium → test:e2e → build →

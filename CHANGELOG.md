@@ -16,7 +16,10 @@ or architecture-level changes are listed.
 - Full Musnad Ahmed (1,374 hadiths, EN, partial: chapters 8–30 absent
   upstream and labeled in UI) + full Sunan al-Darimi (3,406 hadiths,
   Arabic-complete, no upstream English) from a pinned bilingual mirror;
-  curated cards now link into both full browsers.
+  curated cards now link into both full browsers. Tests: mirror mapping +
+  EN-derivation suites, tafsir/full-book catalog locks, offline library
+  regressions (duplicate-button gone, Ahmed/Darimi chips, Tazkirul source,
+  localized fav label).
 
 - Offline-first architecture (STEP 5): feature classification manifest +
   `docs/offline-architecture.md` (storage, sync boundaries, SW contract,
@@ -24,7 +27,7 @@ or architecture-level changes are listed.
   external fetches (`net.ts`, 10s) with failure-matrix tests; async
   `StorageAdapter` seam; service-worker offline shell (precached routes,
   navigation fallback, static cache-first, CACHE `wird-v4`) so relaunches
-  work in airplane mode; `offline.spec.ts` (6 tests incl. true-offline
+  work in airplane mode; `offline.spec.ts` (10 tests incl. true-offline
   restart); 5-year analytics perf suite; companion restriction project
   recorded as a separate-repo design (`docs/COMPANION_PROJECT.md`, no code).
 

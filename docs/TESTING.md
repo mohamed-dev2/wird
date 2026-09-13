@@ -6,7 +6,7 @@
 npm run typecheck   # strict TS + noUncheckedIndexedAccess
 npm run lint        # eslint --max-warnings 0
 npm run format:check
-npm run test        # vitest run (unit, 172 tests)
+npm run test        # vitest run (unit, 178 tests)
 npm run test:e2e    # playwright (production server, serial --workers=1 pinned in script)
 npm run build
 npm run docs:check  # keys + routes + AR/EN parity + links + inventory + quality + version stamp
@@ -41,6 +41,7 @@ Pure logic only — no DOM, no storage beyond in-memory mocks:
 | `net`                         | bounded fetch: timeout/500/DNS-failure/corrupt-payload rejection (callers show calm retry) |
 | `storage-adapter`             | async seam: memory adapter CRUD, StorageLike wrapper, throwing stores → rejections         |
 | `analytics-perf`              | 5-year/1826-day history: full analytics surface inside per-call budgets                    |
+| `catalog`                     | tafsir slugs + full-book ids locked; both languages present on every entry                 |
 
 Conventions: seeded PRNGs (reproducible), synthetic histories built from
 day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
@@ -62,7 +63,9 @@ day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
 - `offline.spec.ts` — external traffic blocked + full browser offline
   (`context.setOffline`): core flows, bundled Quran search, private plans,
   calm tafsir/hadith failures with retry, true-offline restart with data
-  intact and writable. See `docs/offline-architecture.md`.
+  intact and writable, library regressions (no duplicate Nawawi button,
+  Ahmed/Darimi chips, Tazkirul source, localized fav label). See
+  `docs/offline-architecture.md`.
 
 Rules learned the hard way:
 
