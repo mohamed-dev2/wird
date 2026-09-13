@@ -60,6 +60,8 @@ tools to move between devices.
 44. [Maintainer handover](docs/MAINTAINER_HANDOVER.md)
 45. [Open-source readiness](docs/OPEN_SOURCE_READINESS.md)
 46. [Safe code generation](docs/SAFE_CODE_GENERATION.md)
+47. [Offline architecture](docs/offline-architecture.md)
+48. [Companion project (design record)](docs/COMPANION_PROJECT.md)
 
 ## 1. Quick start
 
@@ -340,7 +342,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`
   (7 checks), `npm run comments:check`, `npm run css:check`,
   `npm run boundaries:check`, `npm run metrics` (informational report).
-- Vitest (151 tests, 18 files): history/coach/recovery/transfer/demo logic plus the reliability
+- Vitest (166 tests, 21 files): history/coach/recovery/transfer/demo logic plus the reliability
   suites — `schema` (envelopes, quarantine, salvage, future-versions,
   quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
   two-phase zero-write rejection, snapshot rollback, salvage),
@@ -367,7 +369,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   legacy verifiers (in `recovery`), `private-plans` (run math,
   history-preserving resets, neutral copy, generic reminders, schema
   round-trip).
-- Playwright (19 tests, prod server, serial `--workers=1` pinned in
+- Playwright (25 tests, prod server, serial `--workers=1` pinned in
   `npm run test:e2e`): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across
@@ -375,7 +377,9 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   gentle return with working action, 95-day deep restart with tawbah path,
   no-shame scan), insights layers with seeded data + honest empty state,
   private-plans lifecycle (create → check in → setback with history
-  preserved), quick exit, URL/title leak scan;
+  preserved), quick exit, URL/title leak scan, offline suite (external
+  blocked + full browser offline: core flows, bundled search, plans,
+  calm CDN failures, true-offline restart);
   hydration-error listener fails the run on mismatch.
 - CI (`.github/workflows/ci.yml`): `npm ci` → typecheck → lint →
   format:check → unit → Playwright chromium → test:e2e → build →

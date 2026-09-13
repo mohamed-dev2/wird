@@ -1,5 +1,6 @@
 // Tafsir sources: Jalalayn bundled offline; others fetched on demand from
 // CSP-allowlisted endpoints and cached by the service worker afterwards.
+import { fetchWithTimeout } from "./net";
 export type TafsirSource = { id: string; ar: string; en: string; offline?: boolean };
 
 export const TAFSIRS: TafsirSource[] = [
@@ -59,7 +60,9 @@ export function fetchTafsir(sourceId: string, surah: number, ayah: number): Prom
   const key = `${sourceId}/${surah}:${ayah}`;
   const hit = apiCache.get(key);
   if (hit) return hit;
-  const p = fetch(`https://api.quran.com/api/v4/tafsirs/${sourceId}/by_ayah/${surah}:${ayah}`)
+  const p = fetchWithTimeout(
+    `https://api.quran.com/api/v4/tafsirs/${sourceId}/by_ayah/${surah}:${ayah}`,
+  )
     .then((r) => {
       if (!r.ok) throw new Error("tafsir missing");
       return r.json() as Promise<{ tafsir?: { text?: string } }>;

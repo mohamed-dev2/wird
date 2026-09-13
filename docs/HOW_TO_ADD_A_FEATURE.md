@@ -8,7 +8,12 @@ Step-by-step for a contributor adding a new user-visible capability.
 - Is the data sensitive (document it in `lib/privacy.ts` + DOCUMENTATION.md
   §4).
 - Will it make a network request? If yes, update `docs/NETWORK.md` +
-  `lib/privacy.ts` + the CSP in `next.config.ts`.
+  `lib/privacy.ts` + the CSP in `next.config.ts`. External loads must go
+  through `lib/net.ts` (bounded timeout) with a calm error + retry state.
+- Classify it in the offline manifest (`OFFLINE` / `OFFLINE-FIRST` /
+  `OPTIONAL ONLINE` — nothing new may be online-required): core flows
+  must work with external traffic blocked; see
+  `docs/offline-architecture.md` and extend `e2e/offline.spec.ts`.
 
 ## 2. Define the types
 

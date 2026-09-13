@@ -1,5 +1,6 @@
 // Full 9-book hadith library: static catalog + lazy per-book JSON fetch.
 // IDs are stable (book + number) so favorites/reads survive updates.
+import { fetchWithTimeout } from "./net";
 export type FullHadith = {
   num: number;
   text: string;
@@ -43,7 +44,7 @@ export function loadFullBook(id: FullBookId): Promise<FullBook> {
   const hit = cache.get(id);
   if (hit) return hit;
   const meta = FULL_BOOKS.find((b) => b.id === id);
-  const p = fetch(
+  const p = fetchWithTimeout(
     `https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-${id}.min.json`,
   )
     .then((r) => {

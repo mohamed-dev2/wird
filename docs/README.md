@@ -5,27 +5,29 @@ Every doc in this folder, one line each. The root `README.md` and
 
 ## "I want to…" — find by intent
 
-| intent                                       | go to                                                             |
-| -------------------------------------------- | ----------------------------------------------------------------- |
-| run Wird locally                             | `../README.md` (Quick start) · `REPRODUCIBILITY.md`               |
-| install on a fresh machine deterministically | `REPRODUCIBILITY.md`                                              |
-| understand the high-level architecture       | `ARCHITECTURE.md`                                                 |
-| understand what lives in each folder         | `../AGENTS.md` (repo map)                                         |
-| add a feature                                | `HOW_TO_ADD_A_FEATURE.md` + `../AGENTS.md`                        |
-| fix a bug                                    | the bug template + `ERROR_HANDLING.md` (failure modes)            |
-| add a language                               | `HOW_TO_ADD_A_LANGUAGE.md` + `LOCALIZATION.md`                    |
-| modify religious content                     | `HOW_TO_ADD_RELIGIOUS_CONTENT.md` + `SAFE_CODE_GENERATION.md`     |
-| improve accessibility                        | `ACCESSIBILITY.md`                                                |
-| work on storage / schema                     | `features/storage.md` + `DOMAIN_MODELS.md` + `VERSIONING.md`      |
-| work on analytics / insights                 | `features/analytics.md` + `ANALYTICS.md`                          |
-| work on the companion / return system        | `features/coach.md`, `features/return-system.md` + `COMPANION.md` |
-| work on private self-management plans        | `features/private-recovery.md`                                    |
-| contribute security fixes                    | `../SECURITY.md` + `features/security.md`                         |
-| audit what the app sends over the network    | `NETWORK.md` + `../app/lib/privacy.ts`                            |
-| validate a release                           | `RELEASE.md` + `../docs/TESTING.md`                               |
-| decide a big architectural change            | `../GOVERNANCE.md` + `../docs/adr/`                               |
-| create a fork                                | `../README.md` + (when public) GitHub fork button                 |
-| find beginner work                           | `../GOOD_FIRST_ISSUES.md` + `CONTRIBUTOR_LEVELS.md`               |
+| intent                                             | go to                                                             |
+| -------------------------------------------------- | ----------------------------------------------------------------- |
+| run Wird locally                                   | `../README.md` (Quick start) · `REPRODUCIBILITY.md`               |
+| install on a fresh machine deterministically       | `REPRODUCIBILITY.md`                                              |
+| understand the high-level architecture             | `ARCHITECTURE.md`                                                 |
+| understand what lives in each folder               | `../AGENTS.md` (repo map)                                         |
+| add a feature                                      | `HOW_TO_ADD_A_FEATURE.md` + `../AGENTS.md`                        |
+| fix a bug                                          | the bug template + `ERROR_HANDLING.md` (failure modes)            |
+| add a language                                     | `HOW_TO_ADD_A_LANGUAGE.md` + `LOCALIZATION.md`                    |
+| modify religious content                           | `HOW_TO_ADD_RELIGIOUS_CONTENT.md` + `SAFE_CODE_GENERATION.md`     |
+| improve accessibility                              | `ACCESSIBILITY.md`                                                |
+| work on storage / schema                           | `features/storage.md` + `DOMAIN_MODELS.md` + `VERSIONING.md`      |
+| work on analytics / insights                       | `features/analytics.md` + `ANALYTICS.md`                          |
+| work on the companion / return system              | `features/coach.md`, `features/return-system.md` + `COMPANION.md` |
+| work on private self-management plans              | `features/private-recovery.md`                                    |
+| contribute security fixes                          | `../SECURITY.md` + `features/security.md`                         |
+| audit what the app sends over the network          | `NETWORK.md` + `../app/lib/privacy.ts`                            |
+| validate a release                                 | `RELEASE.md` + `TESTING.md`                                       |
+| use Wird offline / understand the offline contract | `offline-architecture.md`                                         |
+| understand the sync/blocking policy                | `offline-architecture.md` + `COMPANION_PROJECT.md`                |
+| decide a big architectural change                  | `../GOVERNANCE.md` + `../docs/adr/`                               |
+| create a fork                                      | `../README.md` + (when public) GitHub fork button                 |
+| find beginner work                                 | `../GOOD_FIRST_ISSUES.md` + `CONTRIBUTOR_LEVELS.md`               |
 
 ## Project basics
 
@@ -52,6 +54,10 @@ Every doc in this folder, one line each. The root `README.md` and
 - `PRIVACY_ARCHITECTURE.md` — how privacy is enforced structurally
   (sensitivity classes, local-first design).
 - `NETWORK.md` — exhaustive network-request matrix.
+- `offline-architecture.md` — offline-first contract: classification
+  manifest, storage, sync boundaries, SW behavior, failure modes, testing.
+- `COMPANION_PROJECT.md` — separate restriction-companion design record
+  (not in this codebase).
 - `../SECURITY.md` — threat model, vulnerabilities, disclosure.
 
 ## Features & content

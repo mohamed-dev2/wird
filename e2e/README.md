@@ -13,7 +13,13 @@ Conventions:
   recovery phrase, QR snapshot), `recovery` (`/recovery` health,
   corruption survival, profile isolation), `companion` (fresh start,
   10-day return, 95-day restart), `analytics` (insights layers, empty
-  state), `private-plans` (plan lifecycle, quick exit, leak scan).
+  state), `private-plans` (plan lifecycle, quick exit, leak scan),
+  `offline` (external blocked + full browser offline: core flows, bundled
+  search, plans, calm CDN failures, true-offline restart).
+- Offline simulation: `page.route` aborting non-loopback hosts (external
+  cut, localhost alive) for degraded-network flows; `context.setOffline`
+  (browser-wide, SW-tested) for airplane-mode flows. Fresh context per
+  test, so offline state never leaks between tests.
 - Every spec ends with a hydration-listener assertion (no content
   mismatch between SSR HTML and client render).
 - Recovery checkbox is targeted by name `/أؤكد أنني كتبتها/` (Arabic

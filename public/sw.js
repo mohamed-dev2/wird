@@ -1,7 +1,19 @@
-/* Wird service worker: offline shell + notification deep-links. No build step. */
-const CACHE = "wird-v3";
+/* Wird service worker: offline shell + notification deep-links. No build step.
+ * Offline contract (STEP 5): precached route shells + cached static assets
+ * let the app LAUNCH offline after one online visit; navigations are
+ * network-first (fresh shell when online) with cache fallback (usable
+ * Today screen when offline). Bump CACHE on shell changes — activate
+ * purges older versions and the in-app update banner applies them. */
+const CACHE = "wird-v4";
 const CORE = [
   "/",
+  "/calendar",
+  "/insights",
+  "/review",
+  "/library",
+  "/account",
+  "/recovery",
+  "/private-plans",
   "/manifest.webmanifest",
   "/data/quran-uthmani.min.json",
   "/data/en-clear.min.json",
@@ -44,6 +56,46 @@ self.addEventListener("fetch", (event) => {
   try {
     url = new URL(request.url);
   } catch {
+    return;
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") return;
+  // Navigations: network first (fresh shell + instant updates when online),
+  // cache fallback (precached route shell, else Today) when offline.
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((res) => {
+          if (res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(request, copy));
+          }
+          return res;
+        })
+        .catch(() =>
+          caches.match(request).then((hit) => {
+            if (hit) return hit;
+            return caches.match("/");
+          }),
+        ),
+    );
+    return;
+  }
+  // Same-origin static assets (JS chunks, fonts, icons): cache-first at
+  // runtime so the shell boots offline after one online visit.
+  if (url.origin === self.location.origin && !cacheable(url)) {
+    event.respondWith(
+      caches.match(request).then(
+        (hit) =>
+          hit ??
+          fetch(request).then((res) => {
+            if (res.ok) {
+              const copy = res.clone();
+              caches.open(CACHE).then((c) => c.put(request, copy));
+            }
+            return res;
+          }),
+      ),
+    );
     return;
   }
   if (!cacheable(url)) return;

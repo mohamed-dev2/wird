@@ -21,6 +21,9 @@ routes (app/*/page.tsx)          thin: assemble + render
     → lib/crypto.ts              backups + atomic import (imports schema only)
     → lib/diagnostics.ts         health snapshots (read-only)
     → lib/vault.ts               optional reflection encryption
+    → lib/private-plans.ts       self-management plans (pure + storage helpers)
+    → lib/net.ts                 bounded fetch for optional-online loaders
+    → lib/storage-adapter.ts     async persistence seam (see below)
     → lib/strings.ts             AR/EN dictionary (imports Lang type only)
 ```
 
@@ -50,3 +53,20 @@ See DOCUMENTATION.md §4 for every key. Rules: daily keys reset via
 prefixed `p_<id>_` (except the documented device-global set); new writes
 are enveloped `{__wird: {v, updatedAt}, d}`; legacy bare values migrate
 on read, never rewritten in place.
+
+## Storage seams (replaceable persistence)
+
+Two boundaries, one direction — domain logic never touches a storage
+primitive directly:
+
+- `StorageLike` (`schema.ts`): the synchronous seam all current code
+  uses (`getItem`/`setItem`/`removeItem`/`length`/`key`). `localStorage`
+  in production, in-memory fakes in tests.
+- `StorageAdapter` (`storage-adapter.ts`): the async seam
+  (`get`/`set`/`delete` promises) for future platforms (sync engines,
+  native ports, test harnesses). `storageLikeAdapter()` wraps any
+  `StorageLike`; `memoryAdapter()` is self-contained. Tested, not a stub.
+
+Rule 3 above (centralized persistence) is what makes both seams hold:
+a future backend changes the adapters, never the domain modules. The
+offline contract built on this lives in `docs/offline-architecture.md`.

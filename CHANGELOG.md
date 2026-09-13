@@ -5,6 +5,16 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Offline-first architecture (STEP 5): feature classification manifest +
+  `docs/offline-architecture.md` (storage, sync boundaries, SW contract,
+  time handling, failure behavior, airplane-mode checklist); bounded
+  external fetches (`net.ts`, 10s) with failure-matrix tests; async
+  `StorageAdapter` seam; service-worker offline shell (precached routes,
+  navigation fallback, static cache-first, CACHE `wird-v4`) so relaunches
+  work in airplane mode; `offline.spec.ts` (6 tests incl. true-offline
+  restart); 5-year analytics perf suite; companion restriction project
+  recorded as a separate-repo design (`docs/COMPANION_PROJECT.md`, no code).
+
 - Private self-management plans (STEP 4, optional + discreet): per-profile
   plans in abstinence / reduction / time-limit modes with neutral setback
   flow (resets the current run, never erases history), journey timeline,

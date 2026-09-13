@@ -6,7 +6,7 @@
 npm run typecheck   # strict TS + noUncheckedIndexedAccess
 npm run lint        # eslint --max-warnings 0
 npm run format:check
-npm run test        # vitest run (unit, 151 tests)
+npm run test        # vitest run (unit, 166 tests)
 npm run test:e2e    # playwright (production server, serial --workers=1 pinned in script)
 npm run build
 npm run docs:check  # keys + routes + AR/EN parity + links + inventory + quality + version stamp
@@ -23,21 +23,24 @@ Pure logic only — no DOM, no storage beyond in-memory mocks:
 |---|---|---|
 | `prayer` | day-arc fractions incl. overnight wrap, next-prayer agreement |
 
-| `vault`                       | setup/unlock/lock/disable, generic failures, no plaintext residue                       |
-| ----------------------------- | --------------------------------------------------------------------------------------- |
-| `schema`                      | envelopes, quarantine, salvage, future versions, quota, caps, migration idempotence     |
-| `crypto-restore`              | manifest, dry-run, two-phase zero-write rejection, rollback                             |
-| `crypto-security`             | round-trip, wrong password, GCM tamper, malformed payloads                              |
-| `daily`                       | midnight rollover, multi-day absence, legacy shapes, monotonic `recordDay`              |
-| `isolation`                   | namespacing, adoption, id uniqueness, quarantine purge                                  |
-| `fuzz`                        | seeded: validators/reads/writes never throw                                             |
-| `transfer`                    | chunking, duplicates, order, contamination, bounds                                      |
-| `companion`                   | 26 states, ranking, fatigue/once-ever, rotation, core                                   |
-| `content`                     | verse refs exist in bundle, hadith resolve, theme coverage                              |
-| `guidance-safety`             | auto-collected AR+EN copy: no revelation/ruling/shame/heart/medical/causation markers   |
-| `analytics`                   | 20-test BM suite over a synthetic 4-month dataset + pipeline test                       |
-| `history/coach/recovery/demo` | legacy suites for core logic                                                            |
-| `private-plans`               | run math, history-preserving resets, neutral copy, generic reminders, schema round-trip |
+| `vault`                       | setup/unlock/lock/disable, generic failures, no plaintext residue                          |
+| ----------------------------- | ------------------------------------------------------------------------------------------ |
+| `schema`                      | envelopes, quarantine, salvage, future versions, quota, caps, migration idempotence        |
+| `crypto-restore`              | manifest, dry-run, two-phase zero-write rejection, rollback                                |
+| `crypto-security`             | round-trip, wrong password, GCM tamper, malformed payloads                                 |
+| `daily`                       | midnight rollover, multi-day absence, legacy shapes, monotonic `recordDay`                 |
+| `isolation`                   | namespacing, adoption, id uniqueness, quarantine purge                                     |
+| `fuzz`                        | seeded: validators/reads/writes never throw                                                |
+| `transfer`                    | chunking, duplicates, order, contamination, bounds                                         |
+| `companion`                   | 26 states, ranking, fatigue/once-ever, rotation, core                                      |
+| `content`                     | verse refs exist in bundle, hadith resolve, theme coverage                                 |
+| `guidance-safety`             | auto-collected AR+EN copy: no revelation/ruling/shame/heart/medical/causation markers      |
+| `analytics`                   | 20-test BM suite over a synthetic 4-month dataset + pipeline test                          |
+| `history/coach/recovery/demo` | legacy suites for core logic                                                               |
+| `private-plans`               | run math, history-preserving resets, neutral copy, generic reminders, schema round-trip    |
+| `net`                         | bounded fetch: timeout/500/DNS-failure/corrupt-payload rejection (callers show calm retry) |
+| `storage-adapter`             | async seam: memory adapter CRUD, StorageLike wrapper, throwing stores → rejections         |
+| `analytics-perf`              | 5-year/1826-day history: full analytics surface inside per-call budgets                    |
 
 Conventions: seeded PRNGs (reproducible), synthetic histories built from
 day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
@@ -56,6 +59,10 @@ day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
 - `private-plans.spec.ts` — plan lifecycle (create → check in → setback
   with history preserved across reload), quick exit to neutral home,
   URL/title leak scan. Neutral fixtures only ("Private Plan A").
+- `offline.spec.ts` — external traffic blocked + full browser offline
+  (`context.setOffline`): core flows, bundled Quran search, private plans,
+  calm tafsir/hadith failures with retry, true-offline restart with data
+  intact and writable. See `docs/offline-architecture.md`.
 
 Rules learned the hard way:
 
