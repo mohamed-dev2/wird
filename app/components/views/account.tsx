@@ -6,20 +6,27 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import {
+  backupFilename,
   buildBackupFile,
   collectBackup,
+  collectBackupFor,
   decryptBackup,
   downloadFile,
   encryptBackup,
+  logExport,
   markBackup,
   parseBackupFile,
+  planProfileRemap,
   previewRestore,
   profilesInBackup,
+  readExportLog,
+  remapBackupProfile,
   restoreBackupSafe,
   unwrapDecrypted,
   verifyBackupIntegrity,
   wrapForEncryption,
 } from "../../lib/crypto";
+import { ProfileScopeToggle } from "../profile-scope";
 import { DEFAULT_REMINDERS, ensurePermission, fireNotification } from "../../lib/notify";
 import { buildDemo, clearDemoData, mergeHistoryDemo, saveDemoReviews } from "../../lib/demo";
 import { askPrompt, dayId } from "../../lib/wird";
@@ -32,7 +39,9 @@ import {
   getActiveProfileId,
   isWeakPin,
   loadProfiles,
+  loadTravelHidden,
   saveProfiles,
+  saveTravelHidden,
   sha256Hex,
 } from "../../lib/profiles";
 import {
@@ -161,17 +170,17 @@ function DataHealthCard() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-once hydration of diagnostics (static empties match SSR)
     refresh();
   }, []);
-  const stamp = () => new Date().toISOString().slice(0, 10);
   const onExport = () => {
     try {
       downloadFile(
-        `wird-diagnostics-${stamp()}.json`,
+        backupFilename("wird-diagnostics-"),
         JSON.stringify(
           { exportedAt: new Date().toISOString(), summary: diag, quarantine, health },
           null,
           2,
         ),
       );
+      logExport("diagnostics", quarantine.length + health.length);
     } catch {}
   };
   const onClear = () => {
@@ -264,6 +273,22 @@ export function AccountView({ onReset }: { onReset: () => void }) {
     disableVaultText,
   } = useWird();
   const [openRow, setOpenRow] = useState<string | null>(null);
+  const [travelHidden, setTravelHidden] = useState<string[]>([]);
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-once travel list (empty matches SSR)
+      setTravelHidden(loadTravelHidden());
+    } catch {}
+  }, []);
+  const toggleTravel = (id: string) => {
+    setTravelHidden((cur) => {
+      const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id];
+      try {
+        saveTravelHidden(next);
+      } catch {}
+      return next;
+    });
+  };
   const askName = askPrompt;
   const [reminders, setReminders] = useStoredState("wird-reminders-v1", DEFAULT_REMINDERS);
   const [analyticsOptOut, setAnalyticsOptOut] = useStoredState("wird-analytics-optout-v1", false);
@@ -271,7 +296,25 @@ export function AccountView({ onReset }: { onReset: () => void }) {
   const [remindMsg, setRemindMsg] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const askPass = askPrompt;
-  const stamp = () => new Date().toISOString().slice(0, 10);
+  // Consent-log labels: what left the device, in the current language.
+  const exportKindLabel = (kind: string) => {
+    switch (kind) {
+      case "file-plain":
+        return t("bk.plain");
+      case "file-enc":
+        return t("bk.enc");
+      case "qr":
+        return t("tr.tabQr");
+      case "lan":
+        return t("tr.tabLan");
+      case "emergency":
+        return t("bk.logEm");
+      case "diagnostics":
+        return t("bk.logDiag");
+      default:
+        return kind;
+    }
+  };
   // Destructive backup actions on a PIN-locked profile first re-verify the
   // PIN inline (an unlocked screen in the wrong hands must not suffice).
   const [pinGate, setPinGate] = useState<null | { action: "wipe" | "export" }>(null);
@@ -279,6 +322,14 @@ export function AccountView({ onReset }: { onReset: () => void }) {
   const [pinGateErr, setPinGateErr] = useState("");
   const [duressMsg, setDuressMsg] = useState("");
   const [vaultMsg, setVaultMsg] = useState("");
+  const [scopedExport, setScopedExport] = useState(false);
+  const [exportLog, setExportLog] = useState(() => {
+    try {
+      return readExportLog();
+    } catch {
+      return [];
+    }
+  });
   // Vault setup/disable: discouragement FIRST (confirm), then passphrase.
   // Both directions are explicit; forgetting means permanent loss (stated).
   const setupVaultFlow = async () => {
@@ -372,9 +423,17 @@ export function AccountView({ onReset }: { onReset: () => void }) {
   };
   const onExportPlain = () => {
     try {
-      const file = buildBackupFile();
-      downloadFile(`wird-backup-${stamp()}.json`, JSON.stringify(file));
+      const pid = scopedExport ? (activeProfile?.id ?? null) : null;
+      const file = buildBackupFile(
+        collectBackupFor(pid),
+        pid ? { kind: "profile" } : { kind: "device" },
+      );
+      downloadFile(backupFilename("wird-backup-"), JSON.stringify(file));
       markBackup("export");
+      logExport("file-plain", file.count);
+      try {
+        setExportLog(readExportLog());
+      } catch {}
       setBackupMsg(t("bk.count", { n: file.count }));
     } catch {
       setBackupMsg(t("bk.fail"));
@@ -384,9 +443,17 @@ export function AccountView({ onReset }: { onReset: () => void }) {
     const pass = askPass(t("bk.passAsk"));
     if (!pass) return;
     try {
-      const payload = await encryptBackup(pass, wrapForEncryption(collectBackup()));
-      downloadFile(`wird-backup-enc-${stamp()}.json`, payload);
+      const pid = scopedExport ? (activeProfile?.id ?? null) : null;
+      const payload = await encryptBackup(
+        pass,
+        wrapForEncryption(collectBackupFor(pid), pid ? { kind: "profile" } : { kind: "device" }),
+      );
+      downloadFile(backupFilename("wird-backup-enc-"), payload);
       markBackup("export");
+      logExport("file-enc", Object.keys(collectBackupFor(pid)).length);
+      try {
+        setExportLog(readExportLog());
+      } catch {}
       setBackupMsg(t("bk.okEnc"));
     } catch {
       setBackupMsg(t("bk.noenc"));
@@ -422,24 +489,37 @@ export function AccountView({ onReset }: { onReset: () => void }) {
         return;
       }
       // Dry-run first: warn before touching storage when entries need quarantine.
+      // Single foreign profile + nothing for the active one → offer a
+      // retarget into the current profile (never silent, never on ambiguity).
+      let remapped = false;
       try {
         const pre = previewRestore(data);
         const profs = profilesInBackup(data);
+        const plan = planProfileRemap(data, getActiveProfileId());
         const profNote =
           profs.length > 1
             ? lang === "ar"
               ? ` وتشمل ${profs.length} حسابات.`
               : ` It contains ${profs.length} profiles.`
             : "";
-        if (pre.invalid > 0 || pre.salvagable > 0 || profs.length > 1) {
+        const remapNote = plan
+          ? lang === "ar"
+            ? " سيُستورد إلى هذا الحساب الحالي."
+            : " It will be imported into the current profile."
+          : "";
+        if (pre.invalid > 0 || pre.salvagable > 0 || profs.length > 1 || plan) {
           const warn =
             lang === "ar"
-              ? `الملف فيه ${pre.invalid} عنصر تالف و${pre.salvagable} قابل للإنقاذ الجزئي من أصل ${pre.total}.${profNote} سيُحفظ التالف في الحجر الصحي بدل حذفه. متابعة؟`
-              : `Backup has ${pre.invalid} corrupt and ${pre.salvagable} partially-salvageable of ${pre.total} entries.${profNote} Corrupt ones go to quarantine, never deleted. Continue?`;
+              ? `الملف فيه ${pre.invalid} عنصر تالف و${pre.salvagable} قابل للإنقاذ الجزئي من أصل ${pre.total}.${profNote}${remapNote} سيُحفظ التالف في الحجر الصحي بدل حذفه. متابعة؟`
+              : `Backup has ${pre.invalid} corrupt and ${pre.salvagable} partially-salvageable of ${pre.total} entries.${profNote}${remapNote} Corrupt ones go to quarantine, never deleted. Continue?`;
           if (!window.confirm(warn)) {
             setBackupMsg(t("bk.bad"));
             return;
           }
+        }
+        if (plan && data && typeof data === "object" && !Array.isArray(data)) {
+          data = remapBackupProfile(data as Record<string, unknown>, plan.from, plan.to);
+          remapped = true;
         }
       } catch {
         // preview throws only for shapes restore would also reject — fall through
@@ -447,11 +527,11 @@ export function AccountView({ onReset }: { onReset: () => void }) {
       const report = restoreBackupSafe(data);
       markBackup("import");
       const suffix =
-        report.skipped > 0
+        (report.skipped > 0
           ? lang === "ar"
             ? ` (تُرك ${report.skipped} في الحجر الصحي)`
             : ` (${report.skipped} quarantined)`
-          : "";
+          : "") + (remapped ? ` (${t("bk.remapped")})` : "");
       setBackupMsg(t("bk.restored", { n: report.applied }) + suffix);
     } catch {
       setBackupMsg(t("bk.bad"));
@@ -492,17 +572,29 @@ export function AccountView({ onReset }: { onReset: () => void }) {
           <b>{t("auth.manage")}</b>
           <div className="kid-tabs">
             {profiles.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => {
-                  if (p.id !== activeProfile?.id) switchProfile(p.id);
-                }}
-                aria-pressed={p.id === activeProfile?.id}
-                className={p.id === activeProfile?.id ? "selected" : ""}
-              >
-                {p.avatar} {p.name} {p.pinHash ? "🔒" : ""}
-              </button>
+              <span key={p.id} className="profile-tab">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (p.id !== activeProfile?.id) switchProfile(p.id);
+                  }}
+                  aria-pressed={p.id === activeProfile?.id}
+                  className={p.id === activeProfile?.id ? "selected" : ""}
+                >
+                  {p.avatar} {p.name} {p.pinHash ? "🔒" : ""}
+                  {travelHidden.includes(p.id) ? ` · ${t("auth.hiddenTag")}` : ""}
+                </button>
+                <button
+                  type="button"
+                  className="linklike"
+                  aria-pressed={travelHidden.includes(p.id)}
+                  aria-label={t("auth.travel")}
+                  title={t("auth.travel")}
+                  onClick={() => toggleTravel(p.id)}
+                >
+                  {travelHidden.includes(p.id) ? "👁‍🗨" : "👁"}
+                </button>
+              </span>
             ))}
           </div>
           <div className="backup-actions">
@@ -679,6 +771,9 @@ export function AccountView({ onReset }: { onReset: () => void }) {
           <b>{t("bk.t")}</b>
           <p>بياناتك على جهازك فقط — لا خوادم ولا حسابات. صدّر نسخة مشفرة أو استعدها متى شئت.</p>
           <div className="backup-actions">
+            <ProfileScopeToggle scoped={scopedExport} onChange={setScopedExport} />
+          </div>
+          <div className="backup-actions">
             <button type="button" onClick={onExportEnc}>
               {t("bk.enc")}
             </button>
@@ -720,6 +815,20 @@ export function AccountView({ onReset }: { onReset: () => void }) {
           )}
           {pinGateErr && <p className="backup-msg">{pinGateErr}</p>}
           {backupMsg && <p className="backup-msg">{backupMsg}</p>}
+          {exportLog.length > 0 && (
+            <div>
+              <p className="eyebrow">{t("bk.logT")}</p>
+              {exportLog
+                .slice(-5)
+                .reverse()
+                .map((e, i) => (
+                  <p className="backup-msg" key={`${e.at}-${i}`} dir="ltr">
+                    {new Date(e.at).toISOString().slice(0, 10)} · {exportKindLabel(e.kind)} ·{" "}
+                    {e.count}
+                  </p>
+                ))}
+            </div>
+          )}
           <input
             ref={fileRef}
             type="file"

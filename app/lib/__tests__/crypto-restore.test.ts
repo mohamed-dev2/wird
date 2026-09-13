@@ -1,10 +1,14 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  backupFilename,
   buildBackupFile,
   collectBackup,
+  collectBackupFor,
   datasetKeyOf,
   parseBackupFile,
+  planProfileRemap,
   previewRestore,
+  remapBackupProfile,
   restoreBackup,
   restoreBackupSafe,
 } from "../crypto";
@@ -137,5 +141,67 @@ describe("backup manifest + safe restore", () => {
   it("strips profile prefixes for schema lookup", () => {
     expect(datasetKeyOf("p_abc123_wird-tasbeeh-v2")).toBe("wird-tasbeeh-v2");
     expect(datasetKeyOf("wird-daymode-v1")).toBe("wird-daymode-v1");
+  });
+});
+
+describe("scoped backup collection", () => {
+  it("device scope includes every profile; profile scope keeps only one", () => {
+    localStorage.setItem("wird-daymode-v1", JSON.stringify("عادي"));
+    localStorage.setItem("p_alice_wird-tasbeeh-v2", DAY);
+    localStorage.setItem("p_bob_wird-tasbeeh-v2", JSON.stringify({ day: "2026-09-11", value: 3 }));
+    const device = collectBackupFor(null);
+    expect(Object.keys(device).sort()).toEqual([
+      "p_alice_wird-tasbeeh-v2",
+      "p_bob_wird-tasbeeh-v2",
+      "wird-daymode-v1",
+    ]);
+    const alice = collectBackupFor("alice");
+    expect(Object.keys(alice).sort()).toEqual(["p_alice_wird-tasbeeh-v2", "wird-daymode-v1"]);
+  });
+});
+
+describe("profile remap", () => {
+  it("proposes a retarget only for a single foreign profile with no active key", () => {
+    expect(planProfileRemap({ "p_old_wird-tasbeeh-v2": DAY }, "me")).toEqual({
+      from: "old",
+      to: "me",
+    });
+    // Ambiguous (two foreign profiles) or active-present → untouched.
+    expect(
+      planProfileRemap({ "p_old_wird-tasbeeh-v2": DAY, "p_other_wird-tasbeeh-v2": DAY }, "me"),
+    ).toBeNull();
+    expect(planProfileRemap({ "p_me_wird-tasbeeh-v2": DAY }, "me")).toBeNull();
+    expect(planProfileRemap({ "wird-daymode-v1": JSON.stringify("عادي") }, "me")).toBeNull();
+    expect(planProfileRemap(null, "me")).toBeNull();
+  });
+
+  it("renames one profile prefix and leaves everything else intact", () => {
+    const remapped = remapBackupProfile(
+      {
+        "p_old_wird-tasbeeh-v2": DAY,
+        p_old_customs: "bind",
+        "wird-daymode-v1": JSON.stringify("عادي"),
+        "p_keep_wird-daymode-v1": JSON.stringify("عادي"),
+      },
+      "old",
+      "me",
+    );
+    expect(remapped["p_me_wird-tasbeeh-v2"]).toBe(DAY);
+    expect(remapped["p_me_customs"]).toBe("bind");
+    expect((remapped as Record<string, unknown>)["wird-daymode-v1"]).toBe(JSON.stringify("عادي"));
+    expect((remapped as Record<string, unknown>)["p_keep_wird-daymode-v1"]).toBe(
+      JSON.stringify("عادي"),
+    );
+    expect("p_old_wird-tasbeeh-v2" in remapped).toBe(false);
+  });
+});
+
+describe("export filenames", () => {
+  it("are date-stamped and random so files never overwrite", () => {
+    const a = backupFilename("wird-backup-");
+    const b = backupFilename("wird-backup-");
+    expect(a).toMatch(/^wird-backup-\d{4}-\d{2}-\d{2}-[0-9a-f]{4}\.json$/);
+    expect(b).toMatch(/^wird-backup-\d{4}-\d{2}-\d{2}-[0-9a-f]{4}\.json$/);
+    expect(a).not.toBe(b);
   });
 });

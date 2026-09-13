@@ -240,7 +240,7 @@
   background: transparent;
   border: 0;
   padding: 3px 0;
-  margin-left: 8px;
+  margin-inline-end: 8px;
   cursor: pointer;
 }
 
@@ -268,7 +268,7 @@
 .zikr-fab {
   position: fixed;
   bottom: 22px;
-  left: 25px;
+  left: 25px; /* rtl:keep — docked corner, mirrored deliberately */
   z-index: 25;
   border: 0;
   background: #18745f;
@@ -289,12 +289,12 @@
 }
 
 .zikr-fab span {
-  margin-right: 4px;
+  margin-inline-start: 4px;
 }
 
 .zikr-popover {
   position: fixed;
-  left: 25px;
+  left: 25px; /* rtl:keep — docks with the fab above */
   bottom: 70px;
   z-index: 26;
   width: 275px;
@@ -307,7 +307,7 @@
 
 .close-zikr {
   position: absolute;
-  left: 11px;
+  left: 11px; /* rtl:keep — close affordance pinned to the visual corner */
   top: 9px;
   border: 0;
   background: transparent;
@@ -943,11 +943,11 @@
   }
   .zikr-fab {
     bottom: 72px;
-    left: 16px;
+    left: 16px; /* rtl:keep — mirrors the docked corner above */
   }
   .zikr-popover {
     bottom: 121px;
-    left: 16px;
+    left: 16px; /* rtl:keep — mirrors the docked corner above */
     width: calc(100vw - 32px);
   }
 }

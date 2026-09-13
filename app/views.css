@@ -184,7 +184,7 @@
 .badge-row p {
   font-size: 11px;
   font-weight: 700;
-  margin-left: 8px;
+  margin-inline-end: 8px;
 }
 
 .badge-row span {
@@ -266,7 +266,7 @@
   font: inherit;
   font-size: 12px;
   direction: ltr;
-  text-align: left;
+  text-align: left; /* rtl:keep — recovery-phrase entry is LTR by design */
   border: 1px solid var(--line);
   border-radius: 11px;
   padding: 11px;
@@ -475,7 +475,7 @@
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 11px 13px;
-  text-align: right;
+  text-align: start;
   font: inherit;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -770,7 +770,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  margin-left: 4px;
+  margin-inline-end: 4px;
 }
 
 .excellent {
@@ -805,7 +805,7 @@
 
 .calendar button {
   height: 75px;
-  text-align: right;
+  text-align: start;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -923,7 +923,7 @@
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 14px;
-  text-align: right;
+  text-align: start;
   font: inherit;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1076,7 +1076,7 @@
 .account-list button {
   font: inherit;
   font-size: 11px;
-  text-align: right;
+  text-align: start;
   border: 1px solid var(--line);
   border-radius: 11px;
   background: var(--surface);
@@ -1134,7 +1134,7 @@
 }
 
 .account-list i {
-  margin-right: auto;
+  margin-inline-start: auto;
 }
 
 .new-day {
@@ -1216,7 +1216,7 @@
   font: inherit;
   font-size: 9px;
   direction: ltr;
-  text-align: left;
+  text-align: left; /* rtl:keep — SDP codes are LTR blobs by design */
   border: 1px solid var(--line);
   border-radius: 9px;
   padding: 9px;
@@ -1267,7 +1267,7 @@
 
 .words-grid b {
   color: var(--brand-ink);
-  margin-right: 4px;
+  margin-inline-start: 4px;
 }
 
 .soft-hr {
@@ -1350,8 +1350,7 @@
     display: flex;
     position: fixed;
     bottom: 0;
-    left: 0;
-    right: 0;
+    inset-inline: 0;
     height: 62px;
     background: rgba(255, 255, 255, 0.96);
     border-top: 1px solid #e6ede8;

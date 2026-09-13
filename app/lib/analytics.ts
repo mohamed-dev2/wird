@@ -66,6 +66,13 @@ export function fmtDelta(x: number): string {
 
 // ---------- periods + comparison ----------
 
+/**
+ * Rate over a trailing window ending endDay (inclusive).
+ * @param history DayRecord map (gaps = unknown, never failures).
+ * @param endDay Local dayId window end.
+ * @param days Window length.
+ * @returns Active/total/pages; rate 0 when the window is empty.
+ */
 export type PeriodRate = { activeDays: number; totalDays: number; rate: number; pages: number };
 
 export function periodRate(history: History, endDay: string, days: number): PeriodRate {
@@ -87,6 +94,11 @@ export type Comparison = {
   confidence: Confidence;
 };
 
+/**
+ * Current window vs the user's own previous window of equal length.
+ * @returns Null when either window holds fewer than MIN_ACTIVE_DAYS active
+ * days (no claim without evidence); otherwise direction + delta + confidence.
+ */
 export function compareWindows(history: History, endDay: string, days: number): Comparison | null {
   const cur = periodRate(history, endDay, days);
   const prev = periodRate(history, shiftDay(endDay, -days), days);
@@ -202,6 +214,12 @@ export type HabitStats = {
   frequency: number;
 };
 
+/**
+ * Per-deed analytics over a trailing window: rate, runs, trend halves, and
+ * best/worst 14-day windows inside the last 90 days.
+ * @param windowDays Lookback length (default 30).
+ * @returns Null when the deed has fewer than MIN_ACTIVE_DAYS hits.
+ */
 export function habitStats(
   history: History,
   deedId: string,
@@ -344,7 +362,12 @@ export type ReturnEvent = {
   cont30: number;
 };
 
-/** Meaningful returns: idle gap ≥ minGap days, then activity. Oldest first. */
+/**
+ * Meaningful returns, oldest first: idle gap ≥ minGap days, then activity.
+ * Continuations count active days strictly AFTER return day (cont30 needs
+ * 30 days of subsequent history to be complete — callers must not read a
+ * partial cont30 as a full one).
+ */
 export function detectReturns(history: History, endDay: string, minGap = 3): ReturnEvent[] {
   const days = Object.keys(history)
     .filter((d) => d <= endDay)
@@ -417,7 +440,12 @@ export function returnStats(events: ReturnEvent[]): ReturnStats | null {
   };
 }
 
-/** Days from return until trailing-3-day rate reaches frac of pre-gap baseline. */
+/**
+ * Days from return until the trailing-3-day deed average reaches frac of
+ * the pre-gap baseline. Null when never reached within 30 days (an honest
+ * answer, not a failure).
+ * @param baseline Mean ids/day over pre-gap active days (0 disables).
+ */
 export function rebuildSpeed(
   history: History,
   event: ReturnEvent,
@@ -610,6 +638,11 @@ export type QuranStats = {
   strongestFortnight: { start: string; end: string; pages: number } | null;
 };
 
+/**
+ * Dedicated Quran layer: reading days/pages, halved-window trend (25%
+ * relative gate), 100-session milestone, strongest 14-day pages window.
+ * Bookmark/mem counts come from the caller (separate datasets).
+ */
 export function quranStats(history: History, endDay: string): QuranStats {
   const win = daysInRange(history, shiftDay(endDay, -29), endDay);
   const reading = win.filter((d) => d.pages > 0);
@@ -787,6 +820,12 @@ export type Mood = "good" | "ok" | "low";
  * and co-occurrence with activity volume. Never a diagnosis — the UI copy
  * states "recorded" and "occurred together" at all times.
  */
+/**
+ * Structural mood metadata only: distribution, day-to-day variability,
+ * weekday averages (≥3 samples, ≥3 weekdays), and activity co-occurrence.
+ * Never a diagnosis — UI copy must say "recorded" and "occurred together".
+ * @returns Null with fewer than MIN_ACTIVE_DAYS mood entries.
+ */
 export function moodStats(
   reviews: Record<string, ReviewEntry>,
   history: History,
@@ -854,6 +893,12 @@ export function moodStats(
 
 export type HeatLevel = 0 | 1 | 2 | 3 | 4;
 
+/**
+ * GitHub-style heatmap, personal-relative: levels divide the user's own
+ * 90th-percentile day (cap), so colors mean "your normal", never an
+ * absolute judgment. Always paired with the faith disclaimer in UI.
+ * @param weeks Lookback in weeks (default 26).
+ */
 export function heatmap(
   history: History,
   endDay: string,
@@ -886,6 +931,11 @@ export type MonthReview = {
   elapsed: boolean;
 };
 
+/**
+ * Rich month review: activity, Quran/gratitude deltas vs previous month,
+ * longest run/break, strongest weekday (≥3 samples). Deltas are null —
+ * not zero — when the comparison window has no data.
+ */
 export function monthReview(
   history: History,
   reviews: Record<string, ReviewEntry>,
@@ -976,6 +1026,11 @@ export type Insight = {
   evidence: Record<string, string | number>;
 };
 
+/**
+ * Explainable insight rules. Every rule returns evidence + confidence;
+ * only medium/high confidence rules are emitted, so the UI can render
+ * each insight with its why-line instead of mysterious claims.
+ */
 export function smartInsights(args: {
   history: History;
   reviews: Record<string, ReviewEntry>;
@@ -1030,6 +1085,11 @@ export function smartInsights(args: {
 
 export type Milestone = { id: string; reached: boolean; day: string | null; value: number };
 
+/**
+ * Firsts worth noticing (first 7/30 days, 100 sessions, first challenge,
+ * longest run, first strong return). Reached flags drive the year card and
+ * once-ever guide-log kinds — never celebration for noise.
+ */
 export function detectMilestones(args: {
   history: History;
   challenges: Challenge[];

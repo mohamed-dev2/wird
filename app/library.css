@@ -209,7 +209,7 @@
 }
 
 .ayah-hit {
-  text-align: right;
+  text-align: start;
   font: inherit;
   background: var(--surface);
   border: 1px solid var(--line);
@@ -609,7 +609,7 @@
 }
 
 .hadith-meta button {
-  margin-right: auto;
+  margin-inline-start: auto;
   border: 0;
   background: transparent;
   font-size: 15px;
@@ -652,7 +652,7 @@
   border: 0;
   border-radius: 9px;
   padding: 8px 2px;
-  text-align: right;
+  text-align: start;
   font: inherit;
   cursor: pointer;
   margin-top: 4px;

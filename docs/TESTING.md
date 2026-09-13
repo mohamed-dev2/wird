@@ -11,6 +11,7 @@ npm run test:e2e    # playwright (production server, serial)
 npm run build
 npm run docs:check  # keys + routes + AR/EN parity
 npm run comments:check  # 2+ line purpose header in every source file
+npm run css:check  # logical properties (RTL) + !important budget
 npm audit
 ```
 

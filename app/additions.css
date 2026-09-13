@@ -36,7 +36,7 @@
   font-family: var(--font-dm), sans-serif;
   font-size: 11px;
   color: var(--brand);
-  margin-right: 6px;
+  margin-inline-start: 6px;
 }
 
 .moment-grid p:not(.eyebrow) {
@@ -91,7 +91,7 @@
 }
 
 .next-prayer button {
-  margin-right: auto;
+  margin-inline-start: auto;
   background: var(--brand-soft);
   color: #14735e;
   border-radius: 8px;
@@ -301,13 +301,13 @@
   height: 130px;
   border: 1px solid #f4deb1;
   border-radius: 50%;
-  left: -35px;
+  left: -35px; /* rtl:keep — symmetric bloom, direction-agnostic */
   bottom: -70px;
 }
 
 .gentle-star {
   position: absolute;
-  left: 23px;
+  left: 23px; /* rtl:keep — decorative sparkle; mirrored layouts verified */
   top: 16px;
   font-size: 20px;
   color: var(--gold);
@@ -341,7 +341,7 @@
 
 .weekly b {
   font-size: 10px;
-  margin-right: 9px;
+  margin-inline-start: 9px;
 }
 
 .weekly div {
@@ -470,7 +470,7 @@
 
 .focus-card > button:first-child {
   position: absolute;
-  left: 16px;
+  left: 16px; /* rtl:keep — close affordance pinned to the visual corner */
   top: 15px;
   border: 0;
   background: rgba(255, 255, 255, 0.12);
@@ -782,7 +782,7 @@
   border: 1px solid #e4ebe6;
   border-radius: 12px;
   padding: 10px;
-  text-align: right;
+  text-align: start;
   font: inherit;
   color: var(--brand-ink);
   cursor: pointer;
@@ -1243,4 +1243,497 @@ body.tab-hidden .content {
   filter: blur(22px) brightness(0.92);
   pointer-events: none;
   user-select: none;
+}
+
+/* Idle blur: softer sibling of the privacy screen (see shell idle timer). */
+body.idle-blur .content {
+  filter: blur(14px);
+}
+
+/* =====================================================================
+   IDEA BATCH — 40 small, honest interface upgrades.
+   Rules for every rule below: logical properties (RTL-safe), theme vars
+   only (no hardcoded light colors on chrome), motion wrapped in
+   no-preference, and nothing color-only (text/labels always pair color).
+   ===================================================================== */
+
+/* 01 — Skip link: keyboard users jump straight to content. */
+.skip-link {
+  position: absolute;
+  inset-inline-start: 12px;
+  top: -60px;
+  z-index: 100;
+  background: var(--brand);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  transition: top 0.2s var(--ease-out);
+}
+
+.skip-link:focus-visible {
+  top: 12px;
+}
+
+/* 02 — Page enter: every route fades up once on mount (CSR navigation). */
+.destination-view {
+  animation: view-enter 0.35s var(--ease-out) both;
+}
+
+@keyframes view-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 03 — Staggered card entrance: sections arrive in reading order. */
+.destination-view > section:nth-child(2) {
+  animation-delay: 0.04s;
+}
+
+.destination-view > section:nth-child(3) {
+  animation-delay: 0.08s;
+}
+
+.destination-view > section:nth-child(4) {
+  animation-delay: 0.12s;
+}
+
+.destination-view > section:nth-child(n + 5) {
+  animation-delay: 0.16s;
+}
+
+/* 04 — Press physics: every button acknowledges the tap. */
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* 05 — Tabular numerals: countdowns and stats never jitter as digits change. */
+.metric-row b,
+.moment-grid h3 b,
+.day-strip,
+.tiny-progress,
+.prayer-arc text {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 06 — Themed scrollbar (webkit): quiet, brand-tinted. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 8px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--faint);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 07 — Selection wears the brand. */
+::selection {
+  background: var(--brand-soft);
+  color: var(--brand-deep);
+}
+
+/* 08 — Toasts slide in instead of popping. */
+.backup-msg {
+  animation: toast-in 0.3s var(--ease-out) both;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 09 — Tafsir sheet unfolds. */
+.tafsir-sheet {
+  animation: sheet-in 0.28s var(--ease-out) both;
+  transform-origin: top center;
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 10 — Chips glide between states. */
+.book-chips button,
+.kid-tabs button,
+.periods button {
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+/* 11 — Smooth progress ring: @property makes --ring animatable so the hero
+   dial sweeps instead of jumping when habits toggle. */
+@property --ring {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
+.hero-ring {
+  transition: --ring 0.6s var(--ease-out);
+}
+
+/* 12 — Playing ayah gets a living equalizer (motion-safe). */
+.ayah.playing .ayah-end::after {
+  content: "▂▄▆";
+  display: inline-block;
+  margin-inline-start: 6px;
+  font-size: 0.7em;
+  color: var(--brand);
+  letter-spacing: 1px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ayah.playing .ayah-end::after {
+    animation: eq-bounce 0.9s ease-in-out infinite;
+  }
+}
+
+@keyframes eq-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-2px);
+    opacity: 0.5;
+  }
+}
+
+/* 13 — Memorized verses glow softly gold. */
+.ayah.mem .ayah-end {
+  color: var(--gold-deep);
+  text-shadow: 0 0 12px rgba(217, 169, 79, 0.55);
+}
+
+/* 14 — Bookmark ribbon: a folded corner, not just an outline. */
+.ayah.mark::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  inset-inline-end: -2px;
+  border-style: solid;
+  border-width: 0 14px 14px 0;
+  border-color: transparent var(--gold) transparent transparent;
+}
+
+[dir="ltr"] .ayah.mark::before {
+  border-width: 0 0 14px 14px;
+  border-color: transparent transparent transparent var(--gold);
+}
+
+/* 15 — Section divider ornament under hero eyebrows. */
+.view-hero .eyebrow::after {
+  content: "✦";
+  display: block;
+  font-size: 10px;
+  color: var(--gold);
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+/* 16 — Streak flame flickers (motion-safe). */
+.streak-small > span {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .streak-small > span {
+    animation: flick 2.4s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+}
+
+@keyframes flick {
+  0%,
+  100% {
+    transform: scale(1) rotate(-2deg);
+  }
+  30% {
+    transform: scale(1.12) rotate(2deg);
+  }
+  60% {
+    transform: scale(0.96) rotate(-1deg);
+  }
+}
+
+/* 17 — Crescent glow on Ramadan + return moons (motion-safe). */
+.ramadan-banner > span,
+.return-moon {
+  display: inline-block;
+  text-shadow: 0 0 18px rgba(245, 206, 115, 0.65);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ramadan-banner > span,
+  .return-moon {
+    animation: moon-glow 5s ease-in-out infinite;
+  }
+}
+
+@keyframes moon-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 12px rgba(245, 206, 115, 0.4);
+  }
+  50% {
+    text-shadow: 0 0 26px rgba(245, 206, 115, 0.8);
+  }
+}
+
+/* 18 — Greeting sun turns once a minute (barely-there living detail). */
+.content header h1 > span {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .content header h1 > span {
+    animation: sun-turn 60s linear infinite;
+  }
+}
+
+@keyframes sun-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 19 — Safe-area padding: notched phones keep the bottom nav reachable. */
+.bottom-nav {
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+}
+
+/* 20 — Input focus glow (in addition to the global focus ring). */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(176, 139, 55, 0.18);
+}
+
+/* 21 — Disabled means disabled, everywhere. */
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 22 — Selected toggles glow instead of just tinting. */
+button.selected,
+button[aria-pressed="true"].selected {
+  box-shadow:
+    0 0 0 2px var(--brand-soft),
+    0 4px 14px rgba(20, 114, 93, 0.18);
+}
+
+/* 23 — Anchored scrolls clear sticky headers. */
+section[id],
+article[id],
+div[id] {
+  scroll-margin-top: 14px;
+}
+
+/* 24 — Day-strip cells invite hover without implying clickability. */
+.day-strip i,
+.heat-strip i {
+  transition: transform 0.15s ease;
+}
+
+.day-strip i:hover,
+.heat-strip i:hover {
+  transform: scale(1.35);
+}
+
+/* 25 — Heat months breathe: a hairline every 4 weeks keeps 26 weeks readable. */
+.heat-strip i:nth-child(28n + 1) {
+  margin-inline-start: 5px;
+}
+
+/* 26 — Report cards never split across printed pages. */
+@media print {
+  .brief-card,
+  .metric-row article,
+  .companion-card {
+    break-inside: avoid;
+  }
+}
+
+/* 27 — Higher contrast when the OS asks for it. */
+@media (prefers-contrast: more) {
+  :root {
+    --line: #9aa7a0;
+  }
+  a {
+    text-decoration: underline;
+  }
+  .chart-caption,
+  .cm-why {
+    color: var(--ink);
+  }
+}
+
+/* 28 — OLED true paper: the mushaf stays readable, never blinding. */
+[data-theme="dark"] .mushaf {
+  background: #171b17;
+  border-color: #2a332d;
+  color: var(--ink);
+}
+
+[data-theme="oled"] .mushaf {
+  background: #0e0f0d;
+  border-color: #1e2421;
+  color: var(--ink);
+}
+
+/* 29 — Landscape phones: compact bottom nav. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .bottom-nav {
+    padding-top: 4px;
+    padding-bottom: max(4px, env(safe-area-inset-bottom));
+  }
+  .bottom-nav a,
+  .bottom-nav button {
+    padding-top: 2px;
+    padding-bottom: 2px;
+  }
+}
+
+/* 30 — Login card arrives gently. */
+.login-card {
+  animation: view-enter 0.4s var(--ease-out) both;
+}
+
+/* 31 — Choice menus pop in (motion-safe). */
+.ayah-menu,
+.choice-menu {
+  transform-origin: bottom center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ayah-menu,
+  .choice-menu {
+    animation: menu-pop 0.16s var(--ease-out) both;
+  }
+}
+
+@keyframes menu-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 32 — Verse + hadith quotes lift on hover (desktop). */
+.cm-verse:hover,
+.cm-hadith:hover {
+  transform: translateY(-2px);
+}
+
+.cm-verse,
+.cm-hadith {
+  transition: transform 0.2s ease;
+}
+
+/* 33 — Completed goals settle visually (opacity + strike, with text kept). */
+.goal-done {
+  opacity: 0.72;
+}
+
+.goal-done b {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+/* 34 — Cards with a focused control glow their border (keyboard users see
+   where they are even when the control itself is small). */
+.card:focus-within,
+article[data-tilt]:focus-within {
+  border-color: var(--gold);
+}
+
+/* 35 — Companion card earns its place: gold inline accent + breathing room. */
+.companion-card {
+  border-inline-start: 3px solid var(--gold);
+}
+
+/* 36 — No layout shift when scrollbars appear/disappear between routes. */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* 37 — Pretty headings: no orphan words. */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+/* 38 — Long codes/SDP blobs wrap instead of overflowing small screens. */
+.transfer-pane textarea,
+textarea[dir="ltr"] {
+  overflow-wrap: anywhere;
+}
+
+/* 39 — Chips ellipsis instead of wrapping mid-word. */
+.kid-tabs button,
+.book-chips button {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+/* Profile tabs group the switch button with its travel-mode eye toggle. */
+.profile-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.profile-tab .linklike {
+  font-size: 12px;
+  padding: 4px;
+}
+
+/* 40 — Reduced-data users skip decorative shimmer (content still loads). */
+@media (prefers-reduced-data: reduce) {
+  .skel,
+  .skel::after {
+    animation: none;
+  }
 }

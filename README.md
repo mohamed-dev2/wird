@@ -28,6 +28,7 @@ npm run test:e2e   # Playwright e2e (production server)
 npm run format     # Prettier write
 npm run docs:check # verify docs match code (keys + routes + parity)
 npm run comments:check # every source file has a purpose header
+npm run css:check # logical properties (RTL) + !important budget
 npm run clean      # wipe .next + tsbuildinfo (run after major upgrades)
 ```
 
@@ -71,6 +72,8 @@ app/
   public/data/          offline mushaf, Clear-Quran EN, Jalalayn, Nawawi, BIP39 (~4.7MB lazy)
   e2e/                  Playwright suites (prod server — dev HMR is sandbox-flaky)
   docs/ANALYTICS.md     analytics methodology (formulas, thresholds, confidence)
+  docs/ARCHITECTURE.md  storage/data-flow conventions, zero-loss contract
+  docs/COMPONENTS.md    component inventory + ownership
 ```
 
 ## الأمان | Security
@@ -99,3 +102,6 @@ Security headers + production-only strict CSP (`next.config.ts`), `X-Powered-By`
 - `docs/COMPANION.md` — كيف يتخذ المرشد قراراته.
 - `docs/PRIVACY.md` — نموذج الخصوصية وما الذي يغادر الجهاز ومتى.
 - `docs/TESTING.md` — تشغيل البوابات وكتابة الاختبارات.
+- `docs/ARCHITECTURE.md` — بنية التخزين ومسار البيانات.
+- `docs/COMPONENTS.md` — جرد المكونات ومسؤولياتها.
+- `CONTRIBUTING.md` — دليل المساهمة والبوابات.

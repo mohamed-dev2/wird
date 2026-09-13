@@ -4,9 +4,17 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useT } from "../lib/i18n";
-import { AVATARS, isWeakPin, loadProfiles, saveProfiles, sha256Hex } from "../lib/profiles";
+import {
+  AVATARS,
+  findHiddenByName,
+  isWeakPin,
+  loadProfiles,
+  loadTravelHidden,
+  saveProfiles,
+  sha256Hex,
+} from "../lib/profiles";
 import { loadVerifiers, verifierMatches, verifyPhrase } from "../lib/recovery";
 import { useWird } from "./wird-store";
 
@@ -33,6 +41,16 @@ export function LoginGate() {
   const [forgot, setForgot] = useState(false);
   const [words, setWords] = useState("");
   const [newPin, setNewPin] = useState("");
+  // Travel mode (top-level: hooks must not live in the branch below).
+  const [travelHidden, setTravelHidden] = useState<string[]>([]);
+  const [revealed, setRevealed] = useState<string[]>([]);
+  const [finder, setFinder] = useState("");
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-once travel list (empty matches SSR)
+      setTravelHidden(loadTravelHidden());
+    } catch {}
+  }, []);
 
   const doResetPin = async () => {
     if (!activeProfile) return;
@@ -266,6 +284,21 @@ export function LoginGate() {
       setBusy(true);
       void createProfile(n, avatar, pin.trim() ? pin.trim() : null).finally(() => setBusy(false));
     };
+    // Travel mode: hidden profiles stay out of the list; an exact name
+    // match reveals one for this session only (never persisted).
+    const visibleProfiles = profiles.filter(
+      (p) => !travelHidden.includes(p.id) || revealed.includes(p.id),
+    );
+    const findHidden = () => {
+      const hit = findHiddenByName(profiles, travelHidden, finder);
+      if (hit) {
+        setRevealed((r) => (r.includes(hit.id) ? r : [...r, hit.id]));
+        setFinder("");
+        setErr("");
+      } else {
+        setErr(t("auth.wrongPin"));
+      }
+    };
     return (
       <main>
         <section className="content login-wrap">
@@ -275,7 +308,7 @@ export function LoginGate() {
             <p>{t("auth.sub")}</p>
             {profiles.length > 0 && (
               <div className="profile-pick">
-                {profiles.map((p) => (
+                {visibleProfiles.map((p) => (
                   <div key={p.id} className="profile-row">
                     <button type="button" onClick={() => switchProfile(p.id)}>
                       <span>{p.avatar}</span> {hideNames ? t("auth.hidden") : p.name}{" "}
@@ -295,6 +328,26 @@ export function LoginGate() {
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+            {travelHidden.length > 0 && (
+              <div className="backup-actions">
+                <label className="time-label">
+                  {t("auth.find")}
+                  <input
+                    value={finder}
+                    onChange={(e) => setFinder(e.target.value)}
+                    placeholder={t("auth.findPh")}
+                    aria-label={t("auth.find")}
+                    maxLength={30}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") findHidden();
+                    }}
+                  />
+                </label>
+                <button type="button" className="linklike" onClick={findHidden}>
+                  {t("auth.find")}
+                </button>
               </div>
             )}
             <input

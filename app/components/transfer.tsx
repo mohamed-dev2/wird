@@ -9,9 +9,10 @@ import QRCode from "qrcode";
 import jsQR from "jsqr";
 import { copyText } from "../lib/clipboard";
 import {
-  collectBackup,
+  collectBackupFor,
   decryptBackup,
   encryptBackup,
+  logExport,
   markBackup,
   previewRestore,
   restoreBackupSafe,
@@ -20,18 +21,21 @@ import {
 } from "../lib/crypto";
 import {
   assembleChunks,
+  backoffDelay,
   chunkPayload,
   decodeChunk,
   encodeChunk,
   gunzipFromB64,
   gzipToB64,
   isSaneChunk,
+  payloadChecksumWords,
 } from "../lib/transfer";
 import { lanAnswer, lanApplyAnswer, lanOffer } from "../lib/lan";
 import { getActiveProfileId } from "../lib/profiles";
 import { loadVerifiers, newRecoveryPhrase, saveVerifierSalted } from "../lib/recovery";
 import { useT } from "../lib/i18n";
 import { useWird } from "./wird-store";
+import { ProfileScopeToggle } from "./profile-scope";
 
 type Tab = "qr" | "scan" | "lan" | "rec";
 
@@ -46,10 +50,13 @@ function randomPin(): string {
 
 function QrShow() {
   const t = useT();
+  const { activeProfile } = useWird();
   const [pin, setPin] = useState(randomPin);
   const [chunks, setChunks] = useState<string[]>([]);
   const [idx, setIdx] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [scoped, setScoped] = useState(false);
+  const [checkWords, setCheckWords] = useState<string[] | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -69,12 +76,21 @@ function QrShow() {
     if (pin.trim().length < 4 || busy) return;
     setBusy(true);
     try {
-      const payload = await encryptBackup(pin.trim(), wrapForEncryption(collectBackup()));
+      const pid = scoped ? (activeProfile?.id ?? null) : null;
+      const payload = await encryptBackup(
+        pin.trim(),
+        wrapForEncryption(collectBackupFor(pid), pid ? { kind: "profile" } : { kind: "device" }),
+      );
       const b64 = await gzipToB64(payload);
       setChunks(chunkPayload(b64).map(encodeChunk));
       setIdx(0);
+      setCheckWords(await payloadChecksumWords(b64));
+      try {
+        logExport("qr", Object.keys(collectBackupFor(pid)).length);
+      } catch {}
     } catch {
       setChunks([]);
+      setCheckWords(null);
     } finally {
       setBusy(false);
     }
@@ -100,6 +116,14 @@ function QrShow() {
           </button>
         )}
       </div>
+      <ProfileScopeToggle scoped={scoped} onChange={setScoped} />
+      {checkWords && (
+        <p className="chart-caption" dir="ltr">
+          {t("tr.verifyT")}: {checkWords.join(" · ")}
+          <br />
+          {t("tr.verifyS")}
+        </p>
+      )}
       {chunks.length > 0 && (
         <div className="qr-stage">
           <canvas ref={canvasRef} />
@@ -120,15 +144,33 @@ function QrScan() {
   const [pin, setPin] = useState("");
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
+  const [checkWords, setCheckWords] = useState<string[] | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const gotRef = useRef(got);
   // Session lock: chunks from a different transfer (different n) are foreign
   // and must never mix into this assembly. Resets when scanning restarts.
   const sessionN = useRef(0);
+  // Decrypt throttling: repeated PIN guesses get exponentially slower, capped.
+  const throttleRef = useRef({ attempts: 0, until: 0 });
   useEffect(() => {
     gotRef.current = got;
   }, [got]);
+
+  // Show the sender's check-words once the full set of snapshots is in, so the
+  // human can confirm payload integrity before handing over their PIN.
+  useEffect(() => {
+    if (total === 0 || got.size !== total) return;
+    let cancelled = false;
+    const b64 = assembleChunks(gotRef.current, total);
+    if (!b64) return;
+    void payloadChecksumWords(b64).then((w) => {
+      if (!cancelled) setCheckWords(w);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [total, got]);
 
   const stopScan = () => {
     setOn(false);
@@ -137,6 +179,7 @@ function QrScan() {
     sessionN.current = 0;
     setMsg("");
     setErr("");
+    setCheckWords(null);
   };
 
   useEffect(() => {
@@ -205,6 +248,14 @@ function QrScan() {
   const apply = async () => {
     setErr("");
     setMsg("");
+    // Decrypt attempts are rate-limited so a stolen PIN prompt can't be
+    // brute-forced at full speed (2s → 4s → … 30s cap).
+    const now = Date.now();
+    const th = throttleRef.current;
+    if (now < th.until) {
+      setErr(t("tr.slowDown", { n: Math.ceil((th.until - now) / 1000) }));
+      return;
+    }
     // Race guard: abort if the active profile changed during the async pipeline.
     const startedProfile = getActiveProfileId();
     try {
@@ -223,6 +274,7 @@ function QrScan() {
       previewRestore(data);
       const report = restoreBackupSafe(data);
       markBackup("import");
+      throttleRef.current = { attempts: 0, until: 0 };
       setMsg(
         report.skipped > 0
           ? t("tr.partial", { a: report.applied, q: report.skipped })
@@ -232,7 +284,10 @@ function QrScan() {
       setGot(new Map());
       setTotal(0);
       sessionN.current = 0;
+      setCheckWords(null);
     } catch {
+      th.attempts += 1;
+      th.until = now + backoffDelay(th.attempts);
       setErr(t("tr.badPin"));
       setMsg("");
     }
@@ -254,6 +309,13 @@ function QrScan() {
       {on && <video ref={videoRef} className="scan-video" playsInline muted />}
       {total > 0 && got.size >= total && (
         <>
+          {checkWords && (
+            <p className="chart-caption" dir="ltr">
+              {t("tr.verifyT")}: {checkWords.join(" · ")}
+              <br />
+              {t("tr.verifyS")}
+            </p>
+          )}
           <label className="time-label">
             {t("tr.askPin")}
             <input
@@ -277,10 +339,13 @@ function QrScan() {
 
 function LanSend() {
   const t = useT();
+  const { activeProfile } = useWird();
   const [pin, setPin] = useState(randomPin);
   const [offer, setOffer] = useState("");
   const [answer, setAnswer] = useState("");
   const [status, setStatus] = useState("");
+  const [scoped, setScoped] = useState(false);
+  const [checkWords, setCheckWords] = useState<string[] | null>(null);
   const sessionRef = useRef<{
     pc: RTCPeerConnection;
     send: (t: string) => void;
@@ -332,10 +397,18 @@ function LanSend() {
       return;
     }
     try {
-      const payload = await encryptBackup(pin.trim(), wrapForEncryption(collectBackup()));
+      const pid = scoped ? (activeProfile?.id ?? null) : null;
+      const payload = await encryptBackup(
+        pin.trim(),
+        wrapForEncryption(collectBackupFor(pid), pid ? { kind: "profile" } : { kind: "device" }),
+      );
       const b64 = await gzipToB64(payload);
       const body = JSON.stringify({ n: 1, parts: [b64] });
       s.send(`WIRCLAN:${body}`);
+      setCheckWords(await payloadChecksumWords(b64));
+      try {
+        logExport("lan", Object.keys(collectBackupFor(pid)).length);
+      } catch {}
       setStatus(t("tr.sent"));
     } catch {
       setStatus(t("tr.failed"));
@@ -362,6 +435,14 @@ function LanSend() {
           {t("tr.makeOffer")}
         </button>
       </div>
+      <ProfileScopeToggle scoped={scoped} onChange={setScoped} />
+      {checkWords && (
+        <p className="chart-caption" dir="ltr">
+          {t("tr.verifyT")}: {checkWords.join(" · ")}
+          <br />
+          {t("tr.verifyS")}
+        </p>
+      )}
       {offer && (
         <>
           <p className="chart-caption">{t("tr.offerStep")}</p>
@@ -401,6 +482,8 @@ function LanReceive() {
   const [msg, setMsg] = useState("");
   const partsRef = useRef<string[]>([]);
   const sessionRef = useRef<{ close: () => void } | null>(null);
+  // Decrypt throttling, same policy as the QR scanner.
+  const throttleRef = useRef({ attempts: 0, until: 0 });
 
   useEffect(() => {
     return () => {
@@ -441,6 +524,12 @@ function LanReceive() {
 
   const apply = async () => {
     const startedProfile = getActiveProfileId();
+    const now = Date.now();
+    const th = throttleRef.current;
+    if (now < th.until) {
+      setStatus(t("tr.slowDown", { n: Math.ceil((th.until - now) / 1000) }));
+      return;
+    }
     try {
       const b64 = partsRef.current.join("");
       if (!b64) {
@@ -460,6 +549,7 @@ function LanReceive() {
       previewRestore(data);
       const report = restoreBackupSafe(data);
       markBackup("import");
+      throttleRef.current = { attempts: 0, until: 0 };
       partsRef.current = [];
       setStatus("");
       setMsg(
@@ -468,6 +558,8 @@ function LanReceive() {
           : `${t("tr.restored")} (${report.applied})`,
       );
     } catch {
+      th.attempts += 1;
+      th.until = now + backoffDelay(th.attempts);
       setStatus(t("tr.badPin"));
     }
   };

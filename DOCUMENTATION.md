@@ -32,6 +32,10 @@ tools to move between devices.
 16. [Companion decisions](docs/COMPANION.md)
 17. [Privacy model](docs/PRIVACY.md)
 18. [Testing guide](docs/TESTING.md)
+19. [Architecture](docs/ARCHITECTURE.md)
+20. [Components](docs/COMPONENTS.md)
+21. [Contributing](CONTRIBUTING.md)
+22. [Changelog](CHANGELOG.md)
 
 ## 1. Quick start
 
@@ -140,7 +144,9 @@ Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-pinlock`, `wird-pinlock-*`, `wird-unlocked` (sessionStorage),
 `wird-quarantine-v1`, `wird-health-v1`, `wird-last-backup-v1`,
 `wird-guide-log-v1`, `wird-privacy-names-v1`, `wird-analytics-optout-v1`,
-`wird-vault-v1` (diagnostics, see below).
+`wird-vault-v1`, `wird-travel-v1` (hidden-from-extra-eyes profile IDs),
+`wird-export-log-v1` (what-left-the-device consent log, capped)
+(diagnostics, see below).
 
 Helpers: `loadFromStorage` / `saveToStorage` (`lib/wird.ts`, profile-aware),
 `useStoredState` (`lib/use-stored-state.ts`, hydration-safe), `nsKey`

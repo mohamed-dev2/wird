@@ -17,7 +17,8 @@ test("transfer card and recovery phrase", async ({ page }) => {
   await page.getByRole("button", { name: "عبارة الاسترداد" }).click();
   await page.getByRole("button", { name: "إنشاء عبارة جديدة" }).click();
   await expect(page.locator(".words-grid span")).toHaveCount(12, { timeout: 15000 });
-  await page.getByRole("checkbox").check();
+  // Account page also holds the backup-scope toggle, so name the checkbox.
+  await page.getByRole("checkbox", { name: /أؤكد أنني كتبتها/ }).check();
   await page.getByRole("button", { name: "حُفظت" }).click();
 });
 

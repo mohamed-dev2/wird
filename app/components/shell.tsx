@@ -6,7 +6,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NAV_HREFS, NAV_ITEMS } from "../lib/wird";
 import { useT } from "../lib/i18n";
 import { LoginGate } from "./login-gate";
@@ -113,6 +113,9 @@ export function Shell({ children }: { children: ReactNode }) {
     window.addEventListener("beforeinstallprompt", onPrompt);
     return () => window.removeEventListener("beforeinstallprompt", onPrompt);
   }, []);
+  // Panic lock: triple-tap the brand mark within 1.5s to lock instantly.
+  // Discoverable only to those who know — no visible control to explain.
+  const tapsRef = useRef<number[]>([]);
   useEffect(() => {
     // Privacy screen: blur app content while the tab is hidden (shoulder
     // surfing via task switchers / screen share). Blur, NOT lock — locking
@@ -125,6 +128,29 @@ export function Shell({ children }: { children: ReactNode }) {
     document.addEventListener("visibilitychange", onVis);
     return () => document.removeEventListener("visibilitychange", onVis);
   }, []);
+  useEffect(() => {
+    // Idle blur: 60s without pointer/keyboard softens content (distinct from
+    // auto-lock, which fully locks). Any interaction lifts it instantly.
+    let id: number | undefined;
+    const unblur = () => {
+      try {
+        document.body.classList.remove("idle-blur");
+      } catch {}
+      window.clearTimeout(id);
+      id = window.setTimeout(() => {
+        try {
+          document.body.classList.add("idle-blur");
+        } catch {}
+      }, 60000);
+    };
+    const evts = ["pointerdown", "keydown", "touchstart", "wheel"] as const;
+    evts.forEach((e) => window.addEventListener(e, unblur, { passive: true }));
+    unblur();
+    return () => {
+      window.clearTimeout(id);
+      evts.forEach((e) => window.removeEventListener(e, unblur));
+    };
+  }, []);
   const isActive = (id: string) => {
     const href = NAV_HREFS[id] ?? "/";
     return href === "/" ? pathname === "/" : (pathname?.startsWith(href) ?? false);
@@ -132,11 +158,36 @@ export function Shell({ children }: { children: ReactNode }) {
   if (!authReady || !activeProfile || (activeProfile.pinHash && !unlocked)) {
     return <LoginGate />;
   }
+  const panicTap = () => {
+    try {
+      const now = Date.now();
+      const taps = [...tapsRef.current.filter((t) => now - t < 1500), now];
+      tapsRef.current = taps;
+      if (taps.length >= 3) {
+        tapsRef.current = [];
+        lock();
+      }
+    } catch {}
+  };
   return (
     <main>
+      <a href="#main-content" className="skip-link">
+        {t("nav.skip")}
+      </a>
       <aside className="sidebar">
-        <div className="brand">
-          <span className="brand-mark">و</span>
+        <div
+          className="brand"
+          onClick={panicTap}
+          role="button"
+          tabIndex={0}
+          aria-label={t("app.tag")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") panicTap();
+          }}
+        >
+          <span className="brand-mark" aria-hidden>
+            و
+          </span>
           <span>وِرد</span>
         </div>
         <nav>
@@ -146,7 +197,7 @@ export function Shell({ children }: { children: ReactNode }) {
               href={NAV_HREFS[id] ?? "/"}
               className={isActive(id) ? "nav-item active" : "nav-item"}
             >
-              <span>{icon}</span>
+              <span aria-hidden>{icon}</span>
               {t(`nav.${id}`)}
             </Link>
           ))}
@@ -169,7 +220,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </Link>
         </div>
       </aside>
-      <section className="content">
+      <section className="content" id="main-content" tabIndex={-1}>
         <header>
           <div>
             <p className="eyebrow">{hijriLabel || t("header.newDay")}</p>

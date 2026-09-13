@@ -87,7 +87,7 @@ main {
   font-weight: 600;
   padding: 13px 15px;
   border-radius: 12px;
-  text-align: right;
+  text-align: start;
   cursor: pointer;
   display: flex;
   gap: 13px;
@@ -155,7 +155,7 @@ main {
   padding: 16px 4px 0;
   background: var(--surface);
   width: 100%;
-  text-align: right;
+  text-align: start;
   display: flex;
   align-items: center;
   gap: 9px;
@@ -183,14 +183,14 @@ main {
 
 .profile i {
   font-style: normal;
-  margin-right: auto;
+  margin-inline-start: auto;
   color: var(--faint);
 }
 
 /* Content Area */
 .content {
   width: calc(100% - 248px);
-  margin-right: 248px;
+  margin-right: 248px; /* rtl:keep — sidebar offset, mirrored by [dir="ltr"] below */
   max-width: 1450px;
   padding: 48px clamp(25px, 5vw, 86px);
 }
@@ -279,7 +279,7 @@ h1 span {
   height: 340px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 50%;
-  left: -50px;
+  left: -50px; /* rtl:keep — symmetric ambient bloom */
   top: -88px;
   box-shadow:
     0 0 0 35px rgba(255, 255, 255, 0.04),
@@ -376,7 +376,7 @@ h1 span {
 
 .hero-ring {
   position: absolute;
-  left: 120px;
+  left: 120px; /* rtl:keep — mirrored by the [dir="ltr"] override below */
   top: 43px;
   width: 130px;
   height: 130px;
@@ -417,7 +417,7 @@ h1 span {
 
 .hero-deco {
   position: absolute;
-  left: 66px;
+  left: 66px; /* rtl:keep — decorative sparkle, direction-agnostic */
   top: 20px;
   font-size: 22px;
   color: #f5ce73;
@@ -523,7 +523,7 @@ h1 span {
 }
 
 .card-count {
-  margin-right: auto;
+  margin-inline-start: auto;
   border-radius: 12px;
   color: var(--muted);
   background: var(--line-soft);
@@ -544,7 +544,7 @@ h1 span {
   border: 0;
   border-radius: 9px;
   padding: 8px 1px;
-  text-align: right;
+  text-align: start;
   font: inherit;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -629,7 +629,7 @@ h1 span {
   border: 1px solid var(--line);
   border-radius: 13px;
   padding: 13px;
-  text-align: right;
+  text-align: start;
   display: flex;
   align-items: center;
   gap: 9px;
@@ -775,7 +775,7 @@ footer {
     grid-template-columns: repeat(2, 1fr);
   }
   .hero-ring {
-    left: 45px;
+    left: 45px; /* rtl:keep — mobile hero composition, no directional meaning */
   }
 }
 
@@ -921,7 +921,7 @@ footer {
 .update-banner {
   position: fixed;
   bottom: 84px;
-  left: 50%;
+  left: 50%; /* rtl:keep — centering trick with translateX(-50%), direction-agnostic */
   transform: translateX(-50%);
   z-index: 70;
   font: inherit;
@@ -1202,8 +1202,7 @@ body::after {
   content: "";
   position: absolute;
   top: 0;
-  right: 16px;
-  left: 16px;
+  inset-inline: 16px;
   height: 3px;
   border-radius: 0 0 4px 4px;
   background: linear-gradient(90deg, var(--brand), var(--gold));
@@ -1229,7 +1228,7 @@ body::after {
 .nav-item.active::before {
   content: "";
   position: absolute;
-  right: -17px;
+  right: -17px; /* rtl:keep — mirrored by the [dir="ltr"] rule below */
   top: 20%;
   bottom: 20%;
   width: 4px;

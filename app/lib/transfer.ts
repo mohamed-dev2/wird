@@ -1,6 +1,7 @@
 // QR transfer primitives: gzip→base64, chunking, WIRD1:i/n: encode/decode,
 // order-independent assembly. Pure + unit-tested; session locking and PIN
 // verification live in the UI layer (transfer.tsx).
+import { loadWordlist } from "./recovery";
 export async function gzipToB64(text: string): Promise<string> {
   try {
     const stream = new Blob([text]).stream().pipeThrough(new CompressionStream("gzip"));
@@ -89,4 +90,34 @@ export function assembleChunks(got: Map<number, string>, total: number): string 
     out += p;
   }
   return out;
+}
+
+/** Exponential backoff for repeated transfer attempts (ms). Pure + tested. */
+export function backoffDelay(attempt: number, base = 2000, cap = 30000): number {
+  const n = Math.max(0, Math.floor(attempt));
+  return Math.min(base * 2 ** n, cap);
+}
+
+/**
+ * Three check-words over a payload (SHA-256 → BIP39 indices). Shown on BOTH
+ * ends so humans can confirm they match. Honest scope: catches truncated /
+ * miscopied payloads, NOT a network attacker (who can forward intact bits).
+ * Null when hashing or the wordlist is unavailable — transfer still works.
+ * Pass a pre-loaded wordlist to skip the /data fetch (useful in tests).
+ */
+export async function payloadChecksumWords(
+  b64: string,
+  wordlist?: string[],
+): Promise<[string, string, string] | null> {
+  try {
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes as BufferSource));
+    const words = wordlist ?? (await loadWordlist());
+    const pick = (i: number) => words[((digest[i] ?? 0) << 8) | (digest[i + 1] ?? 0)] ?? "…";
+    return [pick(0), pick(2), pick(4)];
+  } catch {
+    return null;
+  }
 }

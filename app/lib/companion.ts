@@ -191,6 +191,12 @@ function topDeed(history: History, deedIds: string[], endDay: string): string | 
   return bestN >= 3 ? best : null;
 }
 
+/**
+ * Assess the user into internal states + personal-baseline metrics.
+ * Absence uses app-absence (last open, session-stable); trends use the
+ * activity gap (last recorded day). Pure: same input, same assessment.
+ * @param inp Fully assembled CompanionInput (components own assembly).
+ */
 export function assessUser(inp: CompanionInput): Assessment {
   const act = activeSet(inp.history);
   const activeDays = act.size;
@@ -370,6 +376,11 @@ export function loadGuideLog(load: <T>(key: string, fallback: T) => T): GuideLog
   }
 }
 
+/**
+ * Append {kind, day} to the guide log (deduped, capped). Persists via the
+ * caller's save fn so this module never touches storage directly.
+ * @returns The next log (caller stores it wherever it keeps the snapshot).
+ */
 export function logGuidance(
   save: (key: string, value: unknown) => void,
   log: GuideLog,
@@ -422,6 +433,13 @@ function pct(x: number): number {
  * Rank applicable states into ONE guidance. Returns null when the primary
  * was recently shown (fatigue) and nothing else qualifies — the UI then
  * shows no card at all rather than repeating itself.
+ */
+/**
+ * Rank applicable states into ONE guidance (or null when everything is
+ * fatigued — the UI then shows nothing rather than repeating itself).
+ * Low confidence narrows to gentle generic states only.
+ * @param log Mount-frozen guide log (never live state — avoids cascades).
+ * @param challenge Newest completed challenge, if the milestone fired.
  */
 export function selectGuidance(
   a: Assessment,
@@ -657,7 +675,11 @@ export function selectGuidance(
   return null;
 }
 
-/** Deterministic daily rotation index (varies by day, stable within a day). */
+/**
+ * Deterministic daily rotation: stable within a day, varies across days.
+ * @param salt Namespace per slot (verse vs hadith pools rotate independently).
+ * @param len Option count (0 → 0, never NaN).
+ */
 export function rotateIndex(today: string, salt: string, len: number): number {
   if (len <= 0) return 0;
   let h = 0;
@@ -666,7 +688,11 @@ export function rotateIndex(today: string, salt: string, len: number): number {
   return h % len;
 }
 
-/** Small sustainable core: most frequent deeds (user's own data only). */
+/**
+ * Small sustainable core: the user's own most-frequent deeds over 30 days
+ * (top 3). The UI calls it a personal routine core — never a religious
+ * minimum.
+ */
 export function coreDeeds(history: History, deedIds: string[], endDay: string): string[] {
   const counts = new Map<string, number>();
   for (const d of lastNDays(history, 30, endDay)) {

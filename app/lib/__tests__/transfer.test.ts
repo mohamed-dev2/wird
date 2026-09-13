@@ -1,12 +1,48 @@
 import { describe, expect, it } from "vitest";
 import {
   assembleChunks,
+  backoffDelay,
   chunkPayload,
   decodeChunk,
   encodeChunk,
   isSaneChunk,
+  payloadChecksumWords,
   QR_MAX_CHUNKS,
 } from "../transfer";
+
+const FAKE_WORDS = Array.from({ length: 2048 }, (_, i) => `w${i}`);
+
+describe("check words", () => {
+  it("derives three deterministic words from a payload", async () => {
+    const a = await payloadChecksumWords("QUJD", FAKE_WORDS);
+    const b = await payloadChecksumWords("QUJD", FAKE_WORDS);
+    const c = await payloadChecksumWords("QUJE", FAKE_WORDS);
+    expect(a).toEqual(b);
+    expect(a).toHaveLength(3);
+    // One-byte difference must change at least one word.
+    expect(a).not.toEqual(c);
+  });
+
+  it("fails gracefully on undecodable input", async () => {
+    // Empty payload still yields three words (a hash of nothing, with
+    // placeholder words for out-of-range indices) — callers only compute
+    // these on real payloads anyway.
+    expect(await payloadChecksumWords("", FAKE_WORDS)).toHaveLength(3);
+    // `!!!` is invalid base64 — atob throws, which the function catches.
+    expect(await payloadChecksumWords("!!!", FAKE_WORDS)).toBeNull();
+  });
+});
+
+describe("backoff delay", () => {
+  it("doubles from the base until the cap", () => {
+    expect(backoffDelay(0)).toBe(2000);
+    expect(backoffDelay(1)).toBe(4000);
+    expect(backoffDelay(2)).toBe(8000);
+    // Clamps at the cap regardless of further attempts.
+    expect(backoffDelay(10)).toBe(30000);
+    expect(backoffDelay(-3)).toBe(2000);
+  });
+});
 
 describe("qr chunking", () => {
   it("round-trips a payload through encode/decode/assemble", () => {

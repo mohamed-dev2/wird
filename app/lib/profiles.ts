@@ -28,6 +28,8 @@ const GLOBAL_KEYS = new Set([
   "wird-health-v1",
   "wird-privacy-names-v1",
   "wird-analytics-optout-v1",
+  "wird-travel-v1",
+  "wird-export-log-v1",
 ]);
 
 let activeId: string | null = null;
@@ -158,4 +160,38 @@ export function markUnlocked(id: string): void {
   try {
     sessionStorage.setItem("wird-unlocked", id);
   } catch {}
+}
+
+/** Travel mode: profile ids hidden from the login picker. Stored as a
+ *  plain id list (device-global). Unhiding is session-only and needs the
+ *  exact name — knowledge factor, nothing to brute-force usefully. */
+export function loadTravelHidden(): string[] {
+  try {
+    const { value } = readRecord<string[]>(localStorage, "wird-travel-v1", "wird-travel-v1");
+    const ids = Array.isArray(value)
+      ? value
+      : Array.isArray((value as { hidden?: unknown })?.hidden)
+        ? ((value as { hidden: unknown }).hidden as unknown[])
+        : [];
+    return ids.filter((x): x is string => typeof x === "string");
+  } catch {
+    return [];
+  }
+}
+
+export function saveTravelHidden(ids: string[]): void {
+  try {
+    writeRecord(localStorage, "wird-travel-v1", "wird-travel-v1", ids);
+  } catch {}
+}
+
+/** Exact (case-insensitive) name match among hidden profiles, else null. */
+export function findHiddenByName(
+  profiles: Profile[],
+  hidden: string[],
+  query: string,
+): Profile | null {
+  const q = query.trim().toLowerCase();
+  if (!q) return null;
+  return profiles.find((p) => hidden.includes(p.id) && p.name.trim().toLowerCase() === q) ?? null;
 }

@@ -355,6 +355,8 @@ export const SCHEMAS: Record<string, Schema> = {
     (v) => typeof v === "object" && v !== null,
     () => ({}),
   ),
+  "wird-travel-v1": S(1, isArr, () => []),
+  "wird-export-log-v1": S(1, isArr, () => []),
 };
 
 // ---------- quarantine + health (global, unprefixed keys) ----------
@@ -381,6 +383,11 @@ function saveQuarantine(store: StorageLike, list: QuarantineEntry[]): void {
   } catch {}
 }
 
+/**
+ * Preserve a damaged record's raw bytes (capped) for forensics/manual
+ * rescue, then log the event. Quarantine is evidence, not a trash can:
+ * nothing here deletes user data.
+ */
 export function quarantineRecord(
   store: StorageLike,
   key: string,
@@ -432,6 +439,14 @@ export type ReadOutcome<T> = { value: T; status: ReadStatus };
 
 export type WriteResult = { ok: boolean; quota?: boolean; salvaged?: boolean };
 
+/**
+ * Read one dataset through the full pipeline: parse → unwrap → migrate →
+ * validate → normalize-salvage, with quarantine + health on failure.
+ * @param store Backing store (localStorage or a test double).
+ * @param fullKey Resolved (namespaced) storage key.
+ * @param datasetKey Unprefixed dataset key for SCHEMAS lookup.
+ * @returns Value (fallback on any failure) + machine-readable status.
+ */
 export function readRecord<T>(
   store: StorageLike,
   fullKey: string,
@@ -507,6 +522,12 @@ export function readRecord<T>(
   return { value: schema.fallback() as T, status: "fallback-quarantined" };
 }
 
+/**
+ * Persist one dataset: validate (or heal-then-validate for collections),
+ * then write enveloped with {v, updatedAt}. Invalid values are REFUSED
+ * ({ok:false}) — never written half-validated. Quota surfaces as
+ * {ok:false, quota:true} so callers can notify instead of pretending.
+ */
 export function writeRecord(
   store: StorageLike,
   fullKey: string,

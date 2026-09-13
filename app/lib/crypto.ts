@@ -35,6 +35,12 @@ async function deriveKey(passphrase: string, salt: Uint8Array): Promise<CryptoKe
   );
 }
 
+/**
+ * AES-GCM backup encryption: fresh 128-bit salt + 96-bit IV per backup,
+ * PBKDF2-SHA256 120k. The password lives in memory only and is never
+ * stored, logged, or embedded.
+ * @param data Manifest envelope (wrapForEncryption) or legacy raw map.
+ */
 export async function encryptBackup(passphrase: string, data: unknown): Promise<string> {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -53,6 +59,11 @@ export async function encryptBackup(passphrase: string, data: unknown): Promise<
   });
 }
 
+/**
+ * Decrypt + parse. Every failure mode (bad JSON, bad shape, wrong password,
+ * tampered ciphertext) surfaces as a generic "bad backup file" — callers
+ * must never leak which step failed (padding-oracle hygiene).
+ */
 export async function decryptBackup(passphrase: string, payload: string): Promise<unknown> {
   let wrap: { v: number; salt: string; iv: string; data: string };
   try {
@@ -157,7 +168,11 @@ function classifyValue(
   return "invalid";
 }
 
-/** Dry-run: report what an import would do, without touching storage. */
+/**
+ * Dry-run: report what an import would do (valid/salvageable/invalid/
+ * unknown counts) without touching storage. Callers confirm with the user
+ * before committing.
+ */
 export function previewRestore(data: unknown): PreviewReport {
   if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("bad backup data");
   const report: PreviewReport = { total: 0, valid: 0, salvagable: 0, invalid: 0, unknownKeys: 0 };
@@ -175,13 +190,11 @@ export function previewRestore(data: unknown): PreviewReport {
 }
 
 /**
- * Validated, atomic import. Two phases:
- *  1. classify EVERYTHING without writing a byte — a backup with zero
- *     applicable entries is rejected before current state is touched;
- *  2. snapshot overwritten keys, then apply valid / salvage partial /
- *     quarantine corrupt. Unexpected mid-restore failures roll back.
- * Per-entry corruption therefore never blocks healthy entries (with an
- * explicit report), and never leaves a half-applied import behind.
+ * Validated, atomic import. Phase 1 classifies EVERYTHING without writing
+ * a byte (zero applicable entries → rejected untouched); phase 2 snapshots
+ * overwritten keys, applies valid, salvages partial, quarantines corrupt,
+ * and rolls the snapshot back on mid-restore failure.
+ * @param data Backup map (raw, decrypted, or manifest-unwrapped).
  */
 export function restoreBackupSafe(data: unknown): RestoreReport {
   if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("bad backup data");
@@ -304,6 +317,7 @@ export function restoreBackupSafe(data: unknown): RestoreReport {
 }
 
 export type BackupDatasetInfo = { version: number; records: number };
+export type BackupScope = { kind: "device" | "profile" };
 export type BackupFileV2 = {
   v: 2;
   app: "wird";
@@ -313,6 +327,7 @@ export type BackupFileV2 = {
   encrypted: false;
   count: number;
   integrity: string;
+  scope?: BackupScope;
   datasets: Record<string, BackupDatasetInfo>;
   data: Record<string, string>;
 };
@@ -341,9 +356,15 @@ function describeDatasets(data: Record<string, string>): Record<string, BackupDa
   return out;
 }
 
-/** Manifest-wrapped export (v2). Encrypted exports wrap separately (see below). */
-export function buildBackupFile(): BackupFileV2 {
-  const data = collectBackup();
+/**
+ * Manifest-wrapped export (v2): format version, app version, timestamp,
+ * dataset inventory with versions + record counts, and a tamper-evident
+ * checksum. Encrypted exports wrap separately (see below).
+ */
+export function buildBackupFile(
+  data: Record<string, string> = collectBackup(),
+  scope: BackupScope = { kind: "device" },
+): BackupFileV2 {
   return {
     v: 2,
     app: "wird",
@@ -353,6 +374,7 @@ export function buildBackupFile(): BackupFileV2 {
     encrypted: false,
     count: Object.keys(data).length,
     integrity: checksumStr(JSON.stringify(data)),
+    scope,
     datasets: describeDatasets(data),
     data,
   };
@@ -405,6 +427,105 @@ export function profilesInBackup(data: unknown): string[] {
 }
 
 /**
+ * Decide whether an import should be retargeted at the active profile.
+ * Returns {from, to} ONLY when the backup holds exactly one foreign profile
+ * and nothing for the active one — any ambiguity keeps keys untouched.
+ * Whole-device restores on the same device never trigger (ids match).
+ */
+export function planProfileRemap(
+  data: unknown,
+  activeId: string | null,
+): { from: string; to: string } | null {
+  try {
+    if (!activeId) return null;
+    if (!data || typeof data !== "object" || Array.isArray(data)) return null;
+    const keys = Object.keys(data as Record<string, unknown>);
+    const foreign = new Set<string>();
+    let hasActive = false;
+    for (const k of keys) {
+      const m = /^p_([^_]+)_/.exec(k);
+      if (!m?.[1]) continue;
+      if (m[1] === activeId) hasActive = true;
+      else foreign.add(m[1]);
+    }
+    if (hasActive || foreign.size !== 1) return null;
+    const from = [...foreign][0];
+    if (!from || from === activeId) return null;
+    return { from, to: activeId };
+  } catch {
+    return null;
+  }
+}
+
+/** Rename one profile prefix across a backup map (pure; original untouched). */
+export function remapBackupProfile(
+  data: Record<string, unknown>,
+  from: string,
+  to: string,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  const prefix = `p_${from}_`;
+  const next = `p_${to}_`;
+  for (const [k, v] of Object.entries(data)) {
+    out[k.startsWith(prefix) ? next + k.slice(prefix.length) : k] = v;
+  }
+  return out;
+}
+
+/** Collect a whole-device backup, or just one profile + globals. */
+export function collectBackupFor(profileId: string | null): Record<string, string> {
+  const all = collectBackup();
+  if (!profileId) return all;
+  const prefix = `p_${profileId}_`;
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(all)) {
+    if (!k.startsWith("p_") || k.startsWith(prefix)) out[k] = v;
+  }
+  return out;
+}
+
+/** Export filenames stay recognizable but unique per file (no overwrites). */
+export function backupFilename(prefix: string, ext = "json"): string {
+  const stamp = new Date().toISOString().slice(0, 10);
+  let rand = "";
+  try {
+    rand = [...crypto.getRandomValues(new Uint8Array(2))]
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  } catch {
+    rand = Math.floor(Math.random() * 65536).toString(16);
+  }
+  return `${prefix}${stamp}-${rand}.${ext}`;
+}
+
+export type ExportKind = "file-plain" | "file-enc" | "qr" | "lan" | "emergency" | "diagnostics";
+export type ExportLogEntry = { at: number; kind: ExportKind; count: number };
+const EXPORT_LOG_KEY = "wird-export-log-v1";
+const EXPORT_LOG_MAX = 50;
+
+/** Local consent log: WHAT left the device and when — never the content.
+ *  Shown in Account → backup so sharing stays visible to its owner. */
+export function logExport(kind: ExportKind, count: number): void {
+  try {
+    const raw = localStorage.getItem(EXPORT_LOG_KEY);
+    const list = (raw ? JSON.parse(raw) : []) as ExportLogEntry[];
+    const next = Array.isArray(list) ? list : [];
+    next.push({ at: Date.now(), kind, count });
+    localStorage.setItem(EXPORT_LOG_KEY, JSON.stringify(next.slice(-EXPORT_LOG_MAX)));
+  } catch {}
+}
+
+export function readExportLog(): ExportLogEntry[] {
+  try {
+    const raw = localStorage.getItem(EXPORT_LOG_KEY);
+    const list = (raw ? JSON.parse(raw) : []) as unknown;
+    return Array.isArray(list) ? (list as ExportLogEntry[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Encrypted-transfer envelope: the SAME integrity manifest travels inside the
  * ciphertext (never beside it), so QR/LAN/file-encrypted imports can verify
  * format, version, and dataset inventory before touching storage.
@@ -417,11 +538,15 @@ export type EncryptedBackupPayload = {
   exportedAt: string;
   encrypted: true;
   count: number;
+  scope?: BackupScope;
   datasets: Record<string, BackupDatasetInfo>;
   data: Record<string, string>;
 };
 
-export function wrapForEncryption(data: Record<string, string>): EncryptedBackupPayload {
+export function wrapForEncryption(
+  data: Record<string, string>,
+  scope: BackupScope = { kind: "device" },
+): EncryptedBackupPayload {
   return {
     v: 2,
     app: "wird",
@@ -430,6 +555,7 @@ export function wrapForEncryption(data: Record<string, string>): EncryptedBackup
     exportedAt: new Date().toISOString(),
     encrypted: true,
     count: Object.keys(data).length,
+    scope,
     datasets: describeDatasets(data),
     data,
   };
@@ -437,7 +563,8 @@ export function wrapForEncryption(data: Record<string, string>): EncryptedBackup
 
 /**
  * Accept the encrypted envelope OR a legacy raw key map (pre-manifest
- * backups). Throws a generic error — callers must not leak crypto details.
+ * backups keep restoring). Throws a generic error — callers must not leak
+ * crypto details into UI copy.
  */
 export function unwrapDecrypted(payload: unknown): Record<string, string> {
   if (payload && typeof payload === "object" && !Array.isArray(payload)) {
