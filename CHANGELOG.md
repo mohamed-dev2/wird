@@ -5,6 +5,13 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Private self-management plans (STEP 4, optional + discreet): per-profile
+  plans in abstinence / reduction / time-limit modes with neutral setback
+  flow (resets the current run, never erases history), journey timeline,
+  trigger + replacement tracking with observational stats, offline urge
+  timer, milestones, usage limits, generic reminders, support section with
+  optional verified verse. Local-only; excludable from backups with an
+  explicit pre-export warning; `sensitive`-classified; full AR/EN copy.
 - Per-profile backups: export just the active profile (file/QR/LAN), with
   manifest `scope` stamp; single-foreign-profile imports retarget into the
   current profile after an explicit confirm.

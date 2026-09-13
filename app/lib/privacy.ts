@@ -35,6 +35,7 @@ const SUFFIX: Array<[string, DataSensitivity]> = [
   ["-guide-log-v1", "sensitive"],
   ["-history-v1", "sensitive"],
   ["wird-recovery-v1", "sensitive"],
+  ["wird-recovery-plans-v1", "sensitive"],
   ["wird-reviews-v1", "private"],
   ["wird-adhkar-log-v1", "private"],
   ["wird-daymode-v1", "public"],

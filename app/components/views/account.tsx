@@ -51,6 +51,7 @@ import {
   type QuarantineEntry,
 } from "../../lib/schema";
 import { collectDiagnostics, type DiagnosticsSnapshot } from "../../lib/diagnostics";
+import { loadExcludeFlag, privatePlansPresent } from "../../lib/private-plans";
 
 function AppearanceCard() {
   const t = useT();
@@ -423,6 +424,11 @@ export function AccountView({ onReset }: { onReset: () => void }) {
   };
   const onExportPlain = () => {
     try {
+      // Private-plans export warning (STEP 4): backups may carry sensitive
+      // personal records — explicit confirmation, skippable only when the
+      // user excluded plans or has none.
+      if (!loadExcludeFlag() && privatePlansPresent() && !window.confirm(t("pp.exportWarn")))
+        return;
       const pid = scopedExport ? (activeProfile?.id ?? null) : null;
       const file = buildBackupFile(
         collectBackupFor(pid),
@@ -443,6 +449,8 @@ export function AccountView({ onReset }: { onReset: () => void }) {
     const pass = askPass(t("bk.passAsk"));
     if (!pass) return;
     try {
+      if (!loadExcludeFlag() && privatePlansPresent() && !window.confirm(t("pp.exportWarn")))
+        return;
       const pid = scopedExport ? (activeProfile?.id ?? null) : null;
       const payload = await encryptBackup(
         pass,
@@ -710,6 +718,7 @@ export function AccountView({ onReset }: { onReset: () => void }) {
                       {analyticsOptOut ? "✓ " : ""}
                       {t("auth.pausePersonal")}
                     </button>
+                    <Link href="/private-plans">{t("pp.title")}</Link>
                     {vaultState === "off" ? (
                       <button
                         type="button"

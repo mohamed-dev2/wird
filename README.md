@@ -17,22 +17,22 @@ cloud AI.
 ## التشغيل | Run
 
 ```bash
-npm install
+npm ci             # exact lockfile (never npm install on a fresh clone)
 npm run dev        # dev server (Turbopack)
 npm run build      # production build
 npm run start      # serve production
 npm run lint       # ESLint flat config, zero warnings
 npm run typecheck  # tsc --noEmit (strict + noUncheckedIndexedAccess)
-npm run test       # Vitest unit tests (100+)
+npm run test       # Vitest unit tests (151)
 npm run test:e2e   # Playwright e2e (production server)
 npm run format     # Prettier write
-npm run docs:check # verify docs match code (keys + routes + parity)
+npm run docs:check # verify docs match code (keys + routes + parity + links + inventory + quality + version)
 npm run comments:check # every source file has a purpose header
 npm run css:check # logical properties (RTL) + !important budget
 npm run clean      # wipe .next + tsbuildinfo (run after major upgrades)
 ```
 
-Node 22 (`.nvmrc`). CI (`.github/workflows/ci.yml`) runs typecheck → lint → unit → e2e → build → audit → docs:check.
+Node 22 (`.nvmrc`). CI (`.github/workflows/ci.yml`) runs typecheck → lint → format:check → unit → e2e → build → docs:check → comments:check → css:check → boundaries:check → metrics → audit.
 
 ## المزايا | Features
 
@@ -41,11 +41,11 @@ Node 22 (`.nvmrc`). CI (`.github/workflows/ci.yml`) runs typecheck → lint → 
 - **الحصاد** (`/review`): مراجعة ليلية tri-state مع درجة ومزاج وامتنان — تُحفظ كسجل يومي، مع سطر سياق ليلي.
 - **التقدّم** (`/insights`): طبقات تحليلية محلية قابلة للتفسير (اتجاهات، عبادة-عبادة، قرآن وحفظ، أذكار، أهداف وتحديات وعهود، عودات واستمرارية، خريطة نشاط، مراجعة شهرية/سنوية، إنجازات) + مدى مخصص للمقارنة — لا بيانات مفتعلة أبدًا.
 - **المكتبة** (`/library`): قارئ قرآن كامل دون إنترنت (بحث، علامات، حفظ بتاريخ مراجعة)، مختارات الكتب التسعة + الأربعون النووية، مسارات علمية ٤ مستويات × ٨ علوم، لوحة الأحلام.
-- **العودة**: شاشة رجوع متدرجة حسب عمق الغياب (3/7/14/30/90 يومًا) + سلّم تنبيهات محلية + تسجيل صوتي + مواقيت يدوية بعدّادات حية + وضع المسجد.
+- **العودة**: شاشة رجوع متدرجة حسب عمق الغياب (3/7/14/30/90 يومًا) + سلّم تنبيهات محلية + مواقيت يدوية بعدّادات حية + وضع المسجد.
 - **الخصوصية**: تصدير عادي/مشفر (AES-GCM ببيان سلامة)، استيراد ذرّي متحقق، مسح شامل بتأكيد مزدوج — صفحة حسابي.
 - **الاسترداد** (`/recovery`): بيئة طوارئ مستقلة لفحص التخزين والتصدير الطارئ والاسترجاع.
 - **أمان إضافي (اختياري)**: رمز إكراه يفتح حسابًا فارغًا، خزنة مشفرة للتأملات (غير مستحسنة — موثقة المخاطر)، إخفاء الأسماء على القفل، تعتيم التبويب المخفي، مسح الحافظة تلقائيًا.
-- **التجربة**: عربي/إنجليزي (RTL/LTR، 770+ مفتاحًا بفحص تكافؤ)، فاتح/ليلي/أسود، PWA (تثبيت + عمل دون إنترنت)، حركات هادئة تحترم تقليل الحركة، طباعة للتقارير.
+- **التجربة**: عربي/إنجليزي (RTL/LTR، 926 مفتاحًا بفحص تكافؤ)، فاتح/ليلي/أسود، PWA (تثبيت + عمل دون إنترنت)، حركات هادئة تحترم تقليل الحركة، طباعة للتقارير.
 
 ## البنية | Structure
 
@@ -67,7 +67,7 @@ app/
     schema.ts           versioned integrity layer (envelopes, quarantine, migrations)
     crypto.ts           AES-GCM backup + atomic validated import, transfer.ts QR, lan.ts WebRTC
     diagnostics.ts      local-only health snapshots + emergency export
-    strings.ts          770+ key AR/EN dictionary (religious content stays Arabic)
+    strings.ts          926-key AR/EN dictionary (religious content stays Arabic)
     data/               surahs, hadith selections, learning paths, return verses
   public/data/          offline mushaf, Clear-Quran EN, Jalalayn, Nawawi, BIP39 (~4.7MB lazy)
   e2e/                  Playwright suites (prod server — dev HMR is sandbox-flaky)

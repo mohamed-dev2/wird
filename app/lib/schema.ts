@@ -84,6 +84,15 @@ const isDreamLike = (v: unknown) =>
 const isKidLike = (v: unknown) => isObj(v) && typeof v.name === "string";
 const isPledgeLike = (v: unknown) =>
   isObj(v) && typeof v.id === "string" && typeof v.text === "string";
+// Structural twin of isPrivatePlanLike in private-plans.ts (kept here because
+// R2 forbids schema.ts from importing project modules — update both together).
+const isPrivatePlanLike = (v: unknown) =>
+  isObj(v) &&
+  typeof v.id === "string" &&
+  typeof v.name === "string" &&
+  (v.mode === "abstinence" || v.mode === "reduction" || v.mode === "time-limit") &&
+  typeof v.startDay === "string" &&
+  Array.isArray(v.setbacks);
 const isQadaLike = (v: unknown) =>
   isObj(v) && typeof v.id === "string" && typeof v.label === "string";
 const isChallengeLike = (v: unknown) =>
@@ -303,6 +312,19 @@ export const SCHEMAS: Record<string, Schema> = {
     {
       normalize: normArr(isPledgeLike),
     },
+  ),
+  "wird-recovery-plans-v1": S(
+    1,
+    (v) => isArr(v) && v.every(isPrivatePlanLike),
+    () => [],
+    {
+      normalize: normArr(isPrivatePlanLike),
+    },
+  ),
+  "wird-private-plans-excluded-v1": S(
+    1,
+    (v) => typeof v === "boolean",
+    () => false,
   ),
   "wird-history-v1": S(
     1,

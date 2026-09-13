@@ -19,6 +19,7 @@ Every doc in this folder, one line each. The root `README.md` and
 | work on storage / schema                     | `features/storage.md` + `DOMAIN_MODELS.md` + `VERSIONING.md`      |
 | work on analytics / insights                 | `features/analytics.md` + `ANALYTICS.md`                          |
 | work on the companion / return system        | `features/coach.md`, `features/return-system.md` + `COMPANION.md` |
+| work on private self-management plans        | `features/private-recovery.md`                                    |
 | contribute security fixes                    | `../SECURITY.md` + `features/security.md`                         |
 | audit what the app sends over the network    | `NETWORK.md` + `../app/lib/privacy.ts`                            |
 | validate a release                           | `RELEASE.md` + `../docs/TESTING.md`                               |

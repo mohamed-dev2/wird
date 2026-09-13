@@ -1,4 +1,5 @@
 import { SCHEMAS, logHealth, quarantineRecord, writeRecord } from "./schema";
+import { isPrivatePlansKey, privatePlansExcluded } from "./private-plans";
 
 /** Bump alongside package.json — stamped into every backup manifest. */
 export const WIRD_APP_VERSION = "0.1.0";
@@ -87,9 +88,13 @@ function isBackupKey(k: string): boolean {
 
 export function collectBackup(): Record<string, string> {
   const out: Record<string, string> = {};
+  // Explicit user choice (Private plans → backup settings): private-plan
+  // datasets stay out of every backup flavor (file, QR, LAN).
+  const skipPrivate = privatePlansExcluded();
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (k && isBackupKey(k)) {
+      if (skipPrivate && isPrivatePlansKey(k)) continue;
       const v = localStorage.getItem(k);
       if (v != null) out[k] = v;
     }

@@ -23,14 +23,15 @@ Notes:
 - Religious Arabic text is **never** translated into the dictionary; it
   stays in datasets (Quran/hadith) as literal Arabic. Add English/other
   translation data in the appropriate corpus, not the strings file.
-- The dictionary is flat and small (~800 keys); keep it that way.
+- The dictionary is flat and small (~926 keys); keep it that way.
 - Prefix new religious/guidance strings as before (`cm:|tw:|ret:|…`) so
   the `guidance-safety` scan applies to every language.
 
-### 2. Extend the `Lang` type (`app/lib/i18n.ts`)
+### 2. Extend the `Lang` type (`app/components/wird-store.tsx`)
 
-Add the new language code to the union (e.g. `"fr"`), add the dir map
-entry, and update `useT` to select the new dictionary.
+Add the new language code to the union (e.g. `"fr"`); then update the
+dir map and `useT` in `app/lib/i18n.ts` to select the new dictionary.
+(`Lang` lives with the store — see TD-8 in `docs/TECH_DEBT.md`.)
 
 ### 3. Add to `scripts/check-docs.mjs` parity logic (if adding a third language)
 

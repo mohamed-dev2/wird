@@ -32,16 +32,16 @@ day one.
 - `app/lib/` — framework-free logic: `schema.ts` (validation/migration/
   quarantine), `wird.ts` (load/save), `history.ts`, `analytics.ts`,
   `companion.ts`/`coach.ts`, `crypto.ts` (backup/restore), `vault.ts`,
-  `recovery.ts` (24-word secret), `transfer.ts`/`lan.ts` (QR/LAN), content
+  `recovery.ts` (12-word BIP39 secret + salted verifier), `transfer.ts`/`lan.ts` (QR/LAN), content
   loaders (`quran.ts`, `tafsir.ts`, `audio.ts`, `hadith-full.ts`),
   `privacy.ts` (sensitivity + network manifest), `strings.ts` (AR/EN
-  dictionary, ~805 keys), `i18n.ts`.
-- `app/components/` — React UI. `components/views/` route views,
-  `components/library/` Quran/hadith, `transfer.tsx` (export infra),
+  dictionary, ~926 keys), `i18n.ts`.
+- `app/components/` — React UI. `app/components/views/` route views,
+  `app/components/library/` Quran/hadith, `transfer.tsx` (export infra),
   `profile-scope.tsx`, `login-gate.tsx`.
 - `app/` — routes: `/`(today), `/account`, `/calendar`, `/insights`,
   `/review`, `/library`, `/recovery`.
-- `e2e/` — Playwright (must run with `--workers=1`).
+- `e2e/` — Playwright (serial; `npm run test:e2e` pins `--workers=1`).
 - `public/data/` — generated bundles (only touched via pipeline).
 - `docs/`, `DOCUMENTATION.md`, `SECURITY.md`, `GOVERNANCE.md` — ground
   truth for rules. `docs/README.md` is the index (start there).
@@ -62,8 +62,8 @@ day one.
 npm ci                  # install (lockfile; never npm install on fresh clone)
 npm run dev             # dev server on :3000
 npm run diagnose        # typecheck + lint + format + docs + comments + css + boundaries + unit
-npm run test            # vitest (unit)        npm run test:e2e   # playwright --workers=1 (serial)
-npm run build           # prod build           npm run docs:check # keys/routes/parity/links/inventory
+npm run test            # vitest (unit)        npm run test:e2e   # playwright (serial)
+npm run build           # prod build           npm run docs:check # keys/routes/parity/links/inventory/quality/version
 npm run comments:check  # purpose headers      npm run css:check  # logical properties
 npm run audit           # vulnerability check  npm run metrics     # cycles/god-modules report
 ```
@@ -71,10 +71,10 @@ npm run audit           # vulnerability check  npm run metrics     # cycles/god-
 ## Before you commit anything
 
 1. `npm run diagnose` green.
-2. `npm run build` green. 3. If you touched behavior:
-   `npx playwright test --workers=1`.
-3. Update CHANGELOG + relevant docs.
-4. Never add deps, never weaken privacy, never touch religious data
+2. `npm run build` green.
+3. If you touched behavior: `npm run test:e2e`.
+4. Update CHANGELOG + relevant docs.
+5. Never add deps, never weaken privacy, never touch religious data
    without the review process. If you're unsure about a rule, ask in the
    issue/PR instead of guessing.
 

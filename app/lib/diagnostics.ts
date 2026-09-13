@@ -5,6 +5,7 @@
 import { readHealth, readQuarantine, readRecord, SCHEMAS, type StorageLike } from "./schema";
 import { readLastBackup } from "./crypto";
 import { loadProfiles } from "./profiles";
+import { isPrivatePlansKey, privatePlansExcluded } from "./private-plans";
 
 function browserStore(): StorageLike | null {
   try {
@@ -175,9 +176,13 @@ export function buildEmergencyExport(store?: StorageLike | null): EmergencyExpor
   const summary = { recovered: 0, corrupted: 0, skipped: 0 };
   try {
     if (st) {
+      // Honors the private-plans backup exclusion: an excluded plan is
+      // never smuggled out through the emergency path either.
+      const skipPrivate = privatePlansExcluded();
       for (const storedKey of allKeys(st)) {
         if (!isStoredKey(storedKey)) continue;
         if (storedKey === "wird-quarantine-v1" || storedKey === "wird-health-v1") continue;
+        if (skipPrivate && isPrivatePlansKey(storedKey)) continue;
         const { dataset } = splitKey(storedKey);
         try {
           const { value, status } = readRecord<unknown>(st, storedKey, dataset);

@@ -6,6 +6,7 @@
 // 5. every file under docs/ is indexed in docs/README.md
 // 6. placeholder/TODO text, `npm run X` commands that don't exist, and
 //    stale Node-version mentions in released docs
+// 7. release version stamp: WIRD_APP_VERSION matches package.json version
 // Run: npm run docs:check (also runs in CI)
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
@@ -219,6 +220,20 @@ if (badNodeMentions.length > 0) {
   failed = true;
 } else {
   console.log(`docs:check — Node version consistent (${nvmNode}) ✓`);
+}
+
+// 7. release version stamp (backup manifests carry it — drift breaks import)
+const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+const stamp = readFileSync(join(APP, "lib", "crypto.ts"), "utf8").match(
+  /export const WIRD_APP_VERSION = "([^"]+)"/,
+)?.[1];
+if (stamp !== pkg.version) {
+  console.error(
+    `docs:check — version drift: package.json is ${pkg.version} but WIRD_APP_VERSION is ${stamp}`,
+  );
+  failed = true;
+} else {
+  console.log(`docs:check — version stamp matches (${pkg.version}) ✓`);
 }
 
 if (failed) process.exit(1);

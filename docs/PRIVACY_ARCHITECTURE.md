@@ -17,12 +17,12 @@ versioned by schemas (`app/lib/schema.ts`). Complete key inventory:
 DOCUMENTATION.md §4. Classification by touchiness lives in
 `app/lib/privacy.ts` (`sensitivityOf()`):
 
-| Class              | Meaning                                    | Examples                                                                                               |
-| ------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| `public`           | device prefs; reveals no personal behavior | theme, language, font, reciter, prayer-time prefs                                                      |
-| `private`          | personal counters; not intimate alone      | daily counts, adhkar log, review aggregates                                                            |
-| `sensitive`        | detailed personal/religious practice       | history windows, custom paths, dreams, pledges, guide-log (adaptive interpretation), recovery verifier |
-| `highly_sensitive` | raw reflection text and vault content      | reflection corpus, vault envelope                                                                      |
+| Class              | Meaning                                    | Examples                                                                                                                              |
+| ------------------ | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `public`           | device prefs; reveals no personal behavior | theme, language, font, reciter, prayer-time prefs                                                                                     |
+| `private`          | personal counters; not intimate alone      | daily counts, adhkar log, review aggregates                                                                                           |
+| `sensitive`        | detailed personal/religious practice       | history windows, custom paths, dreams, pledges, guide-log (adaptive interpretation), recovery verifier, private self-management plans |
+| `highly_sensitive` | raw reflection text and vault content      | reflection corpus, vault envelope                                                                                                     |
 
 ## Where it is stored
 

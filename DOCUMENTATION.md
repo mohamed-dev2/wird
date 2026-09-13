@@ -64,7 +64,7 @@ tools to move between devices.
 ## 1. Quick start
 
 ```bash
-npm install
+npm ci             # exact lockfile (never npm install on a fresh clone)
 npm run dev        # http://localhost:3000 (Turbopack)
 npm run build      # production build (also prerenders /opengraph-image, /robots.txt, /sitemap.xml)
 npm run start      # serve the production build
@@ -85,15 +85,16 @@ husky pre-commit (lint-staged) + commit-msg hooks.
 
 ## 2. Routes (pages)
 
-| Route       | File            | Purpose                                                                  |
-| ----------- | --------------- | ------------------------------------------------------------------------ |
-| `/`         | `app/page.tsx`  | Today: hero, habits, rescue plan, goals, night review                    |
-| `/calendar` | `app/calendar/` | 30-day month grid, Friday plan                                           |
-| `/insights` | `app/insights/` | Real stats, balance radar, coach brief, Hijri year                       |
-| `/review`   | `app/review/`   | End-of-day checklist (tri-state) + score + mood                          |
-| `/library`  | `app/library/`  | Tabs: Adhkar · Quran · Hadith · Paths · Dreams                           |
-| `/account`  | `app/account/`  | Profile, backup, transfer, reminders, times, theme                       |
-| `/recovery` | `app/recovery/` | Last-resort recovery: inspect, emergency export, restore, surgical reset |
+| Route            | File                 | Purpose                                                                  |
+| ---------------- | -------------------- | ------------------------------------------------------------------------ |
+| `/`              | `app/page.tsx`       | Today: hero, habits, rescue plan, goals, night review                    |
+| `/calendar`      | `app/calendar/`      | 30-day month grid, Friday plan                                           |
+| `/insights`      | `app/insights/`      | Real stats, balance radar, coach brief, Hijri year                       |
+| `/review`        | `app/review/`        | End-of-day checklist (tri-state) + score + mood                          |
+| `/library`       | `app/library/`       | Tabs: Adhkar · Quran · Hadith · Paths · Dreams                           |
+| `/account`       | `app/account/`       | Profile, backup, transfer, reminders, times, theme                       |
+| `/recovery`      | `app/recovery/`      | Last-resort recovery: inspect, emergency export, restore, surgical reset |
+| `/private-plans` | `app/private-plans/` | Optional private self-management plans (discreet, unlisted from nav)     |
 
 Shared chrome (sidebar, bottom nav, header, zikr dock, login gate) lives in
 `app/components/shell.tsx`; all state in `app/components/wird-store.tsx`
@@ -141,6 +142,12 @@ reset, backup (plain/encrypted/import/wipe), cross-device transfer (QR/LAN/
 recovery), demo mode, reminders + prayer times, appearance (theme/lang/
 auto-lock), profile manager.
 
+**Private plans (`/private-plans`)** — optional, discreet self-management
+plans (abstinence / reduction / time-limit) with a neutral setback flow,
+urge timer, triggers, replacements, milestones, and a journey timeline.
+Local-only, excludable from backups, generic reminders; see
+`docs/features/private-recovery.md`.
+
 ## 4. Data & storage
 
 All state persists in `localStorage` under `wird-*` keys. Daily keys reset
@@ -163,7 +170,9 @@ recency suffixes; bare legacy marks still match), `wird-quran-font-v1`,
 `wird-hadith-fav-v1`, `wird-hadith-read-v1`, `wird-paths-v1`,
 `wird-paths-custom-v1`, `wird-dreams-v1`, `wird-kids-v1`, `wird-pledges-v1`,
 `wird-history-v1`, `wird-reviews-v1`, `wird-remind-v1`,
-`wird-adhkar-log-v1` (per-day group counts, capped 180 days).
+`wird-adhkar-log-v1` (per-day group counts, capped 180 days),
+`wird-recovery-plans-v1` (per-profile private self-management plans —
+sensitive; excludable from backups, see `docs/features/private-recovery.md`).
 
 Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-theme-v1`, `wird-lang-v1`, `wird-reminders-v1`, `wird-mosque-v1`,
@@ -172,16 +181,17 @@ Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-quarantine-v1`, `wird-health-v1`, `wird-last-backup-v1`,
 `wird-guide-log-v1`, `wird-privacy-names-v1`, `wird-analytics-optout-v1`,
 `wird-vault-v1`, `wird-travel-v1` (hidden-from-extra-eyes profile IDs),
-`wird-export-log-v1` (what-left-the-device consent log, capped)
+`wird-export-log-v1` (what-left-the-device consent log, capped),
+`wird-private-plans-excluded-v1` (private-plans backup exclusion flag)
 (diagnostics, see below).
 
-Helpers: `loadFromStorage` / `saveToStorage` (`lib/wird.ts`, profile-aware),
-`useStoredState` (`lib/use-stored-state.ts`, hydration-safe), `nsKey`
-(`lib/profiles.ts`). State initializes with static fallbacks so SSR HTML
+Helpers: `loadFromStorage` / `saveToStorage` (`app/lib/wird.ts`, profile-aware),
+`useStoredState` (`app/lib/use-stored-state.ts`, hydration-safe), `nsKey`
+(`app/lib/profiles.ts`). State initializes with static fallbacks so SSR HTML
 matches, then hydrates stored values on mount — never read storage during
 render (see `docs/adr` decision in git history: hydration fix).
 
-Integrity layer (`lib/schema.ts`, zero-loss contract):
+Integrity layer (`app/lib/schema.ts`, zero-loss contract):
 
 - Every dataset has a versioned `Schema` { version, validate, normalize?,
   migrate?, fallback } in `SCHEMAS`. Validators never strip unknown fields;
@@ -201,7 +211,7 @@ Integrity layer (`lib/schema.ts`, zero-loss contract):
   of refusing the whole dataset; quota failures return `{ ok:false,
 quota:true }` and raise an in-memory notice (a full store cannot persist
   the notice itself).
-- Import (`lib/crypto.ts`): `previewRestore` dry-runs any backup map;
+- Import (`app/lib/crypto.ts`): `previewRestore` dry-runs any backup map;
   `restoreBackupSafe` classifies EVERYTHING first (zero applicable entries
   → rejected before a single write, not even quarantine), then snapshots,
   applies valid, salvages partial, quarantines corrupt, and rolls the
@@ -218,7 +228,7 @@ exportedAt, encrypted:false, count, datasets:{version,records}, data }`);
   data-health card (counts, last entries, diagnostics export, log clear).
   The provider shows a quota banner (from drained notices) and a multi-tab
   banner on `storage` events — reload is always explicit, never auto-merge.
-- Local diagnostics (`lib/diagnostics.ts`, counts only — no personal
+- Local diagnostics (`app/lib/diagnostics.ts`, counts only — no personal
   content): profiles, datasets, stored/quarantined/future-version keys, last
   backup, last migration, service-worker and transfer readiness; emergency
   export (`buildEmergencyExport`) with an honest recovered/corrupt/skipped
@@ -234,14 +244,14 @@ Download filenames (not storage, also matched by the checker):
 
 ## 5. Profiles, login & recovery
 
-- Profiles: name + avatar + optional 4–8 digit PIN (`lib/profiles.ts`); ids
+- Profiles: name + avatar + optional 4–8 digit PIN (`app/lib/profiles.ts`); ids
   are `crypto.randomUUID()` (timestamp ids could collide across devices on
   import). Registry, verifiers, and demo seeds all flow through the schema
   layer; deleting a profile also purges its quarantine raws (health entries
   carry no payload and stay for forensics).
 - PINs stored as SHA-256 (`wird-pin:<pin>` domain); 5 wrong tries → 30s lockout.
 - Auto-lock timer re-locks after inactivity (configurable, off/5/15/30/60 min).
-- Recovery: 12-word BIP39 phrases (`lib/recovery.ts`, wordlist bundled at
+- Recovery: 12-word BIP39 phrases (`app/lib/recovery.ts`, wordlist bundled at
   `public/data/bip39-en.txt`) reset forgotten PINs; verifiers in
   `wird-recovery-v1`. Tested against the official zero-entropy vector.
   Phrases are shown once on demand, never logged (zero `console.*` in `app/`),
@@ -278,14 +288,14 @@ Account → transfer card (`app/components/transfer.tsx`):
    rejects tampering; passwords live only in memory, failures are generic
    (`bk.bad` / `tr.badPin` — no crypto internals leak).
 2. **QR snapshot** — PIN-encrypted + gzipped manifest envelope as animated
-   `WIRD1:i/n:` codes; scanner assembles in any order (`lib/transfer.ts`).
+   `WIRD1:i/n:` codes; scanner assembles in any order (`app/lib/transfer.ts`).
    Hardened: structural chunk check (`isSaneChunk`, ≤600 chunks ≈ 1MB —
    bigger must use files), per-session lock (foreign-`n` chunks never mix),
    duplicates collapse, contaminated sets refuse assembly, staged progress
    (verify → decrypt → validate → import), nothing commits before preview +
    validated restore.
 3. **Local Wi-Fi pair** — WebRTC DataChannel with manual SDP exchange,
-   host-candidates only: no STUN, no server, no internet (`lib/lan.ts`).
+   host-candidates only: no STUN, no server, no internet (`app/lib/lan.ts`).
    Hardened: malformed SDP → pair-code error (not "wrong password"),
    20s connect timeout, bounded LAN payload (≤8 parts, ≤32MB), empty
    payload explained, sessions closed on unmount, validated restore only.
@@ -293,7 +303,7 @@ Account → transfer card (`app/components/transfer.tsx`):
 
 ## 7. Internationalization & themes
 
-- 550+ key AR/EN dictionary (`lib/strings.ts`, parity enforced by
+- 926-key AR/EN dictionary (`app/lib/strings.ts`, parity enforced by
   `docs:check`); `useT()` hook + `tr()`; religious/user content stays Arabic.
 - `document.dir` flips rtl/ltr; `[dir="ltr"]` CSS mirrors layout.
 - Themes light/dark/oled via `data-theme` + `tokens.css`; OS preference
@@ -306,7 +316,7 @@ Account → transfer card (`app/components/transfer.tsx`):
   wordlist, Nawawi 40: bundled in `public/data/`, lazy-fetched, SW-cached.
 - 9 full hadith books + 10 online tafsirs + 12 reciter MP3s: fetched on demand
   from CDN/API (CSP-allowlisted), cached by the service worker afterwards.
-- Curated hadith selections + learning paths live in `lib/data/` with English
+- Curated hadith selections + learning paths live in `app/lib/data/` with English
   translations and grades.
 
 ## 9. Security model
@@ -327,8 +337,10 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
 ## 10. Quality gates
 
 - `npm run typecheck` (strict + `noUncheckedIndexedAccess`), `npm run lint`
-  (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`.
-- Vitest: history/coach/recovery/transfer/demo logic plus the reliability
+  (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`
+  (7 checks), `npm run comments:check`, `npm run css:check`,
+  `npm run boundaries:check`, `npm run metrics` (informational report).
+- Vitest (151 tests, 18 files): history/coach/recovery/transfer/demo logic plus the reliability
   suites — `schema` (envelopes, quarantine, salvage, future-versions,
   quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
   two-phase zero-write rejection, snapshot rollback, salvage),
@@ -352,17 +364,23 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   `prayer` (day-arc fractions incl. overnight wrap, next-prayer agreement),
   `vault` (setup/unlock/lock/disable, generic failures, no plaintext
   residue), weak-PIN + duress round-trips (in `isolation`), salted +
-  legacy verifiers (in `recovery`).
-- Playwright (prod server): toggles persist, routes render, theme/lang persist,
+  legacy verifiers (in `recovery`), `private-plans` (run math,
+  history-preserving resets, neutral copy, generic reminders, schema
+  round-trip).
+- Playwright (19 tests, prod server, serial `--workers=1` pinned in
+  `npm run test:e2e`): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across
   switches and reloads, companion return journeys (fresh start, 10-day
   gentle return with working action, 95-day deep restart with tawbah path,
-  no-shame scan), insights layers with seeded data + honest empty state;
+  no-shame scan), insights layers with seeded data + honest empty state,
+  private-plans lifecycle (create → check in → setback with history
+  preserved), quick exit, URL/title leak scan;
   hydration-error listener fails the run on mismatch.
-- CI (`.github/workflows/ci.yml`): install → typecheck → lint → unit → e2e →
-  build → audit → docs:check (+ format:check, comments:check, css:check,
-  boundaries:check).
+- CI (`.github/workflows/ci.yml`): `npm ci` → typecheck → lint →
+  format:check → unit → Playwright chromium → test:e2e → build →
+  docs:check → comments:check → css:check → boundaries:check → metrics →
+  audit.
 - Supply chain: `npm audit` clean; SBOM (`sbom.wird.json`) + third-party
   licenses (`THIRD_PARTY_NOTICES.md`), all regenerable via `npm run sbom` /
   `npm run audit`. See `docs/DEPENDENCIES.md`.
@@ -382,7 +400,9 @@ domain so OG/canonical URLs are exact. Any static-capable host works with
 - **Build fails on `/_not-found` after upgrades** → stale `.next` cache;
   `npm run clean` first.
 - **E2E fails locally** → e2e runs against a production server by design
-  (`next dev` HMR sockets break in sandboxes); ensure ports 3119+ are free.
+  (`next dev` HMR sockets break in sandboxes); the server listens on
+  127.0.0.1:3119 — ensure that port is free (`npm run dev` itself uses
+  :3000).
 - **App looks broken / data suspect** → open `/recovery`: storage health,
   per-dataset statuses, emergency export, backup restore, surgical reset.
   Corrupt records are quarantined (`wird-quarantine-v1`), never silently
@@ -399,7 +419,15 @@ domain so OG/canonical URLs are exact. Any static-capable host works with
 
 1. Every `wird-*` storage key literal in `app/` is named in §4 above.
 2. Every route directory under `app/` is named in §2 above.
-3. AR/EN dictionary key parity (same check as `check_keys.py` logic).
+3. AR/EN dictionary key parity.
+4. Every internal markdown link resolves (anchor-aware).
+5. Every file under `docs/` is indexed in `docs/README.md`
+   (`docs/features/README.md` covers `docs/features/*`).
+6. Doc quality: no placeholder or task-marker text, every npm run
+   reference names a script that exists in `package.json`, every `Node N`
+   mention matches `.nvmrc` (22).
+7. Release version stamp: `WIRD_APP_VERSION` (`app/lib/crypto.ts`) equals
+   the `package.json` version.
 
 `npm run comments:check` (`scripts/check-comments.mjs`) asserts every
 non-test source file opens with a purposeful 2+ line header comment.
@@ -409,8 +437,8 @@ CI fails otherwise.
 
 ## 14. Adaptive companion
 
-Local, deterministic, offline guidance layer (`lib/companion.ts`,
-`lib/content.ts`, `components/companion.tsx`). No AI service, no network,
+Local, deterministic, offline guidance layer (`app/lib/companion.ts`,
+`app/lib/content.ts`, `app/components/companion.tsx`). No AI service, no network,
 no analytics — pure functions over existing history/state, memoized in
 components.
 

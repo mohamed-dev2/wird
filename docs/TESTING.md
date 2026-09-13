@@ -6,10 +6,10 @@
 npm run typecheck   # strict TS + noUncheckedIndexedAccess
 npm run lint        # eslint --max-warnings 0
 npm run format:check
-npm run test        # vitest run (unit, ~100+ tests)
-npm run test:e2e    # playwright (production server, serial)
+npm run test        # vitest run (unit, 151 tests)
+npm run test:e2e    # playwright (production server, serial --workers=1 pinned in script)
 npm run build
-npm run docs:check  # keys + routes + AR/EN parity
+npm run docs:check  # keys + routes + AR/EN parity + links + inventory + quality + version stamp
 npm run comments:check  # 2+ line purpose header in every source file
 npm run css:check  # logical properties (RTL) + !important budget
 npm audit
@@ -23,20 +23,21 @@ Pure logic only — no DOM, no storage beyond in-memory mocks:
 |---|---|---|
 | `prayer` | day-arc fractions incl. overnight wrap, next-prayer agreement |
 
-| `vault`                       | setup/unlock/lock/disable, generic failures, no plaintext residue                     |
-| ----------------------------- | ------------------------------------------------------------------------------------- |
-| `schema`                      | envelopes, quarantine, salvage, future versions, quota, caps, migration idempotence   |
-| `crypto-restore`              | manifest, dry-run, two-phase zero-write rejection, rollback                           |
-| `crypto-security`             | round-trip, wrong password, GCM tamper, malformed payloads                            |
-| `daily`                       | midnight rollover, multi-day absence, legacy shapes, monotonic `recordDay`            |
-| `isolation`                   | namespacing, adoption, id uniqueness, quarantine purge                                |
-| `fuzz`                        | seeded: validators/reads/writes never throw                                           |
-| `transfer`                    | chunking, duplicates, order, contamination, bounds                                    |
-| `companion`                   | 26 states, ranking, fatigue/once-ever, rotation, core                                 |
-| `content`                     | verse refs exist in bundle, hadith resolve, theme coverage                            |
-| `guidance-safety`             | auto-collected AR+EN copy: no revelation/ruling/shame/heart/medical/causation markers |
-| `analytics`                   | 20-test BM suite over a synthetic 4-month dataset + pipeline test                     |
-| `history/coach/recovery/demo` | legacy suites for core logic                                                          |
+| `vault`                       | setup/unlock/lock/disable, generic failures, no plaintext residue                       |
+| ----------------------------- | --------------------------------------------------------------------------------------- |
+| `schema`                      | envelopes, quarantine, salvage, future versions, quota, caps, migration idempotence     |
+| `crypto-restore`              | manifest, dry-run, two-phase zero-write rejection, rollback                             |
+| `crypto-security`             | round-trip, wrong password, GCM tamper, malformed payloads                              |
+| `daily`                       | midnight rollover, multi-day absence, legacy shapes, monotonic `recordDay`              |
+| `isolation`                   | namespacing, adoption, id uniqueness, quarantine purge                                  |
+| `fuzz`                        | seeded: validators/reads/writes never throw                                             |
+| `transfer`                    | chunking, duplicates, order, contamination, bounds                                      |
+| `companion`                   | 26 states, ranking, fatigue/once-ever, rotation, core                                   |
+| `content`                     | verse refs exist in bundle, hadith resolve, theme coverage                              |
+| `guidance-safety`             | auto-collected AR+EN copy: no revelation/ruling/shame/heart/medical/causation markers   |
+| `analytics`                   | 20-test BM suite over a synthetic 4-month dataset + pipeline test                       |
+| `history/coach/recovery/demo` | legacy suites for core logic                                                            |
+| `private-plans`               | run math, history-preserving resets, neutral copy, generic reminders, schema round-trip |
 
 Conventions: seeded PRNGs (reproducible), synthetic histories built from
 day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
@@ -52,6 +53,9 @@ day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
   action), 95-day deep restart with tawbah path, no-shame word scan.
 - `analytics.spec.ts` — insights layers with seeded data, honest empty
   state.
+- `private-plans.spec.ts` — plan lifecycle (create → check in → setback
+  with history preserved across reload), quick exit to neutral home,
+  URL/title leak scan. Neutral fixtures only ("Private Plan A").
 
 Rules learned the hard way:
 
