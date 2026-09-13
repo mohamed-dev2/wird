@@ -23,7 +23,7 @@ Notes:
 - Religious Arabic text is **never** translated into the dictionary; it
   stays in datasets (Quran/hadith) as literal Arabic. Add English/other
   translation data in the appropriate corpus, not the strings file.
-- The dictionary is flat and small (~925 keys); keep it that way.
+- The dictionary is flat and small (~926 keys); keep it that way.
 - Prefix new religious/guidance strings as before (`cm:|tw:|ret:|…`) so
   the `guidance-safety` scan applies to every language.
 

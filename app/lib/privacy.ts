@@ -79,6 +79,15 @@ export const NETWORK_ACCESS = [
     contentLeavesDevice: false,
   },
   {
+    domain: "cdn.jsdelivr.net",
+    kind: "GET dataset (mirror repo)",
+    who: "hadith-full.ts (Musnad Ahmed + Sunan al-Darimi only)",
+    reason:
+      "pinned bilingual mirror (AhmedBaset/hadith-json@v1.2.0); same host, separate upstream — see docs/features/hadith.md",
+    optIn: true,
+    contentLeavesDevice: false,
+  },
+  {
     domain: "api.quran.com",
     kind: "GET tafsir",
     who: "tafsir.ts (fetchTafsir)",

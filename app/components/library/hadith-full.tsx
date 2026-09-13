@@ -174,6 +174,7 @@ export function HadithFull({
           <p className="chart-caption">
             {book.ar} · {book.count} {t("hf.count")}
           </p>
+          {book.id === "ahmed" && <p className="chart-caption">{t("hf.partialAhmed")}</p>}
           <div className="lib-toolbar">
             <button
               type="button"

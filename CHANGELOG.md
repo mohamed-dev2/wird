@@ -12,9 +12,11 @@ or architecture-level changes are listed.
   removed the broken duplicate Nawawi button (it rendered a raw
   translation key); favorites filter label now localized; 123 new CSS
   ideas (59 library + 64 global, logical props, zero `!important`,
-  motion-gated). Full Musnad Ahmed / Sunan al-Darimi texts are not
-  offered by the verified CDN source — documented gap, curated selections
-  remain.
+  motion-gated).
+- Full Musnad Ahmed (1,374 hadiths, EN, partial: chapters 8–30 absent
+  upstream and labeled in UI) + full Sunan al-Darimi (3,406 hadiths,
+  Arabic-complete, no upstream English) from a pinned bilingual mirror;
+  curated cards now link into both full browsers.
 
 - Offline-first architecture (STEP 5): feature classification manifest +
   `docs/offline-architecture.md` (storage, sync boundaries, SW contract,

@@ -3,7 +3,7 @@
 // hadithnumber-merge, empty-text skipping, and graceful degradation when
 // the English edition is missing or blocked.
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadFullBookEn } from "../hadith-full";
+import { loadFullBook, loadFullBookEn } from "../hadith-full";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -55,5 +55,65 @@ describe("loadFullBookEn", () => {
     );
     const m = await loadFullBookEn("qudsi");
     expect(m.size).toBe(0);
+  });
+});
+
+const mirrorPayload = {
+  metadata: { id: 8 },
+  chapters: [
+    { id: 1, arabic: "chapter one" },
+    { id: 2, arabic: "" },
+  ],
+  hadiths: [
+    {
+      id: 36164,
+      idInBook: 1,
+      chapterId: 1,
+      arabic: "matn one",
+      english: { narrator: "Qais", text: "One" },
+    },
+    {
+      id: 36165,
+      idInBook: 2,
+      chapterId: 1,
+      arabic: "matn two",
+      english: { narrator: "", text: "  " },
+    },
+    { id: 36166, idInBook: -3, chapterId: 1, arabic: "bad num", english: { text: "Bad" } },
+  ],
+};
+
+describe("mirror books (Ahmed/Darimi)", () => {
+  it("maps in-book numbers, chapter sections, and refs", async () => {
+    vi.stubGlobal(
+      "fetch",
+      fakeFetch((url) => {
+        if (!url.includes("AhmedBaset/hadith-json")) throw new Error("wrong upstream: " + url);
+        return mirrorPayload;
+      }),
+    );
+    const b = await loadFullBook("ahmed");
+    expect(b.count).toBe(2);
+    expect(b.hadiths.map((h) => h.num)).toEqual([1, 2]);
+    expect(b.hadiths[0]).toMatchObject({ text: "matn one", book: 1, ref: "#1" });
+    expect(b.sections).toEqual({ 1: "chapter one" });
+  });
+  it("derives the EN map from the same bilingual payload", async () => {
+    vi.stubGlobal(
+      "fetch",
+      fakeFetch(() => mirrorPayload),
+    );
+    const m = await loadFullBookEn("darimi");
+    expect(m.get(1)).toBe("One");
+    expect(m.has(2)).toBe(false);
+  });
+  it("rejects corrupt mirror payloads (UI shows its calm retry state)", async () => {
+    vi.stubGlobal(
+      "fetch",
+      fakeFetch(() => ({ hadiths: "nope" })),
+    );
+    vi.resetModules();
+    const fresh = await import("../hadith-full");
+    await expect(fresh.loadFullBook("ahmed")).rejects.toThrow();
   });
 });

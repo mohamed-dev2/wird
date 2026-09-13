@@ -1,4 +1,4 @@
-// AR/EN string dictionary (925+ keys). Religious/user content stays Arabic
+// AR/EN string dictionary (926+ keys). Religious/user content stays Arabic
 // by convention; AR↔EN key parity is enforced by docs:check in CI. Copy
 // under cm|tw|ret|an|goals is additionally scanned by guidance-safety tests.
 import type { Lang } from "../components/wird-store";
@@ -805,6 +805,7 @@ const AR: Record<string, string> = {
   "hf.failT": "تعذر التحميل",
   "hf.failS": "تحقق من الاتصال — يُحفظ الكتاب بعدها للاستعمال دون إنترنت.",
   "hf.count": "حديث",
+  "hf.partialAhmed": "طبعة جزئية: الفصول 8–30 غائبة من المصدر.",
   "hf.search": "ابحث في الكتاب…",
   "hf.section": "الباب",
   "hf.sectionAll": "كل الأبواب",
@@ -1755,6 +1756,7 @@ const EN: Record<string, string> = {
   "hf.failT": "Load failed",
   "hf.failS": "Check connection — book caches for offline use.",
   "hf.count": "hadiths",
+  "hf.partialAhmed": "Partial edition: chapters 8–30 are absent upstream.",
   "hf.search": "Search this book…",
   "hf.section": "Chapter",
   "hf.sectionAll": "All chapters",

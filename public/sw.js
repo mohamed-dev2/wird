@@ -26,6 +26,8 @@ function cacheable(url) {
   // local bundles + hadith/tafsir CDN JSON (never audio streams)
   if (url.origin === self.location.origin && url.pathname.startsWith("/data/")) return true;
   if (url.hostname === "cdn.jsdelivr.net" && url.pathname.includes("hadith-api")) return true;
+  if (url.hostname === "cdn.jsdelivr.net" && url.pathname.includes("AhmedBaset/hadith-json"))
+    return true;
   if (url.hostname === "api.quran.com" && url.pathname.includes("/tafsirs/")) return true;
   return false;
 }

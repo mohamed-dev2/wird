@@ -135,7 +135,7 @@ milestones, and a custom date range. Nothing renders without evidence.
 **Library (`/library`)** — Adhkar groups with per-item counters; Quran reader
 (full Uthmani text offline, EN translation toggle, 11 tafsirs incl. offline
 Jalalayn, 12 reciters with ayah-follow audio, search, bookmarks, memorized
-marks); Hadith (curated selections with EN + full 10-book browser with lazy EN translations: chapters,
+marks); Hadith (curated selections with EN + full 12-book browser with lazy EN translations: chapters,
 search, jump-to-number, pagination, read/fav/copy); learning paths (8 sciences
 × 4 levels, custom books); dream board.
 
@@ -305,7 +305,7 @@ Account → transfer card (`app/components/transfer.tsx`):
 
 ## 7. Internationalization & themes
 
-- 925-key AR/EN dictionary (`app/lib/strings.ts`, parity enforced by
+- 926-key AR/EN dictionary (`app/lib/strings.ts`, parity enforced by
   `docs:check`); `useT()` hook + `tr()`; religious/user content stays Arabic.
 - `document.dir` flips rtl/ltr; `[dir="ltr"]` CSS mirrors layout.
 - Themes light/dark/oled via `data-theme` + `tokens.css`; OS preference
@@ -316,7 +316,7 @@ Account → transfer card (`app/components/transfer.tsx`):
 
 - Quran Uthmani (6,236 ayahs), Clear-Quran English, Jalalayn tafsir, BIP39
   wordlist, Nawawi 40: bundled in `public/data/`, lazy-fetched, SW-cached.
-- 10 full hadith books + 11 online tafsirs + 12 reciter MP3s: fetched on demand
+- 12 full hadith books + 11 online tafsirs + 12 reciter MP3s: fetched on demand
   from CDN/API (CSP-allowlisted), cached by the service worker afterwards.
 - Curated hadith selections + learning paths live in `app/lib/data/` with English
   translations and grades.
@@ -342,7 +342,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`
   (7 checks), `npm run comments:check`, `npm run css:check`,
   `npm run boundaries:check`, `npm run metrics` (informational report).
-- Vitest (169 tests, 22 files): history/coach/recovery/transfer/demo logic plus the reliability
+- Vitest (172 tests, 22 files): history/coach/recovery/transfer/demo logic plus the reliability
   suites — `schema` (envelopes, quarantine, salvage, future-versions,
   quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
   two-phase zero-write rejection, snapshot rollback, salvage),
