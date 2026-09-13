@@ -1,8 +1,10 @@
 // i18n glue: useT() hook (lang from store), prayer/day-mode label helpers.
 // Raw dictionaries live in strings.ts; AR/EN parity is CI-enforced.
+// TD-8 in docs/TECH_DEBT.md, docs/RELEASE.md: the store context should move
+// to lib/ so lib/ stops value-importing components.
 "use client";
 
-import { useWird } from "../components/wird-store";
+import { useWird } from "../components/wird-store"; /* boundary-allow: R1 */
 import type { Lang } from "../components/wird-store";
 import { PRAYER_AR } from "./prayer";
 import { tr } from "./strings";

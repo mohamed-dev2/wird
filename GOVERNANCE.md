@@ -45,11 +45,35 @@ proposal / impact" write-up, get agreement in the thread, then the PR.
 
 ## Roles
 
-- **Maintainers** (see `CODEOWNERS`): merge decisions, security and
-  privacy review, religious-content sign-off (see
-  `docs/HOW_TO_ADD_RELIGIOUS_CONTENT.md`).
-- **Contributors**: everyone else. No change is too small; `GOOD_FIRST_ISSUES.md`
-  lists good entry points.
+Maintainership is earned through sustained, trustworthy work; it is never
+tied to a single person.
+
+| role                           | scope                                                                                                               | who grants it                               |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| **Maintainer**                 | merge decisions, consensus, full gate authority                                                                     | existing maintainers (majority)             |
+| **Reviewer**                   | reviews code, drives PRs through gates                                                                              | maintainers                                 |
+| **Release maintainer**         | cuts tags, runs `docs/RELEASE.md`, publishes Releases + SBOM                                                        | maintainers                                 |
+| **Security maintainer**        | triages advisories, coordinates fixes; first responder on `SECURITY.md`                                             | maintainers (explicitly, at least one)      |
+| **Documentation maintainer**   | keeps README/DOCUMENTATION/docs index truthful                                                                      | maintainers                                 |
+| **Localization maintainer**    | string parity, language-addition review, RTL/LTR                                                                    | maintainers                                 |
+| **Accessibility reviewer**     | blocks merges on a11y regressions (keyboard, motion, contrast)                                                      | maintainers                                 |
+| **Religious-content reviewer** | signs off every Quran/hadith/adhkar/translation change (see HOW_TO_ADD_RELIGIOUS_CONTENT.md); approval is mandatory | maintainers (at least two independent ones) |
+
+The `CODEOWNERS` file maps subsystems to roles; keep it current so PRs
+auto-request the right reviewer.
+
+## Maintainership transfer
+
+- A maintainer may nominate a contributor; existing maintainers confirm by
+  majority (a single-maintainer project: confirm with the nominated
+  person's demonstrated PR history).
+- **Succession rule**: never leave the project with exactly one
+  maintainer permanently. If the sole maintainer plans to step away, the
+  exit checklist is: (1) land the current release, (2) hand `MAINTAINER_HANDOVER.md`
+  to a successor, (3) hand over secrets-less releases (there are no
+  secrets — verify none exist), (4) transfer repo admin to a successor,
+  (5) post a public notice. `docs/MAINTAINER_HANDOVER.md` is the written
+  fallback if that person is unavailable at all.
 
 ## Stewardship rules
 

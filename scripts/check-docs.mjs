@@ -4,6 +4,8 @@
 // 3. AR/EN dictionary key parity
 // 4. every internal markdown link resolves to a real file/header
 // 5. every file under docs/ is indexed in docs/README.md
+// 6. placeholder/TODO text, `npm run X` commands that don't exist, and
+//    stale Node-version mentions in released docs
 // Run: npm run docs:check (also runs in CI)
 import { readdirSync, readFileSync, statSync, existsSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
@@ -157,6 +159,66 @@ if (missingIndexed.length > 0) {
   failed = true;
 } else {
   console.log(`docs:check — docs inventory ✓ (${docFiles.length} files)`);
+}
+
+// 6. doc quality: placeholders, missing npm scripts, stale Node version
+const placeholderRe = /\b(?:TODO|FIXME|TBD|CHANGEME|XXX|lorem ipsum)\b/i;
+const placeholderHits = [];
+for (const f of mdFiles) {
+  readFileSync(f, "utf8")
+    .split("\n")
+    .forEach((line, i) => {
+      if (placeholderRe.test(line))
+        placeholderHits.push(`${relative(ROOT, f)}:${i + 1} → ${line.trim().slice(0, 90)}`);
+    });
+}
+if (placeholderHits.length > 0) {
+  console.error("docs:check — placeholder/TODO text in docs:");
+  for (const h of placeholderHits) console.error("  -", h);
+  failed = true;
+} else {
+  console.log("docs:check — no placeholder/TODO text ✓");
+}
+
+const pkgScripts = new Set(
+  Object.keys(JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).scripts),
+);
+const badCommands = [];
+for (const f of mdFiles) {
+  const lines = readFileSync(f, "utf8").split("\n");
+  lines.forEach((line, i) => {
+    for (const m of line.matchAll(/`npm run (\S+)`/g)) {
+      if (!pkgScripts.has(m[1]))
+        badCommands.push(`${relative(ROOT, f)}:${i + 1} → npm run ${m[1]}`);
+    }
+  });
+}
+if (badCommands.length > 0) {
+  console.error("docs:check — docs reference npm scripts that do not exist:");
+  for (const b of badCommands) console.error("  -", b);
+  failed = true;
+} else {
+  console.log(`docs:check — npm run references valid ✓`);
+}
+
+const nvmNode = readFileSync(join(ROOT, ".nvmrc"), "utf8").trim();
+const badNodeMentions = [];
+for (const f of mdFiles) {
+  readFileSync(f, "utf8")
+    .split("\n")
+    .forEach((line, i) => {
+      for (const m of line.matchAll(/Node\s*(\d+(?:\.\d+)*)/g)) {
+        const major = m[1].split(".")[0];
+        if (major !== nvmNode) badNodeMentions.push(`${relative(ROOT, f)}:${i + 1} → Node ${m[1]}`);
+      }
+    });
+}
+if (badNodeMentions.length > 0) {
+  console.error(`docs:check — docs mention a Node version that contradicts .nvmrc (${nvmNode}):`);
+  for (const b of badNodeMentions) console.error("  -", b);
+  failed = true;
+} else {
+  console.log(`docs:check — Node version consistent (${nvmNode}) ✓`);
 }
 
 if (failed) process.exit(1);

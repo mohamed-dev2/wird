@@ -44,6 +44,29 @@ or architecture-level changes are listed.
   docs inventory gate; CI now also runs `format:check`, `comments:check`,
   `css:check`; `diagnose` aggregates all local gates.
 - `restoreBackup` marked `@deprecated` (use `restoreBackupSafe`).
+- Open-source maturity layer (STEP 3 addition):
+  - Reproducible dev environment: `.devcontainer/` (Node 22 + Playwright
+    browsers + Firefox), `REPRODUCIBILITY.md` install/lockfile/pin
+    conventions, `.nvmrc`/`.editorconfig`/`.gitattributes` documented.
+  - Dependency governance: `DEPENDENCIES.md`, CycloneDX-lite SBOM
+    (`sbom.wird.json`, `npm run sbom`), `THIRD_PARTY_NOTICES.md`,
+    `audit` script wired into `diagnose`.
+  - Governance & contributions: `GOVERNANCE.md` roles +
+    maintainership-transfer policy, DCO + no-CLA statement in
+    `CONTRIBUTING.md`, contributor `CONTRIBUTOR_LEVELS.md`,
+    `MAINTAINER_HANDOVER.md`, issue templates (bug / feature /
+    documentation / accessibility / localization / security /
+    performance) + `pull_request_template.md`, `GOOD_FIRST_ISSUES.md`
+    kept, `.env.example` (no secrets) verified.
+  - Maintainability gates: `boundaries:check` (lib↔components, schema
+    foundation, online-only reach, privacy↔CSP hostname sync),
+    `metrics` (oversized modules, fan-in, runtime cycles),
+    `TECH_DEBT.md` register (TD-1…TD-8).
+  - Release engineering & doc quality: `RELEASE.md` (release/PR/revert
+    playbooks), `FEATURE_FLAGS.md` policy work, `API.md` five-category
+    stability tiers, doc-quality checks in `docs:check` (placeholders,
+    `npm run` references, Node-version consistency), `AGENTS.md`,
+    `SAFE_CODE_GENERATION.md`, `OPEN_SOURCE_READINESS.md` self-audit.
 
 ## v0.1.0 — analytics + companion era
 

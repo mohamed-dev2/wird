@@ -37,3 +37,50 @@ an|goals` to be auto-scanned).
   case AND a below-threshold case proving it stays silent.
 - **New CSS**: logical properties (css:check enforces), theme vars only,
   motion gate, never color-only meaning.
+
+## Legal: your contributions (DCO, no CLA)
+
+Wird is MIT-licensed (`LICENSE`, "Wird contributors"). Contributing an
+inbound contribution means:
+
+- You license your contribution under the project's MIT license.
+- You retain copyright over your own work.
+- The copyright holder line is collective ("Wird contributors"); you do
+  not need to sign a CLA.
+
+We use the **Developer Certificate of Origin (DCO)** model: every commit
+signed with `git commit -s` (or a PR with commits so signed) certifies
+that you are legally entitled to contribute the code under the MIT
+license. The DCO text is only the inbound-offer; the **outbound** license
+is MIT and never imposes signed commits on redistribution.
+
+- No CLA, no permission forms — the process must stay accessible to
+  students and first-time contributors.
+- If you contribute a patch authored by someone else, add their
+  attribution (`Co-authored-by:` trailer) so copyright remains traceable.
+- First-time contributors: ask in the issue thread (`good first issue`
+  labels in `GOOD_FIRST_ISSUES.md`) before starting work.
+
+## Contribution levels (see docs/CONTRIBUTOR_LEVELS.md)
+
+You do not need to understand every subsystem to be useful:
+
+1. **Docs** — fix a typo, improve a guide, extend `docs/features/`.
+2. **UI/content** — layout, copy, curated content.
+3. **Tests** — add coverage, fix flaky specs.
+4. **Features** — new capabilities behind the standard checklist.
+5. **Architecture** — layer changes, new subsystems (write an ADR).
+6. **Core infrastructure** — schema, storage, security, release tooling.
+
+Pick a level that matches your confidence; review is the same standard
+at every level (AI-assisted code included — see AGENTS.md).
+
+## Issue & pull-request templates
+
+- Report a bug or request a feature? Use the GitHub issue templates in
+  `.github/ISSUE_TEMPLATE/` (bug, feature, docs, accessibility,
+  localization, security, performance).
+- Opening a PR? Fill out `.github/pull_request_template.md` — it asks "what
+  could break", "privacy/accessibility/localization/offline", "migration
+  needed", "docs needed". Answering honestly is how small changes stay
+  safe.

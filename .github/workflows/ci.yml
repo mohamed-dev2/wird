@@ -25,4 +25,6 @@ jobs:
       - run: npm run docs:check
       - run: npm run comments:check
       - run: npm run css:check
+      - run: npm run boundaries:check
+      - run: npm run metrics
       - run: npm audit --audit-level=moderate

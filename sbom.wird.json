@@ -1,0 +1,2727 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.4",
+  "version": 1,
+  "name": "wird-daily-tracker",
+  "metadata": {
+    "timestamp": "2026-09-13T14:51:03.584Z",
+    "component": {
+      "name": "wird-daily-tracker",
+      "version": "0.1.0",
+      "type": "application"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "vitest",
+      "version": "5.0.0",
+      "purl": "pkg:npm/vitest@5.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "why-is-node-running",
+      "version": "2.3.0",
+      "purl": "pkg:npm/why-is-node-running@2.3.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "stackback",
+      "version": "0.0.2",
+      "purl": "pkg:npm/stackback@0.0.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "siginfo",
+      "version": "2.0.0",
+      "purl": "pkg:npm/siginfo@2.0.0",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "tinyglobby",
+      "version": "0.2.17",
+      "purl": "pkg:npm/tinyglobby@0.2.17",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "picomatch",
+      "version": "4.0.7",
+      "purl": "pkg:npm/picomatch@4.0.7",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "fdir",
+      "version": "6.5.0",
+      "purl": "pkg:npm/fdir@6.5.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "tinyexec",
+      "version": "1.3.1",
+      "purl": "pkg:npm/tinyexec@1.3.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "obug",
+      "version": "2.2.1",
+      "purl": "pkg:npm/obug@2.2.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "magic-string",
+      "version": "1.3.1",
+      "purl": "pkg:npm/magic-string@1.3.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@jridgewell/sourcemap-codec",
+      "version": "1.6.0",
+      "purl": "pkg:npm/@jridgewell/sourcemap-codec@1.6.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "expect-type",
+      "version": "1.4.0",
+      "purl": "pkg:npm/expect-type@1.4.0",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "chai",
+      "version": "6.2.2",
+      "purl": "pkg:npm/chai@6.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@vitest/mocker",
+      "version": "5.0.0",
+      "purl": "pkg:npm/@vitest/mocker@5.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "estree-walker",
+      "version": "3.0.3",
+      "purl": "pkg:npm/estree-walker@3.0.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@types/estree",
+      "version": "1.0.9",
+      "purl": "pkg:npm/@types/estree@1.0.9",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@vitest/spy",
+      "version": "5.0.0",
+      "purl": "pkg:npm/@vitest/spy@5.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@jridgewell/trace-mapping",
+      "version": "0.3.31",
+      "purl": "pkg:npm/@jridgewell/trace-mapping@0.3.31",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@jridgewell/resolve-uri",
+      "version": "3.1.2",
+      "purl": "pkg:npm/@jridgewell/resolve-uri@3.1.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@types/chai",
+      "version": "5.2.3",
+      "purl": "pkg:npm/@types/chai@5.2.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "assertion-error",
+      "version": "2.0.1",
+      "purl": "pkg:npm/assertion-error@2.0.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@types/deep-eql",
+      "version": "4.0.2",
+      "purl": "pkg:npm/@types/deep-eql@4.0.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "typescript",
+      "version": "5.9.3",
+      "purl": "pkg:npm/typescript@5.9.3",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "prettier",
+      "version": "3.9.6",
+      "purl": "pkg:npm/prettier@3.9.6",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "lint-staged",
+      "version": "17.5.0",
+      "purl": "pkg:npm/lint-staged@17.5.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "eslint",
+      "version": "9.39.2",
+      "purl": "pkg:npm/eslint@9.39.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "optionator",
+      "version": "0.9.4",
+      "purl": "pkg:npm/optionator@0.9.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "fast-levenshtein",
+      "version": "2.0.6",
+      "purl": "pkg:npm/fast-levenshtein@2.0.6",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "levn",
+      "version": "0.4.1",
+      "purl": "pkg:npm/levn@0.4.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "type-check",
+      "version": "0.4.0",
+      "purl": "pkg:npm/type-check@0.4.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "prelude-ls",
+      "version": "1.2.1",
+      "purl": "pkg:npm/prelude-ls@1.2.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "word-wrap",
+      "version": "1.2.5",
+      "purl": "pkg:npm/word-wrap@1.2.5",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "deep-is",
+      "version": "0.1.4",
+      "purl": "pkg:npm/deep-is@0.1.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "natural-compare",
+      "version": "1.4.0",
+      "purl": "pkg:npm/natural-compare@1.4.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "minimatch",
+      "version": "3.1.5",
+      "purl": "pkg:npm/minimatch@3.1.5",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "brace-expansion",
+      "version": "1.1.18",
+      "purl": "pkg:npm/brace-expansion@1.1.18",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "concat-map",
+      "version": "0.0.1",
+      "purl": "pkg:npm/concat-map@0.0.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "balanced-match",
+      "version": "1.0.2",
+      "purl": "pkg:npm/balanced-match@1.0.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "lodash.merge",
+      "version": "4.6.2",
+      "purl": "pkg:npm/lodash.merge@4.6.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "json-stable-stringify-without-jsonify",
+      "version": "1.0.1",
+      "purl": "pkg:npm/json-stable-stringify-without-jsonify@1.0.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "is-glob",
+      "version": "4.0.3",
+      "purl": "pkg:npm/is-glob@4.0.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "is-extglob",
+      "version": "2.1.1",
+      "purl": "pkg:npm/is-extglob@2.1.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "imurmurhash",
+      "version": "0.1.4",
+      "purl": "pkg:npm/imurmurhash@0.1.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "ignore",
+      "version": "5.3.2",
+      "purl": "pkg:npm/ignore@5.3.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "glob-parent",
+      "version": "6.0.2",
+      "purl": "pkg:npm/glob-parent@6.0.2",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "find-up",
+      "version": "5.0.0",
+      "purl": "pkg:npm/find-up@5.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "path-exists",
+      "version": "4.0.0",
+      "purl": "pkg:npm/path-exists@4.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "locate-path",
+      "version": "6.0.0",
+      "purl": "pkg:npm/locate-path@6.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "p-locate",
+      "version": "5.0.0",
+      "purl": "pkg:npm/p-locate@5.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "p-limit",
+      "version": "3.1.0",
+      "purl": "pkg:npm/p-limit@3.1.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "yocto-queue",
+      "version": "0.1.0",
+      "purl": "pkg:npm/yocto-queue@0.1.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "file-entry-cache",
+      "version": "8.0.0",
+      "purl": "pkg:npm/file-entry-cache@8.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "flat-cache",
+      "version": "4.0.1",
+      "purl": "pkg:npm/flat-cache@4.0.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "keyv",
+      "version": "4.5.4",
+      "purl": "pkg:npm/keyv@4.5.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "json-buffer",
+      "version": "3.0.1",
+      "purl": "pkg:npm/json-buffer@3.0.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "flatted",
+      "version": "3.4.4",
+      "purl": "pkg:npm/flatted@3.4.4",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "fast-deep-equal",
+      "version": "3.1.3",
+      "purl": "pkg:npm/fast-deep-equal@3.1.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "esutils",
+      "version": "2.0.3",
+      "purl": "pkg:npm/esutils@2.0.3",
+      "licenses": [
+        {
+          "expression": "BSD-2-Clause"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "esquery",
+      "version": "1.7.0",
+      "purl": "pkg:npm/esquery@1.7.0",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "estraverse",
+      "version": "5.3.0",
+      "purl": "pkg:npm/estraverse@5.3.0",
+      "licenses": [
+        {
+          "expression": "BSD-2-Clause"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "espree",
+      "version": "10.4.0",
+      "purl": "pkg:npm/espree@10.4.0",
+      "licenses": [
+        {
+          "expression": "BSD-2-Clause"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "eslint-visitor-keys",
+      "version": "3.4.3",
+      "purl": "pkg:npm/eslint-visitor-keys@3.4.3",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "acorn-jsx",
+      "version": "5.3.2",
+      "purl": "pkg:npm/acorn-jsx@5.3.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "acorn",
+      "version": "8.18.0",
+      "purl": "pkg:npm/acorn@8.18.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "eslint-scope",
+      "version": "8.4.0",
+      "purl": "pkg:npm/eslint-scope@8.4.0",
+      "licenses": [
+        {
+          "expression": "BSD-2-Clause"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "esrecurse",
+      "version": "4.3.0",
+      "purl": "pkg:npm/esrecurse@4.3.0",
+      "licenses": [
+        {
+          "expression": "BSD-2-Clause"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "escape-string-regexp",
+      "version": "4.0.0",
+      "purl": "pkg:npm/escape-string-regexp@4.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "debug",
+      "version": "4.4.3",
+      "purl": "pkg:npm/debug@4.4.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "ms",
+      "version": "2.1.3",
+      "purl": "pkg:npm/ms@2.1.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "cross-spawn",
+      "version": "7.0.6",
+      "purl": "pkg:npm/cross-spawn@7.0.6",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "which",
+      "version": "2.0.2",
+      "purl": "pkg:npm/which@2.0.2",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "isexe",
+      "version": "2.0.0",
+      "purl": "pkg:npm/isexe@2.0.0",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "shebang-command",
+      "version": "2.0.0",
+      "purl": "pkg:npm/shebang-command@2.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "shebang-regex",
+      "version": "3.0.0",
+      "purl": "pkg:npm/shebang-regex@3.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "path-key",
+      "version": "3.1.1",
+      "purl": "pkg:npm/path-key@3.1.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "chalk",
+      "version": "4.1.2",
+      "purl": "pkg:npm/chalk@4.1.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "supports-color",
+      "version": "7.2.0",
+      "purl": "pkg:npm/supports-color@7.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "has-flag",
+      "version": "4.0.0",
+      "purl": "pkg:npm/has-flag@4.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "ansi-styles",
+      "version": "4.3.0",
+      "purl": "pkg:npm/ansi-styles@4.3.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "color-convert",
+      "version": "2.0.1",
+      "purl": "pkg:npm/color-convert@2.0.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "color-name",
+      "version": "1.1.4",
+      "purl": "pkg:npm/color-name@1.1.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "ajv",
+      "version": "6.15.0",
+      "purl": "pkg:npm/ajv@6.15.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "uri-js",
+      "version": "4.4.1",
+      "purl": "pkg:npm/uri-js@4.4.1",
+      "licenses": [
+        {
+          "expression": "BSD-2-Clause"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "punycode",
+      "version": "2.3.1",
+      "purl": "pkg:npm/punycode@2.3.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "json-schema-traverse",
+      "version": "0.4.1",
+      "purl": "pkg:npm/json-schema-traverse@0.4.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "fast-json-stable-stringify",
+      "version": "2.1.0",
+      "purl": "pkg:npm/fast-json-stable-stringify@2.1.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@eslint/js",
+      "version": "9.39.2",
+      "purl": "pkg:npm/@eslint/js@9.39.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@eslint/eslintrc",
+      "version": "3.3.7",
+      "purl": "pkg:npm/@eslint/eslintrc@3.3.7",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "strip-json-comments",
+      "version": "3.1.1",
+      "purl": "pkg:npm/strip-json-comments@3.1.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "js-yaml",
+      "version": "4.3.2",
+      "purl": "pkg:npm/js-yaml@4.3.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "argparse",
+      "version": "2.0.1",
+      "purl": "pkg:npm/argparse@2.0.1",
+      "licenses": [
+        {
+          "expression": "Python-2.0"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "globals",
+      "version": "14.0.0",
+      "purl": "pkg:npm/globals@14.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@eslint-community/regexpp",
+      "version": "4.12.2",
+      "purl": "pkg:npm/@eslint-community/regexpp@4.12.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@eslint-community/eslint-utils",
+      "version": "4.10.1",
+      "purl": "pkg:npm/@eslint-community/eslint-utils@4.10.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@types/react-dom",
+      "version": "19.3.0",
+      "purl": "pkg:npm/@types/react-dom@19.3.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@types/react",
+      "version": "19.3.0",
+      "purl": "pkg:npm/@types/react@19.3.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "csstype",
+      "version": "3.2.3",
+      "purl": "pkg:npm/csstype@3.2.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@types/node",
+      "version": "22.20.2",
+      "purl": "pkg:npm/@types/node@22.20.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "undici-types",
+      "version": "6.21.0",
+      "purl": "pkg:npm/undici-types@6.21.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@playwright/test",
+      "version": "1.63.0",
+      "purl": "pkg:npm/@playwright/test@1.63.0",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "playwright",
+      "version": "1.63.0",
+      "purl": "pkg:npm/playwright@1.63.0",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "playwright-core",
+      "version": "1.63.0",
+      "purl": "pkg:npm/playwright-core@1.63.0",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/config-conventional",
+      "version": "21.2.2",
+      "purl": "pkg:npm/@commitlint/config-conventional@21.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/types",
+      "version": "21.2.0",
+      "purl": "pkg:npm/@commitlint/types@21.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "picocolors",
+      "version": "1.1.1",
+      "purl": "pkg:npm/picocolors@1.1.1",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/cli",
+      "version": "21.2.2",
+      "purl": "pkg:npm/@commitlint/cli@21.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "yargs",
+      "version": "18.1.0",
+      "purl": "pkg:npm/yargs@18.1.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "get-caller-file",
+      "version": "2.0.5",
+      "purl": "pkg:npm/get-caller-file@2.0.5",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/read",
+      "version": "21.2.1",
+      "purl": "pkg:npm/@commitlint/read@21.2.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/top-level",
+      "version": "21.2.0",
+      "purl": "pkg:npm/@commitlint/top-level@21.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/load",
+      "version": "21.2.2",
+      "purl": "pkg:npm/@commitlint/load@21.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "es-toolkit",
+      "version": "1.52.0",
+      "purl": "pkg:npm/es-toolkit@1.52.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "cosmiconfig",
+      "version": "9.0.2",
+      "purl": "pkg:npm/cosmiconfig@9.0.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "parse-json",
+      "version": "5.2.0",
+      "purl": "pkg:npm/parse-json@5.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "lines-and-columns",
+      "version": "1.2.4",
+      "purl": "pkg:npm/lines-and-columns@1.2.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "json-parse-even-better-errors",
+      "version": "2.3.1",
+      "purl": "pkg:npm/json-parse-even-better-errors@2.3.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "error-ex",
+      "version": "1.3.4",
+      "purl": "pkg:npm/error-ex@1.3.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "is-arrayish",
+      "version": "0.2.1",
+      "purl": "pkg:npm/is-arrayish@0.2.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@babel/code-frame",
+      "version": "7.29.7",
+      "purl": "pkg:npm/@babel/code-frame@7.29.7",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "js-tokens",
+      "version": "4.0.0",
+      "purl": "pkg:npm/js-tokens@4.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@babel/helper-validator-identifier",
+      "version": "7.29.7",
+      "purl": "pkg:npm/@babel/helper-validator-identifier@7.29.7",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "env-paths",
+      "version": "2.2.1",
+      "purl": "pkg:npm/env-paths@2.2.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/resolve-extends",
+      "version": "21.2.2",
+      "purl": "pkg:npm/@commitlint/resolve-extends@21.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "resolve-from",
+      "version": "4.0.0",
+      "purl": "pkg:npm/resolve-from@4.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/config-validator",
+      "version": "21.2.0",
+      "purl": "pkg:npm/@commitlint/config-validator@21.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/execute-rule",
+      "version": "21.0.1",
+      "purl": "pkg:npm/@commitlint/execute-rule@21.0.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/lint",
+      "version": "21.2.2",
+      "purl": "pkg:npm/@commitlint/lint@21.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/rules",
+      "version": "21.2.2",
+      "purl": "pkg:npm/@commitlint/rules@21.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/to-lines",
+      "version": "21.0.1",
+      "purl": "pkg:npm/@commitlint/to-lines@21.0.1",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/message",
+      "version": "21.2.0",
+      "purl": "pkg:npm/@commitlint/message@21.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/ensure",
+      "version": "21.2.0",
+      "purl": "pkg:npm/@commitlint/ensure@21.2.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/parse",
+      "version": "21.2.2",
+      "purl": "pkg:npm/@commitlint/parse@21.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/is-ignored",
+      "version": "21.2.2",
+      "purl": "pkg:npm/@commitlint/is-ignored@21.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "semver",
+      "version": "7.8.5",
+      "purl": "pkg:npm/semver@7.8.5",
+      "licenses": [
+        {
+          "expression": "ISC"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@commitlint/format",
+      "version": "21.2.2",
+      "purl": "pkg:npm/@commitlint/format@21.2.2",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "react-dom",
+      "version": "19.3.0",
+      "purl": "pkg:npm/react-dom@19.3.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "scheduler",
+      "version": "0.28.0",
+      "purl": "pkg:npm/scheduler@0.28.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "react",
+      "version": "19.3.0",
+      "purl": "pkg:npm/react@19.3.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "qrcode",
+      "version": "1.5.4",
+      "purl": "pkg:npm/qrcode@1.5.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "pngjs",
+      "version": "5.0.0",
+      "purl": "pkg:npm/pngjs@5.0.0",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "dijkstrajs",
+      "version": "1.0.3",
+      "purl": "pkg:npm/dijkstrajs@1.0.3",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "next",
+      "version": "16.3.4",
+      "purl": "pkg:npm/next@16.3.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "styled-jsx",
+      "version": "5.1.6",
+      "purl": "pkg:npm/styled-jsx@5.1.6",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "postcss",
+      "version": "8.5.23",
+      "purl": "pkg:npm/postcss@8.5.23",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "source-map-js",
+      "version": "1.2.1",
+      "purl": "pkg:npm/source-map-js@1.2.1",
+      "licenses": [
+        {
+          "expression": "BSD-3-Clause"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "nanoid",
+      "version": "3.3.18",
+      "purl": "pkg:npm/nanoid@3.3.18",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "caniuse-lite",
+      "version": "1.0.30001810",
+      "purl": "pkg:npm/caniuse-lite@1.0.30001810",
+      "licenses": [
+        {
+          "expression": "CC-BY-4.0"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@swc/helpers",
+      "version": "0.5.23",
+      "purl": "pkg:npm/@swc/helpers@0.5.23",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "tslib",
+      "version": "2.8.1",
+      "purl": "pkg:npm/tslib@2.8.1",
+      "licenses": [
+        {
+          "expression": "0BSD"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "@next/env",
+      "version": "16.3.4",
+      "purl": "pkg:npm/@next/env@16.3.4",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "optional"
+    },
+    {
+      "type": "library",
+      "name": "jsqr",
+      "version": "1.4.0",
+      "purl": "pkg:npm/jsqr@1.4.0",
+      "licenses": [
+        {
+          "expression": "Apache-2.0"
+        }
+      ],
+      "scope": "required"
+    },
+    {
+      "type": "library",
+      "name": "@types/qrcode",
+      "version": "1.5.6",
+      "purl": "pkg:npm/@types/qrcode@1.5.6",
+      "licenses": [
+        {
+          "expression": "MIT"
+        }
+      ],
+      "scope": "required"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "wird-daily-tracker",
+      "dependsOn": [
+        "vitest",
+        "why-is-node-running",
+        "stackback",
+        "siginfo",
+        "tinyglobby",
+        "picomatch",
+        "fdir",
+        "tinyexec",
+        "obug",
+        "magic-string",
+        "@jridgewell/sourcemap-codec",
+        "expect-type",
+        "chai",
+        "@vitest/mocker",
+        "estree-walker",
+        "@types/estree",
+        "@vitest/spy",
+        "@jridgewell/trace-mapping",
+        "@jridgewell/resolve-uri",
+        "@types/chai",
+        "assertion-error",
+        "@types/deep-eql",
+        "typescript",
+        "prettier",
+        "lint-staged",
+        "eslint",
+        "optionator",
+        "fast-levenshtein",
+        "levn",
+        "type-check",
+        "prelude-ls",
+        "word-wrap",
+        "deep-is",
+        "natural-compare",
+        "minimatch",
+        "brace-expansion",
+        "concat-map",
+        "balanced-match",
+        "lodash.merge",
+        "json-stable-stringify-without-jsonify",
+        "is-glob",
+        "is-extglob",
+        "imurmurhash",
+        "ignore",
+        "glob-parent",
+        "find-up",
+        "path-exists",
+        "locate-path",
+        "p-locate",
+        "p-limit",
+        "yocto-queue",
+        "file-entry-cache",
+        "flat-cache",
+        "keyv",
+        "json-buffer",
+        "flatted",
+        "fast-deep-equal",
+        "esutils",
+        "esquery",
+        "estraverse",
+        "espree",
+        "eslint-visitor-keys",
+        "acorn-jsx",
+        "acorn",
+        "eslint-scope",
+        "esrecurse",
+        "escape-string-regexp",
+        "debug",
+        "ms",
+        "cross-spawn",
+        "which",
+        "isexe",
+        "shebang-command",
+        "shebang-regex",
+        "path-key",
+        "chalk",
+        "supports-color",
+        "has-flag",
+        "ansi-styles",
+        "color-convert",
+        "color-name",
+        "ajv",
+        "uri-js",
+        "punycode",
+        "json-schema-traverse",
+        "fast-json-stable-stringify",
+        "@eslint/js",
+        "@eslint/eslintrc",
+        "strip-json-comments",
+        "js-yaml",
+        "argparse",
+        "globals",
+        "@eslint-community/regexpp",
+        "@eslint-community/eslint-utils",
+        "@types/react-dom",
+        "@types/react",
+        "csstype",
+        "@types/node",
+        "undici-types",
+        "@playwright/test",
+        "playwright",
+        "playwright-core",
+        "@commitlint/config-conventional",
+        "@commitlint/types",
+        "picocolors",
+        "@commitlint/cli",
+        "yargs",
+        "get-caller-file",
+        "@commitlint/read",
+        "@commitlint/top-level",
+        "@commitlint/load",
+        "es-toolkit",
+        "cosmiconfig",
+        "parse-json",
+        "lines-and-columns",
+        "json-parse-even-better-errors",
+        "error-ex",
+        "is-arrayish",
+        "@babel/code-frame",
+        "js-tokens",
+        "@babel/helper-validator-identifier",
+        "env-paths",
+        "@commitlint/resolve-extends",
+        "resolve-from",
+        "@commitlint/config-validator",
+        "@commitlint/execute-rule",
+        "@commitlint/lint",
+        "@commitlint/rules",
+        "@commitlint/to-lines",
+        "@commitlint/message",
+        "@commitlint/ensure",
+        "@commitlint/parse",
+        "@commitlint/is-ignored",
+        "semver",
+        "@commitlint/format",
+        "react-dom",
+        "scheduler",
+        "react",
+        "qrcode",
+        "pngjs",
+        "dijkstrajs",
+        "next",
+        "styled-jsx",
+        "postcss",
+        "source-map-js",
+        "nanoid",
+        "caniuse-lite",
+        "@swc/helpers",
+        "tslib",
+        "@next/env",
+        "jsqr",
+        "@types/qrcode"
+      ]
+    },
+    {
+      "ref": "vitest",
+      "dependsOn": [
+        "@types/chai",
+        "@vitest/mocker",
+        "chai",
+        "es-module-lexer",
+        "expect-type",
+        "magic-string",
+        "obug",
+        "picomatch",
+        "std-env",
+        "tinybench",
+        "tinyexec",
+        "tinyglobby",
+        "why-is-node-running"
+      ]
+    },
+    {
+      "ref": "why-is-node-running",
+      "dependsOn": ["siginfo", "stackback"]
+    },
+    {
+      "ref": "stackback",
+      "dependsOn": []
+    },
+    {
+      "ref": "siginfo",
+      "dependsOn": []
+    },
+    {
+      "ref": "tinyglobby",
+      "dependsOn": ["fdir", "picomatch"]
+    },
+    {
+      "ref": "picomatch",
+      "dependsOn": []
+    },
+    {
+      "ref": "fdir",
+      "dependsOn": []
+    },
+    {
+      "ref": "tinyexec",
+      "dependsOn": []
+    },
+    {
+      "ref": "obug",
+      "dependsOn": []
+    },
+    {
+      "ref": "magic-string",
+      "dependsOn": ["@jridgewell/sourcemap-codec"]
+    },
+    {
+      "ref": "@jridgewell/sourcemap-codec",
+      "dependsOn": []
+    },
+    {
+      "ref": "expect-type",
+      "dependsOn": []
+    },
+    {
+      "ref": "chai",
+      "dependsOn": []
+    },
+    {
+      "ref": "@vitest/mocker",
+      "dependsOn": ["@jridgewell/trace-mapping", "@vitest/spy", "estree-walker", "magic-string"]
+    },
+    {
+      "ref": "estree-walker",
+      "dependsOn": ["@types/estree"]
+    },
+    {
+      "ref": "@types/estree",
+      "dependsOn": []
+    },
+    {
+      "ref": "@vitest/spy",
+      "dependsOn": []
+    },
+    {
+      "ref": "@jridgewell/trace-mapping",
+      "dependsOn": ["@jridgewell/resolve-uri", "@jridgewell/sourcemap-codec"]
+    },
+    {
+      "ref": "@jridgewell/resolve-uri",
+      "dependsOn": []
+    },
+    {
+      "ref": "@types/chai",
+      "dependsOn": ["@types/deep-eql", "assertion-error"]
+    },
+    {
+      "ref": "assertion-error",
+      "dependsOn": []
+    },
+    {
+      "ref": "@types/deep-eql",
+      "dependsOn": []
+    },
+    {
+      "ref": "typescript",
+      "dependsOn": []
+    },
+    {
+      "ref": "prettier",
+      "dependsOn": []
+    },
+    {
+      "ref": "lint-staged",
+      "dependsOn": ["picomatch", "string-argv", "tinyexec"]
+    },
+    {
+      "ref": "eslint",
+      "dependsOn": [
+        "@eslint-community/eslint-utils",
+        "@eslint-community/regexpp",
+        "@eslint/config-array",
+        "@eslint/config-helpers",
+        "@eslint/core",
+        "@eslint/eslintrc",
+        "@eslint/js",
+        "@eslint/plugin-kit",
+        "@humanfs/node",
+        "@humanwhocodes/module-importer",
+        "@humanwhocodes/retry",
+        "@types/estree",
+        "ajv",
+        "chalk",
+        "cross-spawn",
+        "debug",
+        "escape-string-regexp",
+        "eslint-scope",
+        "eslint-visitor-keys",
+        "espree",
+        "esquery",
+        "esutils",
+        "fast-deep-equal",
+        "file-entry-cache",
+        "find-up",
+        "glob-parent",
+        "ignore",
+        "imurmurhash",
+        "is-glob",
+        "json-stable-stringify-without-jsonify",
+        "lodash.merge",
+        "minimatch",
+        "natural-compare",
+        "optionator"
+      ]
+    },
+    {
+      "ref": "optionator",
+      "dependsOn": ["prelude-ls", "deep-is", "word-wrap", "type-check", "levn", "fast-levenshtein"]
+    },
+    {
+      "ref": "fast-levenshtein",
+      "dependsOn": []
+    },
+    {
+      "ref": "levn",
+      "dependsOn": ["prelude-ls", "type-check"]
+    },
+    {
+      "ref": "type-check",
+      "dependsOn": ["prelude-ls"]
+    },
+    {
+      "ref": "prelude-ls",
+      "dependsOn": []
+    },
+    {
+      "ref": "word-wrap",
+      "dependsOn": []
+    },
+    {
+      "ref": "deep-is",
+      "dependsOn": []
+    },
+    {
+      "ref": "natural-compare",
+      "dependsOn": []
+    },
+    {
+      "ref": "minimatch",
+      "dependsOn": ["brace-expansion"]
+    },
+    {
+      "ref": "brace-expansion",
+      "dependsOn": ["balanced-match", "concat-map"]
+    },
+    {
+      "ref": "concat-map",
+      "dependsOn": []
+    },
+    {
+      "ref": "balanced-match",
+      "dependsOn": []
+    },
+    {
+      "ref": "lodash.merge",
+      "dependsOn": []
+    },
+    {
+      "ref": "json-stable-stringify-without-jsonify",
+      "dependsOn": []
+    },
+    {
+      "ref": "is-glob",
+      "dependsOn": ["is-extglob"]
+    },
+    {
+      "ref": "is-extglob",
+      "dependsOn": []
+    },
+    {
+      "ref": "imurmurhash",
+      "dependsOn": []
+    },
+    {
+      "ref": "ignore",
+      "dependsOn": []
+    },
+    {
+      "ref": "glob-parent",
+      "dependsOn": ["is-glob"]
+    },
+    {
+      "ref": "find-up",
+      "dependsOn": ["locate-path", "path-exists"]
+    },
+    {
+      "ref": "path-exists",
+      "dependsOn": []
+    },
+    {
+      "ref": "locate-path",
+      "dependsOn": ["p-locate"]
+    },
+    {
+      "ref": "p-locate",
+      "dependsOn": ["p-limit"]
+    },
+    {
+      "ref": "p-limit",
+      "dependsOn": ["yocto-queue"]
+    },
+    {
+      "ref": "yocto-queue",
+      "dependsOn": []
+    },
+    {
+      "ref": "file-entry-cache",
+      "dependsOn": ["flat-cache"]
+    },
+    {
+      "ref": "flat-cache",
+      "dependsOn": ["flatted", "keyv"]
+    },
+    {
+      "ref": "keyv",
+      "dependsOn": ["json-buffer"]
+    },
+    {
+      "ref": "json-buffer",
+      "dependsOn": []
+    },
+    {
+      "ref": "flatted",
+      "dependsOn": []
+    },
+    {
+      "ref": "fast-deep-equal",
+      "dependsOn": []
+    },
+    {
+      "ref": "esutils",
+      "dependsOn": []
+    },
+    {
+      "ref": "esquery",
+      "dependsOn": ["estraverse"]
+    },
+    {
+      "ref": "estraverse",
+      "dependsOn": []
+    },
+    {
+      "ref": "espree",
+      "dependsOn": ["acorn", "acorn-jsx", "eslint-visitor-keys"]
+    },
+    {
+      "ref": "eslint-visitor-keys",
+      "dependsOn": []
+    },
+    {
+      "ref": "acorn-jsx",
+      "dependsOn": []
+    },
+    {
+      "ref": "acorn",
+      "dependsOn": []
+    },
+    {
+      "ref": "eslint-scope",
+      "dependsOn": ["esrecurse", "estraverse"]
+    },
+    {
+      "ref": "esrecurse",
+      "dependsOn": ["estraverse"]
+    },
+    {
+      "ref": "escape-string-regexp",
+      "dependsOn": []
+    },
+    {
+      "ref": "debug",
+      "dependsOn": ["ms"]
+    },
+    {
+      "ref": "ms",
+      "dependsOn": []
+    },
+    {
+      "ref": "cross-spawn",
+      "dependsOn": ["path-key", "shebang-command", "which"]
+    },
+    {
+      "ref": "which",
+      "dependsOn": ["isexe"]
+    },
+    {
+      "ref": "isexe",
+      "dependsOn": []
+    },
+    {
+      "ref": "shebang-command",
+      "dependsOn": ["shebang-regex"]
+    },
+    {
+      "ref": "shebang-regex",
+      "dependsOn": []
+    },
+    {
+      "ref": "path-key",
+      "dependsOn": []
+    },
+    {
+      "ref": "chalk",
+      "dependsOn": ["ansi-styles", "supports-color"]
+    },
+    {
+      "ref": "supports-color",
+      "dependsOn": ["has-flag"]
+    },
+    {
+      "ref": "has-flag",
+      "dependsOn": []
+    },
+    {
+      "ref": "ansi-styles",
+      "dependsOn": ["color-convert"]
+    },
+    {
+      "ref": "color-convert",
+      "dependsOn": ["color-name"]
+    },
+    {
+      "ref": "color-name",
+      "dependsOn": []
+    },
+    {
+      "ref": "ajv",
+      "dependsOn": [
+        "fast-deep-equal",
+        "fast-json-stable-stringify",
+        "json-schema-traverse",
+        "uri-js"
+      ]
+    },
+    {
+      "ref": "uri-js",
+      "dependsOn": ["punycode"]
+    },
+    {
+      "ref": "punycode",
+      "dependsOn": []
+    },
+    {
+      "ref": "json-schema-traverse",
+      "dependsOn": []
+    },
+    {
+      "ref": "fast-json-stable-stringify",
+      "dependsOn": []
+    },
+    {
+      "ref": "@eslint/js",
+      "dependsOn": []
+    },
+    {
+      "ref": "@eslint/eslintrc",
+      "dependsOn": [
+        "ajv",
+        "debug",
+        "espree",
+        "globals",
+        "ignore",
+        "import-fresh",
+        "js-yaml",
+        "minimatch",
+        "strip-json-comments"
+      ]
+    },
+    {
+      "ref": "strip-json-comments",
+      "dependsOn": []
+    },
+    {
+      "ref": "js-yaml",
+      "dependsOn": ["argparse"]
+    },
+    {
+      "ref": "argparse",
+      "dependsOn": []
+    },
+    {
+      "ref": "globals",
+      "dependsOn": []
+    },
+    {
+      "ref": "@eslint-community/regexpp",
+      "dependsOn": []
+    },
+    {
+      "ref": "@eslint-community/eslint-utils",
+      "dependsOn": ["eslint-visitor-keys"]
+    },
+    {
+      "ref": "@types/react-dom",
+      "dependsOn": []
+    },
+    {
+      "ref": "@types/react",
+      "dependsOn": ["csstype"]
+    },
+    {
+      "ref": "csstype",
+      "dependsOn": []
+    },
+    {
+      "ref": "@types/node",
+      "dependsOn": ["undici-types"]
+    },
+    {
+      "ref": "undici-types",
+      "dependsOn": []
+    },
+    {
+      "ref": "@playwright/test",
+      "dependsOn": ["playwright"]
+    },
+    {
+      "ref": "playwright",
+      "dependsOn": ["playwright-core"]
+    },
+    {
+      "ref": "playwright-core",
+      "dependsOn": []
+    },
+    {
+      "ref": "@commitlint/config-conventional",
+      "dependsOn": ["@commitlint/types", "conventional-changelog-conventionalcommits"]
+    },
+    {
+      "ref": "@commitlint/types",
+      "dependsOn": ["conventional-commits-parser", "picocolors"]
+    },
+    {
+      "ref": "picocolors",
+      "dependsOn": []
+    },
+    {
+      "ref": "@commitlint/cli",
+      "dependsOn": [
+        "@commitlint/config-conventional",
+        "@commitlint/format",
+        "@commitlint/lint",
+        "@commitlint/load",
+        "@commitlint/read",
+        "@commitlint/types",
+        "tinyexec",
+        "yargs"
+      ]
+    },
+    {
+      "ref": "yargs",
+      "dependsOn": ["cliui", "escalade", "get-caller-file", "string-width", "y18n", "yargs-parser"]
+    },
+    {
+      "ref": "get-caller-file",
+      "dependsOn": []
+    },
+    {
+      "ref": "@commitlint/read",
+      "dependsOn": [
+        "@commitlint/top-level",
+        "@commitlint/types",
+        "@conventional-changelog/git-client",
+        "tinyexec"
+      ]
+    },
+    {
+      "ref": "@commitlint/top-level",
+      "dependsOn": ["escalade"]
+    },
+    {
+      "ref": "@commitlint/load",
+      "dependsOn": [
+        "@commitlint/config-validator",
+        "@commitlint/execute-rule",
+        "@commitlint/resolve-extends",
+        "@commitlint/types",
+        "cosmiconfig",
+        "cosmiconfig-typescript-loader",
+        "es-toolkit",
+        "is-plain-obj",
+        "picocolors"
+      ]
+    },
+    {
+      "ref": "es-toolkit",
+      "dependsOn": []
+    },
+    {
+      "ref": "cosmiconfig",
+      "dependsOn": ["env-paths", "import-fresh", "js-yaml", "parse-json"]
+    },
+    {
+      "ref": "parse-json",
+      "dependsOn": [
+        "@babel/code-frame",
+        "error-ex",
+        "json-parse-even-better-errors",
+        "lines-and-columns"
+      ]
+    },
+    {
+      "ref": "lines-and-columns",
+      "dependsOn": []
+    },
+    {
+      "ref": "json-parse-even-better-errors",
+      "dependsOn": []
+    },
+    {
+      "ref": "error-ex",
+      "dependsOn": ["is-arrayish"]
+    },
+    {
+      "ref": "is-arrayish",
+      "dependsOn": []
+    },
+    {
+      "ref": "@babel/code-frame",
+      "dependsOn": ["@babel/helper-validator-identifier", "js-tokens", "picocolors"]
+    },
+    {
+      "ref": "js-tokens",
+      "dependsOn": []
+    },
+    {
+      "ref": "@babel/helper-validator-identifier",
+      "dependsOn": []
+    },
+    {
+      "ref": "env-paths",
+      "dependsOn": []
+    },
+    {
+      "ref": "@commitlint/resolve-extends",
+      "dependsOn": [
+        "@commitlint/config-validator",
+        "@commitlint/types",
+        "es-toolkit",
+        "global-directory",
+        "resolve-from"
+      ]
+    },
+    {
+      "ref": "resolve-from",
+      "dependsOn": []
+    },
+    {
+      "ref": "@commitlint/config-validator",
+      "dependsOn": ["@commitlint/types", "ajv"]
+    },
+    {
+      "ref": "@commitlint/execute-rule",
+      "dependsOn": []
+    },
+    {
+      "ref": "@commitlint/lint",
+      "dependsOn": [
+        "@commitlint/is-ignored",
+        "@commitlint/parse",
+        "@commitlint/rules",
+        "@commitlint/types"
+      ]
+    },
+    {
+      "ref": "@commitlint/rules",
+      "dependsOn": [
+        "@commitlint/ensure",
+        "@commitlint/message",
+        "@commitlint/to-lines",
+        "@commitlint/types"
+      ]
+    },
+    {
+      "ref": "@commitlint/to-lines",
+      "dependsOn": []
+    },
+    {
+      "ref": "@commitlint/message",
+      "dependsOn": []
+    },
+    {
+      "ref": "@commitlint/ensure",
+      "dependsOn": ["@commitlint/types", "es-toolkit"]
+    },
+    {
+      "ref": "@commitlint/parse",
+      "dependsOn": [
+        "@commitlint/types",
+        "conventional-changelog-angular",
+        "conventional-commits-parser"
+      ]
+    },
+    {
+      "ref": "@commitlint/is-ignored",
+      "dependsOn": ["@commitlint/types", "semver"]
+    },
+    {
+      "ref": "semver",
+      "dependsOn": []
+    },
+    {
+      "ref": "@commitlint/format",
+      "dependsOn": ["@commitlint/types", "picocolors"]
+    },
+    {
+      "ref": "react-dom",
+      "dependsOn": ["scheduler"]
+    },
+    {
+      "ref": "scheduler",
+      "dependsOn": []
+    },
+    {
+      "ref": "react",
+      "dependsOn": []
+    },
+    {
+      "ref": "qrcode",
+      "dependsOn": ["dijkstrajs", "pngjs", "yargs"]
+    },
+    {
+      "ref": "pngjs",
+      "dependsOn": []
+    },
+    {
+      "ref": "dijkstrajs",
+      "dependsOn": []
+    },
+    {
+      "ref": "next",
+      "dependsOn": [
+        "@next/env",
+        "@swc/helpers",
+        "baseline-browser-mapping",
+        "caniuse-lite",
+        "postcss",
+        "styled-jsx"
+      ]
+    },
+    {
+      "ref": "styled-jsx",
+      "dependsOn": ["client-only"]
+    },
+    {
+      "ref": "postcss",
+      "dependsOn": ["nanoid", "picocolors", "source-map-js"]
+    },
+    {
+      "ref": "source-map-js",
+      "dependsOn": []
+    },
+    {
+      "ref": "nanoid",
+      "dependsOn": []
+    },
+    {
+      "ref": "caniuse-lite",
+      "dependsOn": []
+    },
+    {
+      "ref": "@swc/helpers",
+      "dependsOn": ["tslib"]
+    },
+    {
+      "ref": "tslib",
+      "dependsOn": []
+    },
+    {
+      "ref": "@next/env",
+      "dependsOn": []
+    },
+    {
+      "ref": "jsqr",
+      "dependsOn": []
+    },
+    {
+      "ref": "@types/qrcode",
+      "dependsOn": ["@types/node"]
+    }
+  ]
+}

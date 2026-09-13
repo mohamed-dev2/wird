@@ -105,3 +105,22 @@ writeVaultText/disableVault`; AES-GCM-256; forgetting passphrase is
 See docs/VERSIONING.md. Contracts above marked "pure"/"no side effects"
 are the ones a subsystem-replacement PR should preserve; anything else
 may change with a documented deprecation window.
+
+## Five API categories
+
+Every exported symbol belongs to exactly one category. The category is
+written in its JSDoc tag; its absence means `@internal` (the default for
+anything merely exported).
+
+| tag             | meaning                                                                                                                     | can a contributor depend on it?                       |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `@public`       | deliberately stable contract inside and outside the app (e.g. `collectBackup`, `restoreBackupSafe`, `payloadChecksumWords`) | yes; changes need VERSIONING.md deprecation           |
+| `@internal`     | exported only because TypeScript modules need sharing (majority of `lib/*`)                                                 | no; refactor freely to add your feature doc note      |
+| `@experimental` | ships now, shape may change in a minor                                                                                      | use, but expect adjustment; strip the tag when stable |
+| `@deprecated`   | superseded, removal target noted (e.g. `restoreBackup` → `restoreBackupSafe`)                                               | migrate; see the tag for the replacement              |
+| `@generated`    | produced by tooling, never hand-edited                                                                                      | no; change the source, not the export                 |
+
+Do NOT invent a public API by exporting — a bare `export` is internal by
+default. Promoting something to `@public` is a decision, recorded with
+the release (docs/VERSIONING.md), and it triggers the deprecation
+responsibilities that come with it.

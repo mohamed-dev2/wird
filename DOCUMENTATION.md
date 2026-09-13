@@ -51,6 +51,15 @@ tools to move between devices.
 35. [How to add a language](docs/HOW_TO_ADD_A_LANGUAGE.md)
 36. [How to add religious content](docs/HOW_TO_ADD_RELIGIOUS_CONTENT.md)
 37. [Governance](GOVERNANCE.md)
+38. [Reproducibility](docs/REPRODUCIBILITY.md)
+39. [Dependency governance](docs/DEPENDENCIES.md)
+40. [Release engineering](docs/RELEASE.md)
+41. [Feature flags](docs/FEATURE_FLAGS.md)
+42. [Technical debt register](docs/TECH_DEBT.md)
+43. [Contributor levels](docs/CONTRIBUTOR_LEVELS.md)
+44. [Maintainer handover](docs/MAINTAINER_HANDOVER.md)
+45. [Open-source readiness](docs/OPEN_SOURCE_READINESS.md)
+46. [Safe code generation](docs/SAFE_CODE_GENERATION.md)
 
 ## 1. Quick start
 
@@ -65,6 +74,9 @@ npm run test       # vitest run (unit)
 npm run test:e2e   # playwright test (spins up production server)
 npm run format     # prettier --write .
 npm run docs:check # verify this file matches the code (keys + routes)
+npm run boundaries:check # architectural boundary gates (lib↔components, schema, online-only, privacy↔CSP)
+npm run metrics # maintainability report (oversized modules, fan-in, runtime cycles)
+npm run sbom # regenerate sbom.wird.json (CycloneDX-lite)
 npm run clean      # wipe .next + tsbuildinfo (run after major upgrades)
 ```
 
@@ -349,7 +361,11 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   no-shame scan), insights layers with seeded data + honest empty state;
   hydration-error listener fails the run on mismatch.
 - CI (`.github/workflows/ci.yml`): install → typecheck → lint → unit → e2e →
-  build → audit → docs:check.
+  build → audit → docs:check (+ format:check, comments:check, css:check,
+  boundaries:check).
+- Supply chain: `npm audit` clean; SBOM (`sbom.wird.json`) + third-party
+  licenses (`THIRD_PARTY_NOTICES.md`), all regenerable via `npm run sbom` /
+  `npm run audit`. See `docs/DEPENDENCIES.md`.
 
 ## 11. Deployment
 

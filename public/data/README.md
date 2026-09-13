@@ -1,14 +1,13 @@
 # public/data/ — GENERATED DATA — DO NOT EDIT BY HAND
 
-The files in this directory are **build/generated artifacts**, produced
-from reviewed sources by the generation pipeline (scripts + upstream
-datasets listed below). Do not hand-edit them in a PR:
+The files in this directory are **derived/generated artifacts**, produced
+from reviewed sources by external tooling (the producing pipeline lives
+outside this repo today). Do not hand-edit them in a PR:
 
-- Changes must go through the **source pipeline**, not the JSON.
-- Any edit that lands here without the accompanying tooling change will
-  be rejected in review.
-- Regenerate after changing sources: `npm run build:data` (or the specific
-  generator in `scripts/`).
+- Any change to this data must go through the **source** pipeline and be
+  documented in the same PR (see `docs/SAFE_CODE_GENERATION.md`).
+- Until that pipeline is in-repo, treat a data change as a
+  content-change requiring the religious-content review process.
 
 | file                     | content                                    | generated from           |
 | ------------------------ | ------------------------------------------ | ------------------------ |
