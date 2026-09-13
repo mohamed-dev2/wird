@@ -27,7 +27,12 @@ down; storage writes flow through the store or the owning lib module.
 
 `account` (profiles, backup, transfer, reminders, health), `adhkar`
 (counters + history log), `calendar` (grid + return/milestone markers),
-`now` (moment suggestions), `transfer` (QR/LAN/recovery phrase UI).
+`now` (moment suggestions), `transfer` (QR/LAN/recovery phrase UI),
+`private-plans` (plan list/cards) + `private-plan-detail` (stats, check-in,
+setback) + `private-plan-tracker` (usage, timeline, triggers, replacements)
+
+- `private-plan-timer` (urge timer + emergency, isolated 1s ticks) +
+  `private-plan-care` (support, milestones, reasons, settings).
 
 ## Library (`components/library/`)
 

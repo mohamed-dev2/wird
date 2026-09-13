@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { readRecord, SCHEMAS, writeRecord, type StorageLike } from "../schema";
 import { tr } from "../strings";
 import {
+  addUnique,
   attemptCount,
   averageRunDays,
   averageSetbackGap,
@@ -220,6 +221,12 @@ describe("validation and pruning", () => {
   it("plan letters stay generic and stable", () => {
     expect(planLetter(0)).toBe("A");
     expect(planLetter(2)).toBe("C");
+  });
+  it("addUnique trims, dedupes, ignores blanks, and caps", () => {
+    expect(addUnique(["a"], "  b  ")).toEqual(["a", "b"]);
+    expect(addUnique(["a"], "a")).toEqual(["a"]);
+    expect(addUnique(["a"], "   ")).toEqual(["a"]);
+    expect(addUnique(["a", "b"], "c", 2)).toEqual(["b", "c"]);
   });
 });
 

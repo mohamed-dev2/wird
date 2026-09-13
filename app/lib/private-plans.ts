@@ -67,6 +67,13 @@ export function planLetter(index: number): string {
   return index >= 26 ? `${base}${Math.floor(index / 26) + 1}` : base;
 }
 
+/** Append a trimmed, deduplicated string to a capped list (no-op on blank/dup). */
+export function addUnique(list: string[], value: string, cap = 100): string[] {
+  const v = value.trim();
+  if (!v || list.includes(v)) return list;
+  return [...list, v].slice(-cap);
+}
+
 export function newPrivatePlan(input: {
   name?: string;
   category?: string;

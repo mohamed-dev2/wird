@@ -5,6 +5,12 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Private plans redesign: stat-card grid, visual journey timeline, usage
+  bars, hero urge-timer countdown, milestone/trigger chips, emergency and
+  support cards (`pp-` design system, 28 ideas); workspace split into
+  focused modules (shell/stats, tracker, timer, care) with memoized
+  derivations so timer ticks never re-render siblings.
+
 - Efficiency pass: mirror books download + parse once (shared payload
   for Arabic + EN); Quran/hadith search normalizes once per loaded
   corpus instead of per keystroke; offscreen cards skip rendering

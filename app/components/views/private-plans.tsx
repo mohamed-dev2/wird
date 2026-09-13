@@ -125,9 +125,11 @@ export function PrivatePlansView() {
           {t("pp.quickExit")}
         </button>
       </div>
-      <h2>{t("pp.title")}</h2>
-      <p className="backup-msg">{t("pp.sub")}</p>
-      <p className="backup-msg">{t("pp.disclaimer")}</p>
+      <div className="pp-hero">
+        <h2>{t("pp.title")}</h2>
+        <p className="backup-msg">{t("pp.sub")}</p>
+        <p className="backup-msg">{t("pp.disclaimer")}</p>
+      </div>
       {msg && (
         <p className="backup-msg" aria-live="polite">
           {msg}
@@ -139,32 +141,35 @@ export function PrivatePlansView() {
           <p className="backup-msg">{t("pp.emptySub")}</p>
         </>
       ) : (
-        <div>
+        <div className="pp-plan-list">
           {plans.map((p, i) => {
             const due = !checkedInToday(p, today);
             return (
-              <div key={p.id} className="acc-row">
-                <button type="button" onClick={() => setSelectedId(p.id)}>
-                  <span aria-hidden="true">◌</span>
-                  {planDisplayName(t, p, i)}
-                  <i>‹</i>
+              <div key={p.id} className="pp-plan-card">
+                <button type="button" className="pp-plan-open" onClick={() => setSelectedId(p.id)}>
+                  <span className="pp-plan-top">
+                    <strong>{planDisplayName(t, p, i)}</strong>
+                    {due ? (
+                      <span className="pp-due-badge">{t("pp.due")}</span>
+                    ) : (
+                      <span className="pp-due-badge is-done">{t("pp.checkedIn")}</span>
+                    )}
+                  </span>
+                  <span className="pp-run-hero">
+                    {t("pp.daysFmt", { n: currentRunDays(p, today) })}
+                    <span>{t("pp.currentRun")}</span>
+                  </span>
+                  <span className="pp-open-hint">
+                    {t("pp.open")} <i aria-hidden="true">‹</i>
+                  </span>
                 </button>
-                <div className="row-detail">
-                  <span className="backup-msg">
-                    {t("pp.currentRun")}: {t("pp.daysFmt", { n: currentRunDays(p, today) })}
-                    {due ? ` · ${t("pp.due")}` : ` · ${t("pp.checkedIn")}`}
-                  </span>{" "}
-                  <button type="button" className="linklike" onClick={() => setSelectedId(p.id)}>
-                    {t("pp.open")}
-                  </button>
-                </div>
               </div>
             );
           })}
         </div>
       )}
       {creating ? (
-        <div className="row-detail">
+        <div className="pp-card pp-create-card">
           <label>
             {t("pp.name")}
             <input
@@ -240,7 +245,7 @@ export function PrivatePlansView() {
           </button>
         </div>
       )}
-      <div className="row-detail">
+      <div className="pp-card pp-settings-card">
         <button type="button" className="linklike" onClick={toggleExcluded} aria-pressed={excluded}>
           {excluded ? "✓ " : ""}
           {t("pp.excluded")}

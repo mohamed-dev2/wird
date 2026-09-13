@@ -8,8 +8,13 @@ minutes/day"). The app **never diagnoses**; the user decides what to work on.
 - Route: `/private-plans` (deliberately unlisted from nav/sitemap; reached
   from Account → privacy, or by direct navigation).
 - Core module: `app/lib/private-plans.ts` (pure, framework-free, unit-tested).
-- Views: `app/components/views/private-plans.tsx` (list/create),
-  `app/components/views/private-plan-detail.tsx` (plan workspace).
+- Views: `app/components/views/private-plans.tsx` (list/cards),
+  `app/components/views/private-plan-detail.tsx` (shell + memoized stats,
+  check-in, setback), `private-plan-tracker.tsx` (usage, timeline,
+  triggers, replacements), `private-plan-timer.tsx` (urge timer +
+  emergency — isolated ticks), `private-plan-care.tsx` (support,
+  milestones, reasons, settings). One render concern per module; the
+  timer never re-renders its siblings.
 - Copy: `pp.*` keys in `app/lib/strings.ts` (AR/EN parity enforced).
 
 ## Contract (what the system promises)
@@ -116,7 +121,7 @@ documented protection boundary (`SECURITY.md` assumptions).
 
 ## Tests
 
-- Unit (`app/lib/__tests__/private-plans.test.ts`, 29 tests): run math,
+- Unit (`app/lib/__tests__/private-plans.test.ts`, 30 tests): run math,
   history-preserving resets, milestones, idempotent check-ins, usage
   clamps, trigger/strategy stats, validation/pruning, schema round-trip
   with salvage, key-matcher forms, exact neutral copy, generic reminders,
