@@ -1730,6 +1730,492 @@ textarea[dir="ltr"] {
   padding: 4px;
 }
 
+/* ===== Global refresh: 60 ideas (G1–G60). Logical props only, no
+   important-flags, motion inside prefers-reduced-motion. Additive refinements
+   in the token palette — nothing here fights component styles. */
+
+/* G1 — form fields share one calm base. */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding-inline: 10px;
+  padding-block: 8px;
+}
+
+/* G2 — focus is always visible, never guessed. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* G3 — placeholders whisper. */
+::placeholder {
+  color: var(--faint);
+  opacity: 1;
+}
+
+/* G4 — disabled controls say so. */
+button:disabled,
+input:disabled,
+select:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* G5 — native checks wear the brand. */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--brand);
+  inline-size: 18px;
+  block-size: 18px;
+}
+
+/* G6 — textareas grow downward only. */
+textarea {
+  min-block-size: 88px;
+  resize: block;
+  line-height: 1.8;
+}
+
+/* G7 — numeric inputs align like ledgers. */
+input[inputmode="numeric"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* G8 — selects invite the pointer. */
+select {
+  cursor: pointer;
+}
+
+/* G9 — quiet links with a considered hover. */
+.linklike {
+  color: var(--brand-ink);
+  text-underline-offset: 3px;
+}
+
+/* G10 — action rows wrap on narrow screens. */
+.backup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* G11 — soft buttons tint instead of shout. */
+.soft-button,
+.soft {
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+}
+
+/* G12 — mini editors stay tappable. */
+.mini-check,
+.mini-edit {
+  min-inline-size: 36px;
+  min-block-size: 36px;
+}
+
+/* G13 — primary submits span the form. */
+.review-submit {
+  inline-size: 100%;
+  padding-block: 12px;
+  border-radius: var(--r-md);
+  background: var(--brand);
+  color: #fff;
+  border: 0;
+  font: inherit;
+}
+
+/* G14 — eyebrows label, never shout. */
+.eyebrow {
+  color: var(--muted);
+  font-size: 0.78em;
+}
+
+/* G15 — Latin eyebrows may track; Arabic script must never (joining). */
+[dir="ltr"] .eyebrow {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* G16 — captions stay small and kind. */
+.chart-caption {
+  color: var(--muted);
+  font-size: 0.85em;
+  line-height: 1.7;
+}
+
+/* G17 — section headings hold the page rhythm. */
+.section-heading {
+  font-size: 1.05rem;
+  margin-block: 18px 8px;
+}
+
+/* G18 — subheads defer to headings. */
+.subhead {
+  color: var(--muted);
+  font-size: 0.9em;
+}
+
+/* G19 — day cards share one calm elevation. */
+.new-day {
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-lg);
+}
+
+/* G20 — backup card carries a brand rail. */
+.backup-card {
+  border-inline-start: 3px solid var(--brand);
+}
+
+/* G21 — account rows divide quietly. */
+.acc-row {
+  border-block-end: 1px solid var(--line-soft);
+}
+
+/* G22 — expanded rows indent with a faint rail. */
+.row-detail {
+  border-inline-start: 2px solid var(--line-soft);
+  padding-inline-start: 12px;
+}
+
+/* G23 — danger reads danger, even at a glance. */
+.danger {
+  color: var(--danger);
+}
+
+/* G24 — empty states center with air. */
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding-block: 20px;
+}
+
+/* G25 — hero stacks with rhythm. */
+.hero {
+  display: grid;
+  gap: 10px;
+}
+
+/* G26 — the ring casts a soft presence. */
+.hero-ring {
+  filter: drop-shadow(0 6px 14px rgba(17, 46, 38, 0.12));
+}
+
+/* G27 — hero numbers align like an instrument. */
+.hero-stats {
+  font-variant-numeric: tabular-nums;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* G28 — mode pills read as one control. */
+.pill {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding-inline: 12px;
+  padding-block: 6px;
+}
+
+/* G29 — progress track with a rounded bed. */
+.progress-line {
+  block-size: 8px;
+  border-radius: 999px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+/* G30 — mode bar wraps instead of clipping. */
+.mode-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* G31 — focus card carries the gold rail. */
+.focus-card {
+  border-inline-start: 3px solid var(--gold);
+}
+
+/* G32 — rescue steps stack with air. */
+.rescue-grid {
+  display: grid;
+  gap: 10px;
+}
+
+/* G33 — the one-now action is unmissable, calmly. */
+.one-now {
+  inline-size: 100%;
+  padding-block: 14px;
+  border-radius: var(--r-md);
+  font-size: 1.05rem;
+}
+
+/* G34 — Quran callout glows brand-soft. */
+.quran-callout {
+  background: linear-gradient(180deg, var(--brand-soft), var(--surface));
+  border-radius: var(--r-lg);
+}
+
+/* G35 — tasbih target fits the thumb. */
+.tasbeeh {
+  min-block-size: 56px;
+  border-radius: var(--r-md);
+}
+
+/* G36 — Ramadan banner celebrates in gold. */
+.ramadan-banner {
+  background: linear-gradient(180deg, var(--gold-soft), var(--surface));
+  border-radius: var(--r-lg);
+  text-align: center;
+  padding-block: 12px;
+}
+
+/* G37 — return screen centers its measure. */
+.return-screen {
+  max-inline-size: 60ch;
+  margin-inline: auto;
+  text-align: center;
+}
+
+/* G38 — return moon anchors the moment. */
+.return-moon {
+  font-size: 2.4rem;
+}
+
+/* G39 — return actions gather, centered. */
+.return-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* G40 — moment grid tiles responsively. */
+.moment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+/* G41 — next-prayer countdown reads tabular. */
+.next-prayer,
+.time-label {
+  font-variant-numeric: tabular-nums;
+}
+
+/* G42 — goal grids tile without media queries. */
+.goal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+/* G43 — tiny progress gets a real track. */
+.tiny-progress {
+  block-size: 6px;
+  border-radius: 999px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+/* G44 — challenge actions never crowd. */
+.chl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* G45 — profile hero aligns avatar and name. */
+.profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* G46 — login card centers with presence. */
+.login-card {
+  max-inline-size: 420px;
+  margin-inline: auto;
+  background: var(--surface);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-pop);
+  padding-inline: 20px;
+  padding-block: 24px;
+}
+
+/* G47 — login avatar wears the brand ring. */
+.login-avatar {
+  inline-size: 64px;
+  block-size: 64px;
+  border-radius: 999px;
+  border: 2px solid var(--brand);
+}
+
+/* G48 — avatar picks wrap on small phones. */
+.avatar-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* G49 — recovery words copy in one tap. */
+.words-grid {
+  user-select: all;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  line-height: 2;
+}
+
+/* G50 — QR stage centers on its surface. */
+.qr-stage {
+  display: grid;
+  justify-items: center;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  padding-block: 16px;
+}
+
+/* G51 — transfer panes stack with rhythm. */
+.transfer-pane {
+  display: grid;
+  gap: 10px;
+}
+
+/* G52 — scanner video letterboxes cleanly. */
+.scan-video {
+  inline-size: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  background: var(--line-soft);
+}
+
+/* G53 — prayer times tile responsively. */
+.prayer-times-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+/* G54 — sidebar holds the full viewport. */
+.sidebar {
+  position: sticky;
+  inset-block-start: 0;
+  block-size: 100vh;
+  border-inline-end: 1px solid var(--line-soft);
+}
+
+/* G55 — bottom nav respects phone safe areas. */
+.bottom-nav {
+  padding-block-end: env(safe-area-inset-bottom);
+}
+
+/* G56 — brand mark gradients progressively (solid fallback first). */
+.brand-mark {
+  color: var(--brand-ink);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .brand-mark {
+    background: linear-gradient(180deg, var(--brand-ink), var(--brand-deep));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* G57 — zikr fab floats above content. */
+.zikr-fab {
+  position: fixed;
+  inset-block-end: calc(16px + env(safe-area-inset-bottom));
+  inset-inline-end: 16px;
+  z-index: 40;
+  box-shadow: var(--shadow-pop);
+}
+
+/* G58 — zikr popover reads as a sheet. */
+.zikr-popover {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-pop);
+}
+
+/* G59 — companion why-lines stay measured. */
+.cm-why {
+  max-inline-size: 62ch;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+/* G60 — gentle stars glow gold without shouting. */
+.gentle-star {
+  color: var(--gold);
+  font-size: 1.2em;
+}
+
+/* Motion for G10/G13/G19/G26/G33/G35/G46/G57 — gated, neutral. */
+@media (prefers-reduced-motion: no-preference) {
+  /* G-motion-a — buttons answer the press. */
+  .backup-actions button,
+  .review-submit,
+  .one-now,
+  .tasbeeh {
+    transition: transform var(--dur-1) var(--ease-out);
+  }
+  .backup-actions button:active,
+  .review-submit:active,
+  .one-now:active,
+  .tasbeeh:active {
+    transform: scale(0.97);
+  }
+  /* G-motion-b — cards breathe on hover. */
+  .new-day {
+    transition: box-shadow var(--dur-2) var(--ease-out);
+  }
+  .new-day:hover {
+    box-shadow: var(--shadow-md);
+  }
+  /* G-motion-c — hero decoration drifts, slowly. */
+  .hero-deco {
+    animation: g-drift 9s ease-in-out infinite;
+  }
+  /* G-motion-d — messages arrive, they don't blink. */
+  .backup-msg {
+    animation: g-rise var(--dur-2) var(--ease-out);
+  }
+}
+
+@keyframes g-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes g-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
 /* 40 — Reduced-data users skip decorative shimmer (content still loads). */
 @media (prefers-reduced-data: reduce) {
   .skel,

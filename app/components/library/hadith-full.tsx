@@ -1,6 +1,6 @@
-// Full 9-book hadith browser: lazy per-book JSON, search, pagination,
-// read/fav/copy per hadith via a floating choice-list menu (same pattern
-// as the ayah rows). Favorites/reads persist per profile.
+// Full 10-book hadith browser: lazy per-book JSON, Arabic + lazy English,
+// search, pagination, read/fav/copy per hadith via a floating choice-list
+// menu (same pattern as the ayah rows). Favorites/reads persist per profile.
 
 "use client";
 
@@ -9,6 +9,7 @@ import {
   FULL_BOOKS,
   fullHadithId,
   loadFullBook,
+  loadFullBookEn,
   type FullBook,
   type FullBookId,
 } from "../../lib/hadith-full";
@@ -45,6 +46,10 @@ export function HadithFull({
   const [debounced, setDebounced] = useState("");
   const [jump, setJump] = useState("");
   const [page, setPage] = useState(0);
+  // English translation (verified `eng-*` edition): lazy, per book, never
+  // blocks Arabic. Defaults on for English UI, toggleable everywhere.
+  const [showEn, setShowEn] = useState(lang !== "ar");
+  const [enMap, setEnMap] = useState<Map<number, string> | null>(null);
   // One open action menu at a time — same floating choice-list pattern as
   // the ayah rows (trigger reveals, menu floats above the card).
   const [menuFor, setMenuFor] = useState<string | null>(null);
@@ -55,6 +60,7 @@ export function HadithFull({
     setSection("all");
     setPage(0);
     setQuery("");
+    setEnMap(null);
     onBookId(id);
   };
 
@@ -73,6 +79,17 @@ export function HadithFull({
   }, [bookId]);
 
   useEffect(() => {
+    if (!showEn || !book || enMap) return;
+    let live = true;
+    loadFullBookEn(book.id).then((m) => {
+      if (live) setEnMap(m);
+    });
+    return () => {
+      live = false;
+    };
+  }, [showEn, book, enMap]);
+
+  useEffect(() => {
     const id = window.setTimeout(() => {
       setDebounced(query);
       setPage(0);
@@ -85,9 +102,15 @@ export function HadithFull({
     let list = book.hadiths;
     if (section !== "all") list = list.filter((h) => String(h.book) === section);
     const q = normalizeAr(debounced.trim());
-    if (q.length >= 2) list = list.filter((h) => normalizeAr(h.text).includes(q));
+    const qEn = debounced.trim().toLowerCase();
+    if (q.length >= 2)
+      list = list.filter(
+        (h) =>
+          normalizeAr(h.text).includes(q) ||
+          (enMap?.get(h.num)?.toLowerCase().includes(qEn) ?? false),
+      );
     return list;
-  }, [book, section, debounced]);
+  }, [book, section, debounced, enMap]);
 
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE));
   const safePage = Math.min(page, pages - 1);
@@ -152,6 +175,14 @@ export function HadithFull({
             {book.ar} · {book.count} {t("hf.count")}
           </p>
           <div className="lib-toolbar">
+            <button
+              type="button"
+              onClick={() => setShowEn((v) => !v)}
+              aria-pressed={showEn}
+              className={showEn ? "selected" : ""}
+            >
+              {t("qr.showEn")}
+            </button>
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -189,6 +220,7 @@ export function HadithFull({
             const id = fullHadithId(book.id, h.num);
             const read = readIds.includes(id);
             const menuOpen = menuFor === id;
+            const en = showEn ? enMap?.get(h.num) : undefined;
             const pick = (fn: () => void) => () => {
               setMenuFor(null);
               fn();
@@ -196,6 +228,11 @@ export function HadithFull({
             return (
               <article key={id} id={`fh-${h.num}`} className={`hadith-card${read ? " read" : ""}`}>
                 <p>{h.text}</p>
+                {en && (
+                  <p className="hadith-en" dir="ltr" lang="en">
+                    {en}
+                  </p>
+                )}
                 <div className="hadith-meta">
                   <span className="grade-other">
                     {t("hf.num")} {h.num}

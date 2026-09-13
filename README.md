@@ -23,7 +23,7 @@ npm run build      # production build
 npm run start      # serve production
 npm run lint       # ESLint flat config, zero warnings
 npm run typecheck  # tsc --noEmit (strict + noUncheckedIndexedAccess)
-npm run test       # Vitest unit tests (166)
+npm run test       # Vitest unit tests (169)
 npm run test:e2e   # Playwright e2e (production server)
 npm run format     # Prettier write
 npm run docs:check # verify docs match code (keys + routes + parity + links + inventory + quality + version)
@@ -45,7 +45,7 @@ Node 22 (`.nvmrc`). CI (`.github/workflows/ci.yml`) runs typecheck → lint → 
 - **الخصوصية**: تصدير عادي/مشفر (AES-GCM ببيان سلامة)، استيراد ذرّي متحقق، مسح شامل بتأكيد مزدوج — صفحة حسابي.
 - **الاسترداد** (`/recovery`): بيئة طوارئ مستقلة لفحص التخزين والتصدير الطارئ والاسترجاع.
 - **أمان إضافي (اختياري)**: رمز إكراه يفتح حسابًا فارغًا، خزنة مشفرة للتأملات (غير مستحسنة — موثقة المخاطر)، إخفاء الأسماء على القفل، تعتيم التبويب المخفي، مسح الحافظة تلقائيًا.
-- **التجربة**: عربي/إنجليزي (RTL/LTR، 926 مفتاحًا بفحص تكافؤ)، فاتح/ليلي/أسود، PWA (تثبيت + عمل دون إنترنت)، حركات هادئة تحترم تقليل الحركة، طباعة للتقارير.
+- **التجربة**: عربي/إنجليزي (RTL/LTR، 925 مفتاحًا بفحص تكافؤ)، فاتح/ليلي/أسود، PWA (تثبيت + عمل دون إنترنت)، حركات هادئة تحترم تقليل الحركة، طباعة للتقارير.
 
 ## البنية | Structure
 
@@ -67,7 +67,7 @@ app/
     schema.ts           versioned integrity layer (envelopes, quarantine, migrations)
     crypto.ts           AES-GCM backup + atomic validated import, transfer.ts QR, lan.ts WebRTC
     diagnostics.ts      local-only health snapshots + emergency export
-    strings.ts          926-key AR/EN dictionary (religious content stays Arabic)
+    strings.ts          925-key AR/EN dictionary (religious content stays Arabic)
     data/               surahs, hadith selections, learning paths, return verses
   public/data/          offline mushaf, Clear-Quran EN, Jalalayn, Nawawi, BIP39 (~4.7MB lazy)
   e2e/                  Playwright suites (prod server — dev HMR is sandbox-flaky)

@@ -14,6 +14,7 @@ export const TAFSIRS: TafsirSource[] = [
   { id: "jalalayn", ar: "الجلالين · دون إنترنت", en: "Jalalayn · offline", offline: true },
   { id: "en-tafisr-ibn-kathir", ar: "ابن كثير (EN)", en: "Ibn Kathir (EN)" },
   { id: "en-tafsir-maarif-ul-quran", ar: "معارف القرآن (EN)", en: "Ma'arif (EN)" },
+  { id: "tazkirul-quran-en", ar: "تذكير القرآن (EN)", en: "Tazkirul Quran (EN)" },
 ];
 
 const apiCache = new Map<string, Promise<string>>();

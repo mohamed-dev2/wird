@@ -15,7 +15,10 @@ tafsir on demand, then lets the user browse, search, and play audio.
 - The mushaf and English translation are fetched from same-origin
   `/data/*` on mount (cached by service worker for offline use).
 - Tafsir beyond Jalalayn is fetched on demand when the user taps a verse;
-  the module caches the result for the session.
+  the module caches the result for the session. Sources: bundled Jalalayn
+  (offline) + 7 Arabic + 3 English (Ibn Kathir abridged, Ma'arif al-Qur'an,
+  Tazkirul Quran) from the verified api.quran.com resource list — every
+  slug in `TAFSIRS` must exist there; failures show a calm retry state.
 - Audio URLs are constructed per-reciter; playback is user-initiated and
   the media stream is torn down on pause/leave.
 

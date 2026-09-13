@@ -1,4 +1,4 @@
-// AR/EN string dictionary (926+ keys). Religious/user content stays Arabic
+// AR/EN string dictionary (925+ keys). Religious/user content stays Arabic
 // by convention; AR↔EN key parity is enforced by docs:check in CI. Copy
 // under cm|tw|ret|an|goals is additionally scanned by guidance-safety tests.
 import type { Lang } from "../components/wird-store";
@@ -356,7 +356,6 @@ const AR: Record<string, string> = {
   "hd.sharh": "شرح مختصر",
   "hd.read": "قرأت",
   "hd.copy": "نسخ",
-  "hd.browseAll40": "عرض الأربعين كاملة ←",
   "pa.add": "أضف كتابك الخاص",
   "pa.ask": "اسم الكتاب الذي تقرؤه:",
   "pa.mine": "كتابك الخاص",
@@ -1293,7 +1292,6 @@ const EN: Record<string, string> = {
   "hd.sharh": "Brief commentary",
   "hd.read": "Read",
   "hd.copy": "Copy",
-  "hd.browseAll40": "View all forty →",
   "pa.add": "Add your book",
   "pa.ask": "Book you're reading:",
   "pa.mine": "Your book",

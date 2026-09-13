@@ -32,7 +32,7 @@ down; storage writes flow through the store or the owning lib module.
 ## Library (`components/library/`)
 
 `quran-reader` (mushaf + floating action menus + tafsir + audio),
-`hadith-library` (curated), `hadith-full` (9-book browser + menus),
+`hadith-library` (curated), `hadith-full` (10-book browser + EN toggle + menus),
 `paths-list`, `dreams-board` (organize only — never interprets).
 
 ## Analytics (`components/analytics-layers.tsx`)

@@ -202,7 +202,7 @@ export function HadithLibrary() {
               aria-pressed={book === "fav"}
               className={book === "fav" ? "selected" : ""}
             >
-              ★ المفضلة ({favs.length})
+              {t("hd.fav")} ({favs.length})
             </button>
             {HADITH_BOOKS.map((b) => (
               <button
@@ -219,9 +219,6 @@ export function HadithLibrary() {
           {book === "nawawi" && (
             <>
               <p className="chart-caption">{t("hd.nawawiNote")}</p>
-              <button type="button" className="goal-add" onClick={() => openFull("nawawi")}>
-                {t("hf.browseAll40")}
-              </button>
               {NAWAWI.map((e) => (
                 <EntryCard
                   key={e.id}

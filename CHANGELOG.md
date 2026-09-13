@@ -5,6 +5,17 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Library content: English translations for all 10 full hadith books
+  (lazy per-book `eng-*` editions, AR/EN toggle defaulting to UI language,
+  EN-aware search; Arabic never waits on English); Tazkirul Quran added
+  (3rd English tafsir — all 7 Arabic API tafsirs were already present);
+  removed the broken duplicate Nawawi button (it rendered a raw
+  translation key); favorites filter label now localized; 123 new CSS
+  ideas (59 library + 64 global, logical props, zero `!important`,
+  motion-gated). Full Musnad Ahmed / Sunan al-Darimi texts are not
+  offered by the verified CDN source — documented gap, curated selections
+  remain.
+
 - Offline-first architecture (STEP 5): feature classification manifest +
   `docs/offline-architecture.md` (storage, sync boundaries, SW contract,
   time handling, failure behavior, airplane-mode checklist); bounded
