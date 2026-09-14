@@ -63,6 +63,7 @@ import {
 import {
   collectDiagnostics,
   buildEmergencyExport,
+  scrubQuarantine,
   type DiagnosticsSnapshot,
 } from "../../lib/diagnostics";
 import { loadExcludeFlag, privatePlansPresent } from "../../lib/private-plans";
@@ -190,7 +191,14 @@ function DataHealthCard() {
       downloadFile(
         backupFilename("wird-diagnostics-"),
         JSON.stringify(
-          { exportedAt: new Date().toISOString(), summary: diag, quarantine, health },
+          // Quarantine raws are scrubbed: user bytes never leave in
+          // diagnostics (7.39/7.40) — metadata (key/at/reason/size) only.
+          {
+            exportedAt: new Date().toISOString(),
+            summary: diag,
+            quarantine: scrubQuarantine(quarantine),
+            health,
+          },
           null,
           2,
         ),

@@ -4,7 +4,7 @@
 import { describe, expect, it } from "vitest";
 import { normalizeAr } from "../quran";
 import { SURAH_NAMES } from "../data/surahs";
-import { readRecord, writeRecord, type StorageLike } from "../schema";
+import { readRecord, readQuarantine, writeRecord, type StorageLike } from "../schema";
 import { buildBackupFile, previewRestore, restoreBackupSafe } from "../crypto";
 import { probeStorage, summarizeReadiness } from "../diagnostics";
 
@@ -220,6 +220,151 @@ describe("large datasets stay responsive (7.33/7.34)", () => {
       expect(file.count).toBeGreaterThan(0);
     } finally {
       (globalThis as unknown as { localStorage: unknown }).localStorage = memStore();
+    }
+  });
+});
+
+describe("diagnostics scrubbing (7.39/7.40/7.48: no user bytes leave)", () => {
+  const SECRET = "my most private reflection text 48151623";
+  it("quarantine export carries metadata only", async () => {
+    const { scrubQuarantine } = await import("../diagnostics");
+    const out = scrubQuarantine([
+      { key: "wird-reflection-v2", at: 7, reason: "import-corrupt", raw: SECRET },
+      { key: "k", at: 0, reason: "r", raw: "" },
+    ]);
+    expect(out).toEqual([
+      { key: "wird-reflection-v2", at: 7, reason: "import-corrupt", bytes: SECRET.length },
+      { key: "k", at: 0, reason: "r", bytes: 0 },
+    ]);
+    expect(JSON.stringify(out)).not.toContain("48151623");
+  });
+  it("tolerates malformed entries without throwing", async () => {
+    const { scrubQuarantine } = await import("../diagnostics");
+    expect(scrubQuarantine(null as unknown as never[])).toEqual([]);
+    expect(scrubQuarantine([{} as never])[0]).toEqual({ key: "?", at: 0, reason: "?", bytes: 0 });
+  });
+});
+
+describe("incident state (7.44)", () => {
+  it("derives normal/degraded/major without auto-claiming recovery", async () => {
+    const { incidentState } = await import("../diagnostics");
+    expect(incidentState({ ready: true, storage: "ok" })).toBe("normal");
+    expect(incidentState({ ready: false, storage: "ok" })).toBe("degraded");
+    expect(incidentState({ ready: false, storage: "full" })).toBe("major");
+    expect(incidentState({ ready: false, storage: "denied" })).toBe("major");
+  });
+});
+
+describe("invariant monitoring (7.38)", () => {
+  it("passes clean stores, flags bad day-ids and unknown guide kinds", async () => {
+    const { checkInvariants } = await import("../diagnostics");
+    const good = memStore({
+      "wird-history-v1": JSON.stringify({
+        __wird: { v: 1, updatedAt: 1 },
+        d: { "2026-09-12": { day: "2026-09-12", ids: ["fajr"], pages: 0 } },
+      }),
+      "wird-guide-log-v1": JSON.stringify([{ kind: "review", at: 1 }]),
+    });
+    expect(checkInvariants(good)).toEqual([]);
+    const bad = memStore({
+      "wird-history-v1": JSON.stringify({ __wird: { v: 1, updatedAt: 1 }, d: { someday: {} } }),
+      "wird-guide-log-v1": JSON.stringify([
+        { kind: "state:RETURNING", day: "2026-09-12" },
+        { kind: "mystery-kind", day: "2026-09-12" },
+      ]),
+    });
+    const found = checkInvariants(bad)
+      .map((v) => v.code)
+      .sort();
+    expect(found).toEqual(["bad-day-id", "unknown-guide-kind"]);
+  });
+  it("flags quarantine raws over the cap, never throws", async () => {
+    const { checkInvariants } = await import("../diagnostics");
+    const big = memStore({
+      "wird-quarantine-v1": JSON.stringify([
+        { key: "k", at: 1, reason: "r", raw: "x".repeat(5000) },
+      ]),
+    });
+    expect(checkInvariants(big).map((v) => v.code)).toEqual(["quarantine-over-cap"]);
+    expect(checkInvariants(null)).toEqual([]);
+    expect(checkInvariants(throwingLike())).toEqual([]);
+  });
+});
+
+function throwingLike(): StorageLike {
+  const fail = (): never => {
+    throw new Error("denied");
+  };
+  return {
+    getItem: fail,
+    setItem: fail,
+    removeItem: fail,
+    get length() {
+      return 0;
+    },
+    key: () => null,
+  };
+}
+
+describe("randomized operation sequences (7.36/7.37: seeded, reproducible)", () => {
+  // Deterministic PRNG: same seed, same sequence, every run. Failures are
+  // debuggable, never flakes.
+  function mulberry32(seed: number): () => number {
+    let a = seed >>> 0;
+    return () => {
+      a |= 0;
+      a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  it("300 random save/read/delete/migrate ops preserve store invariants", () => {
+    const st = memStore();
+    const rnd = mulberry32(20260913);
+    const keys = ["wird-daymode-v1", "wird-tasbeeh-v2", "wird-customs-v1", "wird-history-v1"];
+    const payloads: unknown[] = [
+      "ok",
+      "",
+      42,
+      null,
+      { day: "2026-09-12", value: 3 },
+      { day: "", ids: ["a"] },
+      [{ id: "c", title: "t", points: 1 }],
+      { "2026-09-12": { day: "2026-09-12", ids: [], pages: 0 } },
+      { bogus: [1, 2, { x: "y".repeat(9000) }] },
+    ];
+    for (let i = 0; i < 300; i++) {
+      const k = keys[Math.floor(rnd() * keys.length)] as string;
+      const v = payloads[Math.floor(rnd() * payloads.length)];
+      const op = rnd();
+      if (op < 0.55) {
+        expect(() => writeRecord(st, k, k, v)).not.toThrow();
+      } else if (op < 0.8) {
+        st.removeItem(k);
+      } else {
+        const r = readRecord(st, k, k);
+        expect(r).toHaveProperty("value");
+        expect(r).toHaveProperty("status");
+      }
+    }
+    // Invariants hold at the end: quarantine bounded, every readable key
+    // either validates or falls back (never throws, never undefined-behaves).
+    expect(readQuarantine(st).length).toBeLessThanOrEqual(20);
+    for (const k of keys) {
+      expect(() => readRecord(st, k, k)).not.toThrow();
+    }
+  });
+  it("save-then-load preserves records; delete-then-load falls back (property)", () => {
+    const st = memStore();
+    const rnd = mulberry32(7);
+    for (let i = 0; i < 50; i++) {
+      const v = `v${Math.floor(rnd() * 100000)}`;
+      writeRecord(st, "wird-daymode-v1", "wird-daymode-v1", v);
+      expect(readRecord(st, "wird-daymode-v1", "wird-daymode-v1").value).toBe(v);
+      st.removeItem("wird-daymode-v1");
+      // After delete, reads fall back to the schema default, never garbage.
+      expect(typeof readRecord(st, "wird-daymode-v1", "wird-daymode-v1").value).toBe("string");
     }
   });
 });

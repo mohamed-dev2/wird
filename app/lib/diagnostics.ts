@@ -2,7 +2,14 @@
 // content. Nothing here leaves the device except through an explicit
 // user-initiated export (emergency file / diagnostics file).
 
-import { readHealth, readQuarantine, readRecord, SCHEMAS, type StorageLike } from "./schema";
+import {
+  readHealth,
+  readQuarantine,
+  readRecord,
+  SCHEMAS,
+  type QuarantineEntry,
+  type StorageLike,
+} from "./schema";
 import { readLastBackup } from "./crypto";
 import { loadProfiles } from "./profiles";
 import { isPrivatePlansKey, privatePlansExcluded } from "./private-plans";
@@ -98,6 +105,125 @@ export function summarizeReadiness(
     quarantineEntries: snap.quarantineEntries,
     notes,
   };
+}
+
+export type ScrubbedQuarantine = { key: string; at: number; reason: string; bytes: number };
+
+/**
+ * Strip quarantine raws for anything that leaves the device (7.39/7.40/
+ * 7.48): raws are arbitrary user bytes (reflections, notes, any dataset)
+ * and must never travel in diagnostics exports. Metadata only.
+ */
+export function scrubQuarantine(entries: QuarantineEntry[]): ScrubbedQuarantine[] {
+  return (Array.isArray(entries) ? entries : []).map((e) => ({
+    key: typeof e?.key === "string" ? e.key : "?",
+    at: typeof e?.at === "number" ? e.at : 0,
+    reason: typeof e?.reason === "string" ? e.reason : "?",
+    bytes: typeof e?.raw === "string" ? e.raw.length : 0,
+  }));
+}
+
+export type IncidentState = "normal" | "degraded" | "major" | "recovering";
+
+/**
+ * Operational state from a readiness verdict (7.44): normal (nothing
+ * flagged), degraded (foreign versions piling quarantine — watch),
+ * major (writes impossible — act). Recovering/resolved are operator
+ * judgments recorded in postmortems, never auto-claimed.
+ */
+export function incidentState(r: Pick<Readiness, "ready" | "storage">): IncidentState {
+  if (r.storage !== "ok") return "major";
+  if (!r.ready) return "degraded";
+  return "normal";
+}
+
+export type InvariantViolation = { code: string; key: string; detail: string };
+
+/**
+ * Cross-record invariants (7.38): referential checks the per-dataset
+ * validators cannot see. Returns violations (empty = clean), never throws.
+ * Checks: history/review day-ids well-formed; guide-log kinds known;
+ * quarantine raws within cap.
+ */
+export function checkInvariants(store?: StorageLike | null): InvariantViolation[] {
+  const out: InvariantViolation[] = [];
+  try {
+    const st = store ?? browserStore();
+    if (!st) return out;
+    const dayRe = /^\d{4}-\d{2}-\d{2}$/;
+    // Guide-log kinds are namespaced by construction (state:<STATE>,
+    // once:<STATE>, once:CHALLENGE_MILESTONE:<id>); legacy bare action
+    // names predate namespacing. Anything else is foreign data.
+    const knownKinds = new Set([
+      "rescue",
+      "review",
+      "core",
+      "intention",
+      "tawbah",
+      "quran",
+      "friday",
+      "none",
+      "milestone",
+    ]);
+    const getAllKeys = (): string[] => {
+      const keys: string[] = [];
+      for (let i = 0; i < st.length; i++) {
+        const k = st.key(i);
+        if (k) keys.push(k);
+      }
+      return keys;
+    };
+    const readJson = (k: string): unknown => {
+      try {
+        const raw = st.getItem(k);
+        return raw == null ? null : JSON.parse(raw);
+      } catch {
+        return undefined;
+      }
+    };
+    const unwrap = (parsed: unknown): unknown =>
+      parsed && typeof parsed === "object" && !Array.isArray(parsed) && "__wird" in parsed
+        ? (parsed as { d?: unknown }).d
+        : parsed;
+    for (const k of getAllKeys()) {
+      const bare = k.replace(/^p_[^_]+_/, "");
+      if (bare === "wird-history-v1" || bare === "wird-reviews-v1") {
+        const d = unwrap(readJson(k));
+        if (d && typeof d === "object" && !Array.isArray(d)) {
+          for (const day of Object.keys(d as Record<string, unknown>)) {
+            if (!dayRe.test(day))
+              out.push({ code: "bad-day-id", key: k, detail: day.slice(0, 24) });
+          }
+        }
+      }
+      if (bare === "wird-guide-log-v1") {
+        const d = unwrap(readJson(k));
+        if (Array.isArray(d)) {
+          for (const e of d.slice(-30)) {
+            const kind = (e as { kind?: unknown })?.kind;
+            if (
+              typeof kind === "string" &&
+              !knownKinds.has(kind) &&
+              !kind.startsWith("state:") &&
+              !kind.startsWith("once:")
+            ) {
+              out.push({ code: "unknown-guide-kind", key: k, detail: kind.slice(0, 24) });
+              break;
+            }
+          }
+        }
+      }
+    }
+    try {
+      const q = readQuarantine(st);
+      for (const e of q) {
+        if (typeof e?.raw === "string" && e.raw.length > 4096) {
+          out.push({ code: "quarantine-over-cap", key: e.key, detail: String(e.raw.length) });
+        }
+      }
+    } catch {}
+  } catch {}
+  return out;
 }
 
 export type DatasetStatus = "ok" | "legacy" | "migrated" | "quarantined" | "future" | "unknown";

@@ -124,3 +124,87 @@ test("wipe downloads a rescue snapshot before erasing", async ({ page }) => {
   expect(leftover).toContain("wird-export-log-v1");
   expect(badLogs).toEqual([]);
 });
+
+test("malformed storage is quarantined, app keeps working", async ({ page }) => {
+  const badLogs = watchHydration(page);
+  await ensureProfile(page);
+  // Inject garbage across datasets (one valid sentinel kept).
+  await page.evaluate(() => {
+    const active = localStorage.getItem("wird-active-profile");
+    const prefix = active ? `p_${active}_` : "";
+    localStorage.setItem(`${prefix}wird-tasbeeh-v2`, "{corrupt!!!");
+    localStorage.setItem(`${prefix}wird-daymode-v1`, JSON.stringify({ bogus: [1, 2, 3] }));
+    localStorage.setItem(`${prefix}wird-customs-v1`, JSON.stringify("just-a-string"));
+    localStorage.setItem("wird-daymode-v1", JSON.stringify("ok-sentinel"));
+  });
+  await page.reload();
+  // App boots, shell renders, tracking works — nothing crashes.
+  await expect(page.locator("aside.sidebar")).toBeVisible({ timeout: 30000 });
+  const habit = page.locator(".habit").first();
+  await expect(habit).toBeVisible();
+  await habit.click();
+  // Corruption landed in quarantine (forensics kept), sentinel survived.
+  const report = await page.evaluate(() => {
+    const q = JSON.parse(localStorage.getItem("wird-quarantine-v1") ?? "[]") as unknown[];
+    return { quarantined: q.length, sentinel: localStorage.getItem("wird-daymode-v1") };
+  });
+  expect(report.quarantined).toBeGreaterThan(0);
+  expect(report.sentinel).toContain("ok-sentinel");
+  expect(badLogs).toEqual([]);
+});
+
+test("record then immediate reload persists (crash-safe writes)", async ({ page }) => {
+  const badLogs = watchHydration(page);
+  await ensureProfile(page);
+  const habit = page.locator(".habit").first();
+  await habit.click();
+  await expect.poll(() => habit.evaluate((el) => el.classList.contains("completed"))).toBe(true);
+  // No waiting, no idling: reload mid-everything must keep the record.
+  await page.reload();
+  await expect
+    .poll(
+      () =>
+        page
+          .locator(".habit")
+          .first()
+          .evaluate((el) => el.classList.contains("completed")),
+      {
+        timeout: 15000,
+      },
+    )
+    .toBe(true);
+  expect(badLogs).toEqual([]);
+});
+
+test("two tabs racing + rapid clicks stay consistent", async ({ page, context }) => {
+  const badLogs = watchHydration(page);
+  await ensureProfile(page);
+  // Second tab, same origin storage: concurrent writers must not corrupt.
+  const tab2 = await context.newPage();
+  await tab2.goto("/");
+  await expect(tab2.locator("aside.sidebar")).toBeVisible({ timeout: 30000 });
+  const h1 = page.locator(".habit").first();
+  const h2 = tab2.locator(".habit").first();
+  await h1.click();
+  await h2.click();
+  // Rapid-fire toggles converge deterministically (10 flips = original state).
+  for (let i = 0; i < 10; i++) {
+    await h1.click({ timeout: 5000 });
+  }
+  const endState = await h1.evaluate((el) => el.classList.contains("completed"));
+  await page.reload();
+  await expect
+    .poll(
+      () =>
+        page
+          .locator(".habit")
+          .first()
+          .evaluate((el) => el.classList.contains("completed")),
+      {
+        timeout: 15000,
+      },
+    )
+    .toBe(endState);
+  await tab2.close();
+  expect(badLogs).toEqual([]);
+});
