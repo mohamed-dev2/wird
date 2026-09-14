@@ -39,6 +39,8 @@ Owner: maintainer. Last reviewed: 2026-09-14.
 | Child-controlled parent access                       | roadmap `SAFETY.md` Part B        | —                                               | Roadmap (required future) |
 | Anonymous support opt-in                             | roadmap `SAFETY.md` Part C        | —                                               | Roadmap (required future) |
 | No diagnosis / no guaranteed outcomes                | copy contract + disclaimers       | guidance-safety + copy scans                    | Implemented               |
+| Deen gamification without religious claims           | ADR-007 + kind-separated catalog  | deen unit/e2e + safety scan + firewall          | Implemented               |
+| No sin counters / leaderboards / faith scores        | absent by construction            | banned-concept + shape tests                    | Implemented               |
 | Discreet notifications / safe URLs                   | generic text, no sensitive params | e2e leak scans                                  | Implemented               |
 
 ## Security, incidents, operations

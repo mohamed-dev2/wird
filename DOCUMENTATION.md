@@ -68,6 +68,7 @@ tools to move between devices.
 52. [Data inventory](DATA_INVENTORY.md) · [Classification](DATA_CLASSIFICATION.md) · [Retention](DATA_RETENTION.md) · [Content rights](CONTENT_RIGHTS.md)
 53. [Safety (youth + roadmaps)](docs/SAFETY.md) · [Compliance matrix](docs/COMPLIANCE_MATRIX.md)
 54. [Master audit](MASTER_AUDIT.md) · [Audit report (this run)](AUDIT_REPORT.md) · [Audit baseline](AUDIT_BASELINE.md) · machine inventory in `audit/` (`npm run audit:manifest`)
+55. [Limitations](LIMITATIONS.md) · [Deen journey](docs/features/deen.md) · [ADR-007](docs/adr/ADR-007.md)
 
 ## 1. Quick start
 
@@ -99,6 +100,7 @@ husky pre-commit (lint-staged) + commit-msg hooks.
 | `/calendar`      | `app/calendar/`      | 30-day month grid, Friday plan                                           |
 | `/insights`      | `app/insights/`      | Real stats, balance radar, coach brief, Hijri year                       |
 | `/review`        | `app/review/`        | End-of-day checklist (tri-state) + score + mood                          |
+| `/deen`          | `app/deen/`          | Deen journey: levels, quests, deeds, reflections, streaks (see §3)       |
 | `/library`       | `app/library/`       | Tabs: Adhkar · Quran · Hadith · Paths · Dreams                           |
 | `/account`       | `app/account/`       | Profile, backup, transfer, reminders, times, theme                       |
 | `/recovery`      | `app/recovery/`      | Last-resort recovery: inspect, emergency export, restore, surgical reset |
@@ -158,6 +160,13 @@ urge timer, triggers, replacements, milestones, and a journey timeline.
 Local-only, excludable from backups, generic reminders; see
 `docs/features/private-recovery.md`.
 
+**Deen journey (`/deen`)** — five voluntary tracking levels (fard →
+mustahabb → makruh awareness → character → refinement) with daily
+prayers, quests, good deeds, speech/haram reflections (never scored),
+streaks, combos, chest, achievements, and gamification toggles. Wird XP
+is app activity only — never reward, rank, or faith; see
+`docs/features/deen.md` and ADR-007.
+
 ## 4. Data & storage
 
 All state persists in `localStorage` under `wird-*` keys. Daily keys reset
@@ -183,6 +192,9 @@ recency suffixes; bare legacy marks still match), `wird-quran-font-v1`,
 `wird-adhkar-log-v1` (per-day group counts, capped 180 days),
 `wird-recovery-plans-v1` (per-profile private self-management plans —
 sensitive; excludable from backups, see `docs/features/private-recovery.md`),
+`wird-deen-v1` (per-profile deen journey: level, XP ledger, quests,
+achievements, streaks, day records, customs, gamification settings —
+sensitive; day records pruned >365d, see `docs/features/deen.md`),
 `wird-personalize-v1` (per-profile adaptation switches: master, habits,
 mood, reminders — see `docs/ADAPTIVE.md`).
 
@@ -317,7 +329,7 @@ Account → transfer card (`app/components/transfer.tsx`):
 
 ## 7. Internationalization & themes
 
-- 979-key AR/EN dictionary (`app/lib/strings.ts`, parity enforced by
+- 1295-key AR/EN dictionary (`app/lib/strings.ts`, parity enforced by
   `docs:check`); `useT()` hook + `tr()`; religious/user content stays Arabic.
 - `document.dir` flips rtl/ltr; `[dir="ltr"]` CSS mirrors layout.
 - Themes light/dark/oled via `data-theme` + `tokens.css`; OS preference
@@ -354,7 +366,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`
   (7 checks), `npm run comments:check`, `npm run css:check`,
   `npm run boundaries:check`, `npm run metrics` (informational report).
-- Vitest (246 tests, 32 files): history/coach/recovery/transfer/demo logic plus the reliability
+- Vitest (273 tests, 33 files): history/coach/recovery/transfer/demo logic plus the reliability
   suites — `schema` (envelopes, quarantine, salvage, future-versions,
   quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
   two-phase zero-write rejection, snapshot rollback, salvage),
@@ -381,7 +393,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   legacy verifiers (in `recovery`), `private-plans` (run math,
   history-preserving resets, neutral copy, generic reminders, schema
   round-trip).
-- Playwright (45 tests, prod server, serial `--workers=1` pinned in
+- Playwright (50 tests, prod server, serial `--workers=1` pinned in
   `npm run test:e2e`): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across

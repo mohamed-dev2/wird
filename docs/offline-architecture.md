@@ -25,6 +25,7 @@ works offline (service-worker shell, §Service worker).
 | ---------------------------------------------------------------------------------------------------------- | --------------- | ------------------------------------------------------------------------- | ---------------------------------- | -------------------------------------------------------------------- |
 | Home / navigation / tabs                                                                                   | OFFLINE         | fully usable                                                              | —                                  | —                                                                    |
 | Habits, goals, streaks, daily tracking                                                                     | OFFLINE         | fully usable                                                              | —                                  | —                                                                    |
+| Deen journey (levels, quests, deeds, reflections, streaks)                                                 | OFFLINE         | fully usable                                                              | —                                  | —                                                                    |
 | Reflections, gratitude, mood                                                                               | OFFLINE         | fully usable                                                              | —                                  | —                                                                    |
 | Reviews, night context                                                                                     | OFFLINE         | fully usable                                                              | —                                  | —                                                                    |
 | Analytics + coach + companion                                                                              | OFFLINE         | pure local computation over local history                                 | —                                  | honest empty states when evidence is thin (not network-related)      |
@@ -133,10 +134,10 @@ an explicit opt-in product decision:
 
 ## Service worker contract (5.14)
 
-`public/sw.js` (CACHE `wird-v4`, no build step):
+`public/sw.js` (CACHE `wird-v6`, no build step):
 
 - Precaches route shells (`/`, `/calendar`, `/insights`, `/review`,
-  `/library`, `/account`, `/recovery`, `/private-plans`), manifest, and
+  `/deen`, `/library`, `/account`, `/recovery`, `/private-plans`), manifest, and
   the five `public/data` bundles at install (best-effort).
 - Navigations: network-first (fresh shell + instant updates when online),
   falling back to the precached route shell, else `/` — so an offline

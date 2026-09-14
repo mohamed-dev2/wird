@@ -12,6 +12,10 @@
     "file": "app/calendar/page.tsx"
   },
   {
+    "route": "/deen",
+    "file": "app/deen/page.tsx"
+  },
+  {
     "route": "/insights",
     "file": "app/insights/page.tsx"
   },

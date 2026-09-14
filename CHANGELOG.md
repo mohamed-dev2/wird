@@ -5,6 +5,14 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Deen journey (STEP 10, ADR-007): five voluntary tracking levels
+  (fard → mustahabb → makruh awareness → character → refinement) at
+  `/deen` with prayers, quests, good-deeds library, scoreless haram/
+  speech reflections, streaks, combos, chest, achievements, and full
+  gamification toggles. Wird XP is app activity only (idempotent
+  ledger); no sin counters, leaderboards, or faith scores; per-profile
+  `wird-deen-v1` on existing local storage; dictionary now 1295 keys.
+- `LIMITATIONS.md`: honest boundaries incl. STEP 10 deen limits.
 - Master audit (STEP 9): `MASTER_AUDIT.md` (100-item map with
   local-first scoping, statuses, severities), `AUDIT_REPORT.md` (real
   gate numbers: 246 unit + 45 e2e green, 0 vulns), `AUDIT_BASELINE.md`,

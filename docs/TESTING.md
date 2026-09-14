@@ -6,7 +6,7 @@
 npm run typecheck   # strict TS + noUncheckedIndexedAccess
 npm run lint        # eslint --max-warnings 0
 npm run format:check
-npm run test        # vitest run (unit, 246 tests)
+npm run test        # vitest run (unit, 273 tests)
 npm run test:e2e    # playwright (production server, serial --workers=1 pinned in script)
 npm run build
 npm run docs:check  # keys + routes + AR/EN parity + links + inventory + quality + version stamp
@@ -23,34 +23,35 @@ Pure logic only — no DOM, no storage beyond in-memory mocks:
 |---|---|---|
 | `prayer` | day-arc fractions incl. overnight wrap, next-prayer agreement |
 
-| `vault`                       | setup/unlock/lock/disable, generic failures, no plaintext residue                                    |
-| ----------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `schema`                      | envelopes, quarantine, salvage, future versions, quota, caps, migration idempotence                  |
-| `crypto-restore`              | manifest, dry-run, two-phase zero-write rejection, rollback, restore-twice convergence               |
-| `crypto-security`             | round-trip, wrong password, GCM tamper, malformed payloads                                           |
-| `daily`                       | midnight rollover, multi-day absence, legacy shapes, monotonic `recordDay`                           |
-| `isolation`                   | namespacing, adoption, id uniqueness, quarantine purge                                               |
-| `fuzz`                        | seeded: validators/reads/writes never throw                                                          |
-| `transfer`                    | chunking, duplicates, order, contamination, bounds                                                   |
-| `companion`                   | 26 states, ranking, fatigue/once-ever, rotation, core                                                |
-| `content`                     | verse refs exist in bundle, hadith resolve, theme coverage                                           |
-| `guidance-safety`             | auto-collected AR+EN copy: no revelation/ruling/shame/heart/medical/causation markers                |
-| `analytics`                   | 20-test BM suite over a synthetic 4-month dataset + pipeline test                                    |
-| `history/coach/recovery/demo` | legacy suites for core logic                                                                         |
-| `private-plans`               | run math, history-preserving resets, neutral copy, generic reminders, schema round-trip              |
-| `net`                         | bounded fetch: timeout/500/DNS/corrupt rejection; breaker open/half-open/close, fast-fail            |
-| `storage-adapter`             | async seam: memory adapter CRUD, StorageLike wrapper, throwing stores → rejections                   |
-| `analytics-perf`              | 5-year/1826-day history: full analytics surface inside per-call budgets                              |
-| `catalog`                     | tafsir slugs + full-book ids locked; both languages present on every entry                           |
-| `personalize`                 | settings defaults/normalization, schema round-trip                                                   |
-| `notify`                      | tone-key matrix, historic copy lock, fatigue matrix, suggestion-copy safety scan                     |
-| `adaptive`                    | challenge-advice matrix, co-occurrence math + gates, insight emission                                |
-| `privacy-firewall`            | recovery import/key scan: only documented modules touch plan data                                    |
-| `legal-compliance`            | license/notice/SPDX/affiliation, dep audit, no-SDK/cookie/age-keys, URL allowlist, routes, inventory |
-| `safe-mode`                   | `?safe=` parsing, SSR default, registry contract                                                     |
-| `section-error`               | static error mapping + content-free unique diagnostic ids                                            |
-| `reliability`                 | storage probe classes, readiness verdicts, preview agreement, large-data budgets                     |
-| `audit`                       | route inventory, internal-link + push resolution, sitemap/SW-shell consistency, static secret scan   |
+| `vault`                       | setup/unlock/lock/disable, generic failures, no plaintext residue                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `schema`                      | envelopes, quarantine, salvage, future versions, quota, caps, migration idempotence                     |
+| `crypto-restore`              | manifest, dry-run, two-phase zero-write rejection, rollback, restore-twice convergence                  |
+| `crypto-security`             | round-trip, wrong password, GCM tamper, malformed payloads                                              |
+| `daily`                       | midnight rollover, multi-day absence, legacy shapes, monotonic `recordDay`                              |
+| `isolation`                   | namespacing, adoption, id uniqueness, quarantine purge                                                  |
+| `fuzz`                        | seeded: validators/reads/writes never throw                                                             |
+| `transfer`                    | chunking, duplicates, order, contamination, bounds                                                      |
+| `companion`                   | 26 states, ranking, fatigue/once-ever, rotation, core                                                   |
+| `content`                     | verse refs exist in bundle, hadith resolve, theme coverage                                              |
+| `guidance-safety`             | auto-collected AR+EN copy: no revelation/ruling/shame/heart/medical/causation markers                   |
+| `analytics`                   | 20-test BM suite over a synthetic 4-month dataset + pipeline test                                       |
+| `history/coach/recovery/demo` | legacy suites for core logic                                                                            |
+| `private-plans`               | run math, history-preserving resets, neutral copy, generic reminders, schema round-trip                 |
+| `net`                         | bounded fetch: timeout/500/DNS/corrupt rejection; breaker open/half-open/close, fast-fail               |
+| `storage-adapter`             | async seam: memory adapter CRUD, StorageLike wrapper, throwing stores → rejections                      |
+| `analytics-perf`              | 5-year/1826-day history: full analytics surface inside per-call budgets                                 |
+| `catalog`                     | tafsir slugs + full-book ids locked; both languages present on every entry                              |
+| `personalize`                 | settings defaults/normalization, schema round-trip                                                      |
+| `notify`                      | tone-key matrix, historic copy lock, fatigue matrix, suggestion-copy safety scan                        |
+| `adaptive`                    | challenge-advice matrix, co-occurrence math + gates, insight emission                                   |
+| `privacy-firewall`            | recovery import/key scan: only documented modules touch plan data                                       |
+| `legal-compliance`            | license/notice/SPDX/affiliation, dep audit, no-SDK/cookie/age-keys, URL allowlist, routes, inventory    |
+| `safe-mode`                   | `?safe=` parsing, SSR default, registry contract                                                        |
+| `section-error`               | static error mapping + content-free unique diagnostic ids                                               |
+| `reliability`                 | storage probe classes, readiness verdicts, preview agreement, large-data budgets                        |
+| `audit`                       | route inventory, internal-link + push resolution, sitemap/SW-shell consistency, static secret scan      |
+| `deen`                        | XP single-award, levels preserve history, streaks/returns, scoreless reflections, catalog kinds, clamps |
 
 Conventions: seeded PRNGs (reproducible), synthetic histories built from
 day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
@@ -86,6 +87,10 @@ day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
   check-in round-trip; back/forward/refresh/duplicate-tab integrity;
   calm 404 renders + recovers. Machine inventory: `npm run audit:manifest`
   regenerates `audit/*.json` (see `MASTER_AUDIT.md`).
+- `deen.spec.ts` — dashboard renders + salah persists across reload;
+  double quest completion pays once; level-up keeps history with
+  gamification off; library sources + scoreless speech check; offline
+  open + URL/title leak scan.
 
 Rules learned the hard way:
 

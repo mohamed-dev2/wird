@@ -22,6 +22,8 @@ routes (app/*/page.tsx)          thin: assemble + render
     → lib/diagnostics.ts         health snapshots (read-only)
     → lib/vault.ts               optional reflection encryption
     → lib/private-plans.ts       self-management plans (pure + storage helpers)
+    → lib/deen.ts                deen journey state + logic (pure + storage helpers)
+    → lib/deen-catalog.ts        deen content catalogs (no user data, key refs only)
     → lib/net.ts                 bounded fetch for optional-online loaders
     → lib/storage-adapter.ts     async persistence seam (see below)
     → lib/strings.ts             AR/EN dictionary (imports Lang type only)

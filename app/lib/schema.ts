@@ -95,6 +95,22 @@ const isPrivatePlanLike = (v: unknown) =>
   Array.isArray(v.setbacks);
 const isQadaLike = (v: unknown) =>
   isObj(v) && typeof v.id === "string" && typeof v.label === "string";
+// Structural twin of isDeenLike in deen.ts (kept here because R2 forbids
+// schema.ts from importing project modules — update both together).
+const isDeenLike = (v: unknown) =>
+  isObj(v) &&
+  typeof v.level === "number" &&
+  [1, 2, 3, 4, 5].includes(v.level as number) &&
+  typeof v.xpTotal === "number" &&
+  Number.isFinite(v.xpTotal) &&
+  Array.isArray(v.awards) &&
+  (v.awards as unknown[]).every((x) => typeof x === "string") &&
+  Array.isArray(v.quests) &&
+  isObj(v.achievements) &&
+  isObj(v.streaks) &&
+  isObj(v.days) &&
+  isObj(v.customs) &&
+  isObj(v.settings);
 const isChallengeLike = (v: unknown) =>
   isObj(v) &&
   typeof v.id === "string" &&
@@ -392,6 +408,34 @@ export const SCHEMAS: Record<string, Schema> = {
   ),
   "wird-travel-v1": S(1, isArr, () => []),
   "wird-export-log-v1": S(1, isArr, () => []),
+  "wird-deen-v1": S(1, isDeenLike, () => ({
+    v: 1,
+    level: 1,
+    xpTotal: 0,
+    awards: [],
+    quests: [],
+    achievements: {},
+    streaks: {
+      salah: { current: 0, longest: 0, lastDay: "" },
+      quran: { current: 0, longest: 0, lastDay: "" },
+      reflection: { current: 0, longest: 0, lastDay: "" },
+      deed: { current: 0, longest: 0, lastDay: "" },
+      habit: { current: 0, longest: 0, lastDay: "" },
+    },
+    days: {},
+    customs: { deeds: [], rules: [] },
+    settings: {
+      showXp: true,
+      showLevels: true,
+      showStreaks: true,
+      showCombos: true,
+      showAchievements: true,
+      showQuests: true,
+      calmEffects: true,
+    },
+    returnCount: 0,
+    lastOpenDay: "",
+  })),
 };
 
 // ---------- quarantine + health (global, unprefixed keys) ----------

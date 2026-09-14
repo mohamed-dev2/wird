@@ -12,6 +12,7 @@
       "app/lib/__tests__/crypto-restore.test.ts",
       "app/lib/__tests__/crypto-security.test.ts",
       "app/lib/__tests__/daily.test.ts",
+      "app/lib/__tests__/deen.test.ts",
       "app/lib/__tests__/demo.test.ts",
       "app/lib/__tests__/fuzz.test.ts",
       "app/lib/__tests__/guidance-safety.test.ts",
@@ -34,13 +35,14 @@
       "app/lib/__tests__/transfer.test.ts",
       "app/lib/__tests__/vault.test.ts"
     ],
-    "tests": 246
+    "tests": 273
   },
   "e2e": {
     "files": [
       "e2e/analytics.spec.ts",
       "e2e/audit.spec.ts",
       "e2e/companion.spec.ts",
+      "e2e/deen.spec.ts",
       "e2e/legal.spec.ts",
       "e2e/offline.spec.ts",
       "e2e/personalize.spec.ts",
@@ -50,7 +52,7 @@
       "e2e/smoke.spec.ts",
       "e2e/transfer.spec.ts"
     ],
-    "tests": 45
+    "tests": 50
   },
   "gates": [
     "typecheck",

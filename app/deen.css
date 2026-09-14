@@ -1,0 +1,242 @@
+/* Deen journey (STEP 10): calm cards/rows/buttons reusing the app token
+   palette. Logical properties only (RTL-safe); meaning never encoded
+   by color alone (state glyphs ✓/○ plus text); the chest glow runs
+   only under prefers-reduced-motion: no-preference. */
+.deen-tabs {
+  display: flex;
+  gap: 8px;
+  padding-inline: 16px;
+  padding-block-start: 12px;
+}
+.deen-tabs button {
+  flex: 1;
+  padding-block: 10px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+.deen-tabs button.selected {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+  font-weight: 700;
+}
+.deen-section {
+  padding-inline: 16px;
+  padding-block: 10px;
+}
+.deen-level-line,
+.deen-xp-line {
+  font-weight: 700;
+  margin-block: 4px;
+}
+.deen-note {
+  color: var(--muted);
+  font-size: 0.9em;
+  margin-block: 6px;
+}
+.deen-combo,
+.deen-return {
+  font-weight: 700;
+  color: var(--brand-ink);
+  margin-block: 6px;
+}
+.deen-levels {
+  display: grid;
+  gap: 8px;
+}
+.deen-levels button {
+  text-align: start;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  display: grid;
+  gap: 2px;
+}
+.deen-levels button small {
+  color: var(--muted);
+}
+.deen-levels button.selected {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+}
+.deen-list {
+  display: grid;
+  gap: 8px;
+}
+.deen-row {
+  inline-size: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding-block: 10px;
+  padding-inline: 12px;
+  color: var(--ink);
+  text-align: start;
+}
+button.deen-row {
+  cursor: pointer;
+}
+.deen-row.on {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+}
+.deen-text {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+.deen-text small {
+  color: var(--muted);
+}
+.deen-kind {
+  font-size: 0.75em;
+  font-style: normal;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding-block: 2px;
+  padding-inline: 8px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.deen-kind.verified {
+  color: var(--brand-ink);
+  border-color: var(--brand);
+}
+.deen-salah {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.deen-prayer {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  padding-block: 10px;
+  padding-inline: 4px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+.deen-prayer.done {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+}
+.deen-prayer.late {
+  background: var(--gold-soft);
+  border-color: var(--gold);
+}
+.deen-prayer.missed {
+  opacity: 0.65;
+}
+.deen-answers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-block-start: 6px;
+}
+.deen-answers button {
+  padding-block: 6px;
+  padding-inline: 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+.deen-answers button.selected {
+  background: var(--brand-soft);
+  border-color: var(--brand);
+  font-weight: 700;
+}
+.deen-reflect {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+}
+.deen-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-block: 8px;
+  color: var(--ink);
+}
+.deen-check input {
+  inline-size: 20px;
+  block-size: 20px;
+  accent-color: var(--brand);
+}
+.deen-add {
+  display: flex;
+  gap: 8px;
+  margin-block-start: 8px;
+}
+.deen-add input,
+.deen-reflect input,
+.deen-section input[type="text"] {
+  flex: 1;
+  padding-block: 9px;
+  padding-inline: 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+.deen-add button,
+.deen-secret,
+.deen-chest {
+  padding-block: 9px;
+  padding-inline: 16px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--brand);
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+  font-weight: 700;
+}
+.deen-secret:disabled,
+.deen-chest:disabled {
+  opacity: 0.7;
+}
+.deen-chest.plain {
+  animation: none;
+}
+.deen-src {
+  color: var(--muted);
+  font-size: 0.82em;
+  margin-block: 4px;
+}
+.deen-danger {
+  margin-block-start: 12px;
+  padding-block: 9px;
+  padding-inline: 16px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--danger);
+  background: transparent;
+  color: var(--danger);
+}
+.deen-erase {
+  display: grid;
+  gap: 8px;
+  margin-block-start: 8px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .deen-chest:not(.plain):not(:disabled) {
+    animation: deen-glow var(--dur-3) var(--ease-out);
+  }
+}
+@keyframes deen-glow {
+  from {
+    box-shadow: var(--shadow-pop);
+  }
+  to {
+    box-shadow: none;
+  }
+}

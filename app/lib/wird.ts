@@ -214,6 +214,7 @@ export const NAV_ITEMS: [string, string, string][] = [
   ["calendar", "▦", "التقويم"],
   ["insights", "↗", "التقدّم"],
   ["review", "☾", "الحصاد"],
+  ["deen", "✦", "الدين"],
   ["library", "◈", "الأذكار"],
   ["account", "◌", "حسابي"],
 ];
@@ -223,6 +224,7 @@ export const NAV_HREFS: Record<string, string> = {
   calendar: "/calendar",
   insights: "/insights",
   review: "/review",
+  deen: "/deen",
   library: "/library",
   account: "/account",
 };

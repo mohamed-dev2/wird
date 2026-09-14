@@ -34,6 +34,13 @@ setback) + `private-plan-tracker` (usage, timeline, triggers, replacements)
 - `private-plan-timer` (urge timer + emergency, isolated 1s ticks) +
   `private-plan-care` (support, milestones, reasons, settings).
 
+## Deen (`app/deen/page.tsx`, STEP 10)
+
+`deen-page` (Today/Library tabs, in-memory tab state) + `deen-today`
+(dashboard: prayers, quests, deeds, character, reflections, streaks,
+chest, settings) + `deen-library` (catalog browsing + learning cards).
+See `docs/features/deen.md`.
+
 ## Library (`components/library/`)
 
 `quran-reader` (mushaf + floating action menus + tafsir + audio),

@@ -28,6 +28,17 @@
     "modules": ["app/lib/coach.ts", "app/components/companion.tsx"]
   },
   {
+    "doc": "docs/features/deen.md",
+    "title": "Deen journey (STEP 10) — levels, deeds, gamification",
+    "modules": [
+      "app/lib/deen-catalog.ts",
+      "app/lib/deen.ts",
+      "app/components/views/deen-page.tsx",
+      "app/lib/strings.ts",
+      "app/lib/__tests__/deen.test.ts"
+    ]
+  },
+  {
     "doc": "docs/features/goals-habits-review.md",
     "title": "Goals, habits, and review",
     "modules": ["app/lib/wird.ts", "app/lib/history.ts", "app/components/views/review.tsx"]

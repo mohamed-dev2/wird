@@ -5,13 +5,13 @@ Five levels, enforced in code by `sensitivityOf()` in
 The class of a dataset decides its handling everywhere: exports, logs,
 diagnostics, analytics eligibility, and personalization access.
 
-| Level            | Meaning                                           | Examples (datasets)                                                                                                                                       |
-| ---------------- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| PUBLIC           | device preferences revealing no personal behavior | `wird-theme-v1`, `wird-lang-v1`, `wird-daymode-v1`, Quran font/reciter/tafsir-source prefs, mosque/reminder flags                                         |
-| PRIVATE          | behavioral counters, not intimate alone           | daily counts, `wird-reviews-v1`, `wird-adhkar-log-v1`, goals/challenges/pledges catalogs, planner data                                                    |
-| SENSITIVE        | detailed personal/religious practice              | `wird-history-v1`, `wird-guide-log-v1`, dreams, custom paths, pledges, recovery verifiers (`wird-recovery-v1`), recovery plans (`wird-recovery-plans-v1`) |
-| HIGHLY SENSITIVE | raw journalling text + vault material             | `*-reflections-v1`, `wird-vault-v1` (AES-256-GCM at rest, session-only keys)                                                                              |
-| INTERNAL         | operational metadata, no user content             | quarantine/health stores, export log (kind/timestamp/count only), backup manifests, diagnostics counts                                                    |
+| Level            | Meaning                                           | Examples (datasets)                                                                                                                                                                      |
+| ---------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PUBLIC           | device preferences revealing no personal behavior | `wird-theme-v1`, `wird-lang-v1`, `wird-daymode-v1`, Quran font/reciter/tafsir-source prefs, mosque/reminder flags                                                                        |
+| PRIVATE          | behavioral counters, not intimate alone           | daily counts, `wird-reviews-v1`, `wird-adhkar-log-v1`, goals/challenges/pledges catalogs, planner data                                                                                   |
+| SENSITIVE        | detailed personal/religious practice              | `wird-history-v1`, `wird-guide-log-v1`, dreams, custom paths, pledges, recovery verifiers (`wird-recovery-v1`), recovery plans (`wird-recovery-plans-v1`), deen journey (`wird-deen-v1`) |
+| HIGHLY SENSITIVE | raw journalling text + vault material             | `*-reflections-v1`, `wird-vault-v1` (AES-256-GCM at rest, session-only keys)                                                                                                             |
+| INTERNAL         | operational metadata, no user content             | quarantine/health stores, export log (kind/timestamp/count only), backup manifests, diagnostics counts                                                                                   |
 
 Rules:
 

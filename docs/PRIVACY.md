@@ -11,7 +11,7 @@ Habit history, Quran progress and bookmarks, memorization marks, adhkar
 counts, duas, goals, challenges, pledges, reflections, gratitude, mood,
 reviews, fasting and qada records, profiles and PIN hashes, recovery
 verifiers, absence history, guide log, quarantine and health logs,
-analytics results.
+analytics results, deen journey records (levels, quests, reflections).
 
 There are no analytics SDKs, no tracking pixels, no crash reporters phoning
 home, no AI APIs, no accounts, no servers. `grep console\.` over `app/`
