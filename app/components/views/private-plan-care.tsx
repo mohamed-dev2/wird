@@ -33,6 +33,7 @@ export function PlanCare({
           <div className="backup-actions">
             <button
               type="button"
+              className="pp-btn-danger"
               onClick={() => {
                 if (window.confirm(t("pp.deleteAsk"))) onDelete();
               }}
@@ -131,6 +132,7 @@ function MilestonesSection({ t, plan, mutate }: { t: TFn; plan: PrivatePlan; mut
         <div className="backup-actions">
           <button
             type="button"
+            className="pp-btn"
             onClick={() => {
               const m = parseInt(draft, 10);
               if (Number.isInteger(m) && m > 0 && m <= 3650) {
@@ -180,6 +182,7 @@ function ReasonsSection({ t, plan, mutate }: { t: TFn; plan: PrivatePlan; mutate
         <div className="backup-actions">
           <button
             type="button"
+            className="pp-btn"
             onClick={() => {
               mutate((p) => ({ ...p, reasons: addUnique(p.reasons, draft, 50) }));
               setDraft("");
@@ -231,6 +234,7 @@ function SettingsSection({
         <div className="backup-actions">
           <button
             type="button"
+            className="pp-btn"
             onClick={() =>
               mutate((p) => ({
                 ...p,

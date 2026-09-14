@@ -1078,10 +1078,132 @@ export function smartInsights(args: {
       out.push({ id: "small-restart", confidence: "medium", evidence: {} });
     }
   }
+  // Co-occurrence (6.14): at most the single strongest pair, gated on
+  // window/hits/lift inside coOccurrence — observational wording only.
+  const coIds = [...new Set(Object.values(history).flatMap((d) => d.ids ?? []))].slice(0, 24);
+  const co = bestCoOccurrence(history, coIds, endDay);
+  if (co) {
+    out.push({
+      id: "cooccur",
+      confidence: co.confidence,
+      evidence: {
+        a: co.a,
+        b: co.b,
+        pa: Math.round(co.rateWithA * 100),
+        pb: Math.round(co.rateWithoutA * 100),
+      },
+    });
+  }
   return out;
 }
 
-// ---------- milestones ----------
+// ---------- adaptive suggestions (STEP 6: observe → suggest, user decides) ----------
+
+// Minimum evidence + effect sizes before any pattern is surfaced (6.16/6.17).
+export const MIN_COOCCURRENCE_DAYS = 30; // window with both deeds tracked
+export const MIN_COOCCURRENCE_HITS = 8; // days where A was recorded
+export const MIN_COOCCURRENCE_LIFT = 0.15; // 15-point co-occurrence gap
+export const MIN_DIFFICULTY_ELAPSED = 0.5; // half the challenge window gone
+export const MIN_DIFFICULTY_RATE = 0.4; // below 40% completion
+
+export type ChallengeAdvice = "consider-easier" | "ended" | null;
+
+/**
+ * Observational difficulty signal for ONE challenge. Returns null for
+ * on-track/finished/unknowable cases. Never mutates anything — the UI
+ * offers "keep / make easier / pause" and the user decides (6.12/6.13).
+ */
+export function challengeAdvice(
+  c: { target: number; start: string; checks: unknown[] },
+  today: string,
+): ChallengeAdvice {
+  if (!c || c.target <= 0 || !/^\d{4}-\d{2}-\d{2}$/.test(c.start)) return null;
+  const rate = Math.min(1, c.checks.length / c.target);
+  if (c.checks.length >= c.target) return null;
+  const endMs = Date.parse(`${c.start}T12:00:00Z`) + c.target * 86400000;
+  if (!Number.isFinite(endMs)) return null;
+  const endDay = new Date(endMs).toISOString().slice(0, 10);
+  if (endDay < today) return "ended";
+  if (diffDays(c.start, today) / c.target > MIN_DIFFICULTY_ELAPSED && rate < MIN_DIFFICULTY_RATE)
+    return "consider-easier";
+  return null;
+}
+
+export type CoOccurrence = {
+  a: string;
+  b: string;
+  daysA: number;
+  both: number;
+  rateWithA: number;
+  rateWithoutA: number;
+  lift: number;
+  confidence: Exclude<Confidence, "low">;
+};
+
+/**
+ * "On days A was recorded, how often was B also recorded — vs days
+ * without A?" Observational only (6.14): lift is co-occurrence, never
+ * causation. Null unless the window, hits, and lift all clear the gates.
+ */
+export function coOccurrence(
+  history: History,
+  a: string,
+  b: string,
+  endDay: string,
+  days = 90,
+): CoOccurrence | null {
+  if (!a || !b || a === b || days < MIN_COOCCURRENCE_DAYS) return null;
+  const win = daysInRange(history, shiftDay(endDay, -(days - 1)), endDay);
+  if (win.length < MIN_COOCCURRENCE_DAYS) return null;
+  let daysA = 0;
+  let both = 0;
+  let daysNoA = 0;
+  let bNoA = 0;
+  for (const d of win) {
+    const hasA = d.ids.includes(a);
+    const hasB = d.ids.includes(b);
+    if (hasA) {
+      daysA++;
+      if (hasB) both++;
+    } else {
+      daysNoA++;
+      if (hasB) bNoA++;
+    }
+  }
+  if (daysA < MIN_COOCCURRENCE_HITS || daysNoA < MIN_COOCCURRENCE_HITS) return null;
+  const rateWithA = both / daysA;
+  const rateWithoutA = bNoA / daysNoA;
+  const lift = rateWithA - rateWithoutA;
+  if (lift < MIN_COOCCURRENCE_LIFT) return null;
+  return {
+    a,
+    b,
+    daysA,
+    both,
+    rateWithA: Math.round(rateWithA * 100) / 100,
+    rateWithoutA: Math.round(rateWithoutA * 100) / 100,
+    lift: Math.round(lift * 100) / 100,
+    confidence: days >= 60 && lift >= 0.25 ? "high" : "medium",
+  };
+}
+
+/** Strongest co-occurrence among tracked deeds (at most one insight). */
+export function bestCoOccurrence(
+  history: History,
+  deedIds: string[],
+  endDay: string,
+): CoOccurrence | null {
+  let best: CoOccurrence | null = null;
+  const ids = [...new Set(deedIds)].slice(0, 24);
+  for (const a of ids) {
+    for (const b of ids) {
+      if (a === b) continue;
+      const c = coOccurrence(history, a, b, endDay);
+      if (c && (!best || c.lift > best.lift)) best = c;
+    }
+  }
+  return best;
+}
 
 export type Milestone = { id: string; reached: boolean; day: string | null; value: number };
 

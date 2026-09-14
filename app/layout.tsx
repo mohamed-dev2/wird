@@ -8,6 +8,7 @@ import "./additions.css";
 import "./views.css";
 import "./rescue.css";
 import "./library.css";
+import "./private-plans.css";
 import { Shell } from "./components/shell";
 import { SwRegister } from "./components/sw-register";
 import { WirdProvider } from "./components/wird-store";

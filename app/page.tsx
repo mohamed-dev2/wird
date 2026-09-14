@@ -90,8 +90,10 @@ import {
   evaluateLadder,
   ensurePermission,
   fireNotification,
+  ladderText,
 } from "./lib/notify";
 import { arDuration, nextPrayer } from "./lib/prayer";
+import { loadPersonalize } from "./lib/personalize";
 import { useStoredState } from "./lib/use-stored-state";
 
 export default function TodayPage() {
@@ -269,9 +271,14 @@ export default function TodayPage() {
   }, []);
 
   const companionInput: CompanionInput = useMemo(() => {
-    const moods = recentReviews.map((r) =>
-      r.mood === "good" || r.mood === "ok" || r.mood === "low" ? r.mood : null,
-    );
+    // STEP 6 privacy gate: mood/gratitude enter the engine only when the
+    // user allows mood analysis (settings → personalization).
+    const allowMood = loadPersonalize().analyzeMood;
+    const moods = allowMood
+      ? recentReviews.map((r) =>
+          r.mood === "good" || r.mood === "ok" || r.mood === "low" ? r.mood : null,
+        )
+      : [];
     return {
       today: todayStr,
       hour: new Date().getHours(),
@@ -288,9 +295,9 @@ export default function TodayPage() {
       deedIds: allHabits.map((h) => h.id),
       challengesDone: challengesDone.map(({ id, title }) => ({ id, title })),
       recentMoods: moods,
-      gratitudeRecent: recentReviews.some(
-        (r) => typeof r.gratitude === "string" && r.gratitude.trim().length > 0,
-      ),
+      gratitudeRecent:
+        allowMood &&
+        recentReviews.some((r) => typeof r.gratitude === "string" && r.gratitude.trim().length > 0),
       hasKids: kids.length > 0,
     };
   }, [
@@ -315,19 +322,25 @@ export default function TodayPage() {
     () => (cmReady ? assessUser(companionInput) : null),
     [cmReady, companionInput],
   );
-  const guidance = useMemo(
+  const rawGuidance = useMemo(
     () =>
       cmReady && assessment && frozenLog
         ? selectGuidance(assessment, companionInput, frozenLog, challengesDone[0])
         : null,
     [cmReady, assessment, companionInput, frozenLog, challengesDone],
   );
+  // STEP 6 privacy gate: with habit analysis off there is no guidance card
+  // at all (not a degraded one). Dashboards the user opens deliberately
+  // (insights) keep working — only automatic adaptation pauses.
+  const guidance = loadPersonalize().analyzeHabits ? rawGuidance : null;
   useEffect(() => {
     if (!guidance || !cmReady || !frozenLog) return;
     // Persist for future sessions; frozenLog stays untouched in-session.
-    // Respects the analytics opt-out: no guide-log writes when paused.
+    // Respects the analytics opt-out AND the personalization master switch:
+    // no guide-log writes when paused.
     try {
       if (loadFromStorage("wird-analytics-optout-v1", false)) return;
+      if (!loadPersonalize().master) return;
       logGuidance((k, v) => saveToStorage(k, v), frozenLog, guidance.logKind, todayStr);
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps -- log once per selected guidance
@@ -427,6 +440,10 @@ export default function TodayPage() {
 
   useEffect(() => {
     if (!lastSeen || mosque) return;
+    // STEP 6 privacy gate: ladder nudges pause with reminders analysis.
+    try {
+      if (!loadPersonalize().analyzeReminders) return;
+    } catch {}
     const t = dayId();
     // Enveloped like everything else (raw strings corrupt the read path).
     if (loadFromStorage("wird-notify-day-v1", "") === t) return;
@@ -434,7 +451,8 @@ export default function TodayPage() {
     if (!hit) return;
     void ensurePermission().then((ok) => {
       if (!ok) return;
-      fireNotification(hit.title, hit.body);
+      const text = ladderText(lang, hit);
+      fireNotification(text.title, text.body);
       saveToStorage("wird-notify-day-v1", t);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

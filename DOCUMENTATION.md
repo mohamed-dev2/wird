@@ -62,6 +62,7 @@ tools to move between devices.
 46. [Safe code generation](docs/SAFE_CODE_GENERATION.md)
 47. [Offline architecture](docs/offline-architecture.md)
 48. [Companion project (design record)](docs/COMPANION_PROJECT.md)
+49. [Adaptive intelligence](docs/ADAPTIVE.md)
 
 ## 1. Quick start
 
@@ -174,7 +175,9 @@ recency suffixes; bare legacy marks still match), `wird-quran-font-v1`,
 `wird-history-v1`, `wird-reviews-v1`, `wird-remind-v1`,
 `wird-adhkar-log-v1` (per-day group counts, capped 180 days),
 `wird-recovery-plans-v1` (per-profile private self-management plans —
-sensitive; excludable from backups, see `docs/features/private-recovery.md`).
+sensitive; excludable from backups, see `docs/features/private-recovery.md`),
+`wird-personalize-v1` (per-profile adaptation switches: master, habits,
+mood, reminders — see `docs/ADAPTIVE.md`).
 
 Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-theme-v1`, `wird-lang-v1`, `wird-reminders-v1`, `wird-mosque-v1`,
@@ -305,7 +308,7 @@ Account → transfer card (`app/components/transfer.tsx`):
 
 ## 7. Internationalization & themes
 
-- 926-key AR/EN dictionary (`app/lib/strings.ts`, parity enforced by
+- 968-key AR/EN dictionary (`app/lib/strings.ts`, parity enforced by
   `docs:check`); `useT()` hook + `tr()`; religious/user content stays Arabic.
 - `document.dir` flips rtl/ltr; `[dir="ltr"]` CSS mirrors layout.
 - Themes light/dark/oled via `data-theme` + `tokens.css`; OS preference
@@ -342,7 +345,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`
   (7 checks), `npm run comments:check`, `npm run css:check`,
   `npm run boundaries:check`, `npm run metrics` (informational report).
-- Vitest (181 tests, 23 files): history/coach/recovery/transfer/demo logic plus the reliability
+- Vitest (203 tests, 27 files): history/coach/recovery/transfer/demo logic plus the reliability
   suites — `schema` (envelopes, quarantine, salvage, future-versions,
   quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
   two-phase zero-write rejection, snapshot rollback, salvage),
@@ -369,7 +372,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   legacy verifiers (in `recovery`), `private-plans` (run math,
   history-preserving resets, neutral copy, generic reminders, schema
   round-trip).
-- Playwright (29 tests, prod server, serial `--workers=1` pinned in
+- Playwright (31 tests, prod server, serial `--workers=1` pinned in
   `npm run test:e2e`): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across

@@ -112,6 +112,7 @@ function UsageSection({ t, plan, today, data, mutate }: Common) {
         <div className="backup-actions">
           <button
             type="button"
+            className="pp-btn"
             onClick={() => {
               const m = parseInt(minutes, 10);
               if (Number.isFinite(m) && m > 0) {
@@ -213,6 +214,7 @@ function TriggersSection({
         <div className="backup-actions">
           <button
             type="button"
+            className="pp-btn"
             onClick={() => {
               mutate((p) => ({ ...p, triggers: addUnique(p.triggers, draft) }));
               setDraft("");
@@ -308,6 +310,7 @@ function ReplacementsSection({
         <div className="backup-actions">
           <button
             type="button"
+            className="pp-btn"
             onClick={() => {
               const clean = label.trim();
               if (!clean) return;
@@ -332,10 +335,10 @@ function ReplacementsSection({
         {pendingStrategy && (
           <p aria-live="polite">
             {t("pp.didHelp")}{" "}
-            <button type="button" className="linklike" onClick={() => answerStrategy(true)}>
+            <button type="button" className="pp-btn" onClick={() => answerStrategy(true)}>
               {t("pp.helpedYes")}
             </button>{" "}
-            <button type="button" className="linklike" onClick={() => answerStrategy(false)}>
+            <button type="button" className="pp-btn-ghost" onClick={() => answerStrategy(false)}>
               {t("pp.helpedNo")}
             </button>
           </p>

@@ -5,6 +5,15 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Adaptive intelligence (STEP 6): `wird-personalize-v1` control center
+  (master/habits/mood/reminders switches + why-lines, recovery
+  test-locked out by firewall); wired reminder tones (gentle/balanced/
+  strict, balanced preserves historic copy, notifications now localized);
+  fatigue detection with change/pause (never more nudges); challenge
+  difficulty suggestions; habit co-occurrence insight (observational
+  only); `docs/ADAPTIVE.md` requirement map; plan buttons rebuilt on a
+  `pp-btn` system with `private-plans.css` split out of `additions.css`.
+
 - Private plans redesign: stat-card grid, visual journey timeline, usage
   bars, hero urge-timer countdown, milestone/trigger chips, emergency and
   support cards (`pp-` design system, 28 ideas); workspace split into

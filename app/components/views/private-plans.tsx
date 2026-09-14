@@ -194,7 +194,7 @@ export function PrivatePlansView() {
                 key={m}
                 type="button"
                 aria-pressed={mode === m}
-                className={mode === m ? "selected" : ""}
+                className="pp-chip-btn"
                 onClick={() => setMode(m)}
               >
                 {t(
@@ -230,7 +230,7 @@ export function PrivatePlansView() {
             </>
           )}
           <div className="backup-actions">
-            <button type="button" onClick={create}>
+            <button type="button" className="pp-btn" onClick={create}>
               {t("pp.save")}
             </button>
             <button type="button" className="linklike" onClick={() => setCreating(false)}>
@@ -240,7 +240,7 @@ export function PrivatePlansView() {
         </div>
       ) : (
         <div className="backup-actions">
-          <button type="button" onClick={() => setCreating(true)}>
+          <button type="button" className="pp-btn" onClick={() => setCreating(true)}>
             {t("pp.create")}
           </button>
         </div>

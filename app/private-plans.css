@@ -1,0 +1,447 @@
+/* Private plans workspace (STEP 4): cards, timeline, timer, chips,
+   buttons. Scoped by pp- prefix; global file because plan views share
+   it across list + detail routes. Logical props only. */
+
+/* ===== Private plans design system (P1–P28). Calm surfaces, tabular
+   numerals, logical props only, no important-flags, motion gated.
+   Discreet by default: nothing here shouts, even the urgent parts. */
+
+/* P1 — plan hero stacks title over reassurance copy. */
+.pp-hero {
+  display: grid;
+  gap: 6px;
+  margin-block-end: 4px;
+}
+
+/* P2 — plan cards read as real destinations. */
+.pp-plan-card {
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-lg);
+  margin-block: 10px;
+}
+
+/* P3 — the whole card header is one generous target. */
+.pp-plan-open {
+  display: grid;
+  gap: 8px;
+  inline-size: 100%;
+  text-align: start;
+  background: transparent;
+  border: 0;
+  padding-inline: 16px;
+  padding-block: 14px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+/* P4 — name row: identity plus status, never crowded. */
+.pp-plan-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* P5 — due badge nudges in gold; done state rests in green. */
+.pp-due-badge {
+  background: var(--gold-soft);
+  color: var(--gold-deep);
+  border-radius: 999px;
+  padding-inline: 10px;
+  padding-block: 3px;
+  font-size: 0.78em;
+  white-space: nowrap;
+}
+
+.pp-due-badge.is-done {
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+}
+
+/* P6 — run count is the hero number of every card. */
+.pp-run-hero {
+  font-size: clamp(1.7rem, 1.4rem + 2.4vw, 2.4rem);
+  font-variant-numeric: tabular-nums;
+  color: var(--brand-ink);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.pp-run-hero span {
+  font-size: 0.42em;
+  color: var(--muted);
+}
+
+/* P7 — open hint whispers at the card foot. */
+.pp-open-hint {
+  color: var(--faint);
+  font-size: 0.85em;
+}
+
+/* P8 — plan list breathes between cards. */
+.pp-plan-list {
+  display: grid;
+  gap: 4px;
+}
+
+/* P9 — section titles pace the long workspace. */
+.pp-sec {
+  margin-block: 22px 8px;
+  font-size: 1.02rem;
+}
+
+/* P10 — generic workspace card. */
+.pp-card {
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-lg);
+  padding-inline: 16px;
+  padding-block: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+/* P11 — stat grid tiles without media queries. */
+.pp-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+/* P12 — each stat is a quiet instrument. */
+.pp-stat {
+  background: var(--surface);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-md);
+  padding-inline: 12px;
+  padding-block: 10px;
+  display: grid;
+  gap: 2px;
+}
+
+.pp-stat b {
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.pp-stat span {
+  font-size: 0.8em;
+  color: var(--muted);
+}
+
+/* P13 — current run leads in brand. */
+.pp-stat-hero {
+  border-inline-start: 3px solid var(--brand);
+}
+
+.pp-stat-hero b {
+  color: var(--brand-ink);
+  font-size: 1.6rem;
+}
+
+/* P14 — check-in card carries the brand rail. */
+.pp-checkin-card {
+  border-inline-start: 3px solid var(--brand);
+}
+
+/* P15 — setback card stays warm, never alarming (no-shame rule). */
+.pp-setback-card {
+  background: var(--surface-warm);
+  border-inline-start: 3px solid var(--gold);
+}
+
+/* P16 — journey timeline: a rail with honest dots. */
+.pp-timeline {
+  list-style: none;
+  margin: 0;
+  padding-inline-start: 18px;
+  border-inline-start: 2px solid var(--line);
+  display: grid;
+  gap: 10px;
+}
+
+.pp-tl-item {
+  position: relative;
+  font-size: 0.92em;
+}
+
+.pp-tl-item::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -24px;
+  inset-block-start: 4px;
+  inline-size: 10px;
+  block-size: 10px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 2px solid var(--faint);
+}
+
+.pp-tl-item.is-setback::before {
+  border-color: var(--gold-deep);
+  background: var(--gold-soft);
+}
+
+.pp-tl-item.is-current::before {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+/* P17 — timer hero: the countdown is the room. */
+.pp-timer-hero {
+  font-size: clamp(2.6rem, 2rem + 5vw, 4rem);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--brand-ink);
+}
+
+/* P18 — timer card centers its ritual. */
+.pp-timer-card {
+  text-align: center;
+}
+
+.pp-timer-card .backup-actions {
+  justify-content: center;
+}
+
+/* P19 — usage bars: track plus honest fill. */
+.pp-bar {
+  block-size: 8px;
+  border-radius: 999px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.pp-fill {
+  display: block;
+  block-size: 100%;
+  margin-inline-end: auto;
+  background: var(--brand);
+  border-radius: inherit;
+}
+
+.pp-fill.over {
+  background: var(--gold-deep);
+}
+
+.pp-ok {
+  color: var(--brand-ink);
+}
+
+.pp-over {
+  color: var(--gold-deep);
+}
+
+/* P20 — chips for triggers, milestones, options. */
+.pp-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding-inline: 12px;
+  padding-block: 6px;
+}
+
+.pp-chip-static {
+  background: var(--surface);
+}
+
+/* P21 — emergency stays calm-surfaced with a danger rail. */
+.pp-emergency-card {
+  border-inline-start: 3px solid var(--danger);
+}
+
+/* P22 — quoted verse rests on the brand rail. */
+.pp-verse {
+  display: block;
+  border-inline-start: 2px solid var(--brand);
+  padding-inline-start: 10px;
+  margin-block-start: 8px;
+  line-height: 2;
+}
+
+/* P23 — create form invites with dashes. */
+.pp-create-card {
+  border-style: dashed;
+  border-width: 1.5px;
+}
+
+/* P24 — destructive zone keeps its distance. */
+.pp-danger-zone {
+  margin-block-start: 8px;
+}
+
+.pp-danger-zone .pp-card {
+  border-color: var(--danger);
+}
+
+/* P25 — settings toggles stack with air. */
+.pp-settings-card {
+  gap: 12px;
+}
+
+/* P26 — small screens keep two stat columns, never one cramped. */
+@media (max-width: 480px) {
+  .pp-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pp-plan-open {
+    padding-inline: 12px;
+  }
+}
+
+/* Motion for P2/P13/P16 — direction-neutral, gated. */
+@media (prefers-reduced-motion: no-preference) {
+  /* P27 — cards lift a hair on hover. */
+  .pp-plan-card,
+  .pp-stat {
+    transition:
+      transform var(--dur-2) var(--ease-out),
+      box-shadow var(--dur-2) var(--ease-out);
+  }
+  .pp-plan-card:hover,
+  .pp-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  /* P28 — the current-run dot breathes on the timeline. */
+  .pp-tl-item.is-current::before {
+    animation: pp-pulse 2.6s ease-in-out infinite;
+  }
+}
+
+@keyframes pp-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(20, 114, 93, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(20, 114, 93, 0);
+  }
+}
+
+/* Reduced-data: stillness without losing meaning. */
+@media (prefers-reduced-data: reduce) {
+  .pp-tl-item.is-current::before {
+    animation: none;
+  }
+}
+
+/* ===== Plan buttons (B1-B4). One system: primary, ghost, chips, danger.
+   Replaces bare browser buttons and out-of-context library classes.
+   Logical props only, no important-flags, motion gated below. */
+
+/* B1 - primary action: solid, unmissable, calm. */
+.pp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--brand);
+  color: #fff;
+  border: 0;
+  border-radius: var(--r-md);
+  padding-inline: 18px;
+  padding-block: 11px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pp-btn:hover {
+  background: var(--brand-deep);
+}
+
+/* B2 - ghost action: quiet outline for secondary choices. */
+.pp-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--brand-ink);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding-inline: 18px;
+  padding-block: 11px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pp-btn-ghost:hover {
+  border-color: var(--brand);
+}
+
+/* B3 - preset chips: single-select options with pressed state. */
+.pp-chip-btn {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding-inline: 14px;
+  padding-block: 8px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pp-chip-btn[aria-pressed="true"] {
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+  border-color: var(--brand);
+}
+
+/* B4 - destructive action: honest red outline, solid only on hover. */
+.pp-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: var(--r-md);
+  padding-inline: 18px;
+  padding-block: 11px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.pp-btn-danger:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.pp-btn:disabled,
+.pp-btn-ghost:disabled,
+.pp-btn-danger:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Motion for B1-B4 - press physics, gated. */
+@media (prefers-reduced-motion: no-preference) {
+  .pp-btn,
+  .pp-btn-ghost,
+  .pp-chip-btn,
+  .pp-btn-danger {
+    transition: transform var(--dur-1) var(--ease-out);
+  }
+  .pp-btn:active,
+  .pp-btn-ghost:active,
+  .pp-chip-btn:active,
+  .pp-btn-danger:active {
+    transform: scale(0.97);
+  }
+}

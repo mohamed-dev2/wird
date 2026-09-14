@@ -66,7 +66,7 @@ export function TimerSection({
               key={m}
               type="button"
               aria-pressed={timerMin === m}
-              className={timerMin === m ? "selected" : ""}
+              className="pp-chip-btn"
               onClick={() => setTimerMin(m)}
             >
               {t("pp.minutesFmt", { n: m })}
@@ -85,6 +85,7 @@ export function TimerSection({
         <div className="backup-actions">
           <button
             type="button"
+            className="pp-btn"
             onClick={() => {
               const m = customMin.trim() ? parseInt(customMin, 10) : timerMin;
               setCustomMin("");
@@ -137,10 +138,10 @@ export function EmergencySection({
       <div className="pp-card pp-emergency-card">
         <p className="backup-msg">{t("pp.emergencyDesc")}</p>
         <div className="backup-actions">
-          <button type="button" onClick={() => router.push("/")}>
+          <button type="button" className="pp-btn" onClick={() => router.push("/")}>
             {t("pp.leaveNow")}
           </button>
-          <button type="button" onClick={onOpenTimer}>
+          <button type="button" className="pp-btn-ghost" onClick={onOpenTimer}>
             {t("pp.openTimer")}
           </button>
           <button type="button" className="linklike" onClick={onBack}>

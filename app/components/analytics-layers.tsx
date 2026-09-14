@@ -10,6 +10,7 @@ import {
   adhkarStats,
   bestWeekdays,
   categoryDeltas,
+  challengeAdvice,
   challengeStats,
   compareHabits,
   compareWindows,
@@ -48,6 +49,7 @@ import {
 } from "../lib/analytics";
 import { categorize } from "../lib/coach";
 import { dayId, loadFromStorage, sections } from "../lib/wird";
+import { loadPersonalize } from "../lib/personalize";
 import { useStoredState } from "../lib/use-stored-state";
 import { useT } from "../lib/i18n";
 import { useWird } from "./wird-store";
@@ -105,6 +107,9 @@ export function AnalyticsLayers() {
     const m = new Map(allHabits.map((h) => [h.id, h.title] as const));
     return (id: string) => m.get(id) ?? id;
   }, [allHabits]);
+  // STEP 6: adaptive suggestions render only when personalization allows.
+  // Dashboards themselves stay visible (user-opened inspection).
+  const personalize = useMemo(() => loadPersonalize(), []);
 
   const quality = useMemo(() => dataQuality(history, todayId), [history, todayId]);
   const streak = useMemo(() => streakStats(history, todayId), [history, todayId]);
@@ -305,7 +310,7 @@ export function AnalyticsLayers() {
           <ul>
             {insights.map((ins) => (
               <li key={ins.id}>
-                💡 {t(`an.ins.${insightKey(ins.id)}`, insightVars(ins, lang))}
+                💡 {t(`an.ins.${insightKey(ins.id)}`, insightVars(ins, lang, deedTitle))}
                 <br />
                 <small className="chart-caption">{t("an.ins.why", { n: 30 })}</small>
               </li>
@@ -460,11 +465,34 @@ export function AnalyticsLayers() {
         </p>
         {challenges.length > 0 && (
           <ul>
-            {challenges.map((c) => (
-              <li key={c.id}>
-                {c.title} — {fmtPct(Math.min(1, c.checks.length / Math.max(1, c.target)))}
-              </li>
-            ))}
+            {challenges.map((c) => {
+              const adv =
+                personalize.master && personalize.analyzeHabits
+                  ? challengeAdvice(c, todayId)
+                  : null;
+              return (
+                <li key={c.id}>
+                  {c.title} — {fmtPct(Math.min(1, c.checks.length / Math.max(1, c.target)))}
+                  {adv === "consider-easier" && (
+                    <>
+                      <br />
+                      <small className="chart-caption">
+                        {t("an.advEasier")}{" "}
+                        {t("an.advWhy", {
+                          rate: fmtPct(Math.min(1, c.checks.length / Math.max(1, c.target))),
+                        })}
+                      </small>
+                    </>
+                  )}
+                  {adv === "ended" && (
+                    <>
+                      <br />
+                      <small className="chart-caption">{t("an.advEnded")}</small>
+                    </>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
@@ -626,6 +654,7 @@ export function AnalyticsLayers() {
 function insightVars(
   ins: { id: string; evidence: Record<string, string | number> },
   lang: string,
+  titles: (id: string) => string,
 ): Record<string, string | number> {
   if (ins.id === "weekday" && typeof ins.evidence["weekday"] === "number") {
     return { day: weekdayName(lang, ins.evidence["weekday"]) };
@@ -633,6 +662,15 @@ function insightVars(
   if (ins.id === "overload" && ins.evidence["n"] !== undefined) {
     const n = ins.evidence["n"];
     return { n: typeof n === "number" ? n : 0 };
+  }
+  if (ins.id === "cooccur") {
+    const { a, b, pa, pb } = ins.evidence;
+    return {
+      a: typeof a === "string" ? titles(a) : "",
+      b: typeof b === "string" ? titles(b) : "",
+      pa: typeof pa === "number" ? pa : 0,
+      pb: typeof pb === "number" ? pb : 0,
+    };
   }
   return {};
 }
@@ -645,6 +683,7 @@ function insightKey(id: string): string {
     overload: "overload",
     recovery: "recovery",
     "small-restart": "smallRestart",
+    cooccur: "cooccur",
   };
   return map[id] ?? "improve30";
 }

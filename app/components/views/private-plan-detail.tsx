@@ -244,6 +244,7 @@ function CheckinSection({
             <div className="backup-actions">
               <button
                 type="button"
+                className="pp-btn"
                 onClick={() => {
                   mutate((p) => recordCheckin(p, today, note));
                   setNote("");
@@ -283,7 +284,7 @@ function SetbackSection({
       <div className="pp-card pp-setback-card">
         {!open && !saved && (
           <div className="backup-actions">
-            <button type="button" onClick={() => setOpen(true)}>
+            <button type="button" className="pp-btn" onClick={() => setOpen(true)}>
               {t("pp.setback")}
             </button>
           </div>
@@ -314,6 +315,7 @@ function SetbackSection({
             <div className="backup-actions">
               <button
                 type="button"
+                className="pp-btn"
                 onClick={() => {
                   // The trigger lives only in this setback's metadata —
                   // never also in triggerUses, so statistics count it once.

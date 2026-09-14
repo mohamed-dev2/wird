@@ -14,6 +14,7 @@ app/
 ├── sitemap.ts        # public routes only
 ├── opengraph-image.tsx  # static brand OG image (no user data)
 ├── tokens.css styles.css additions.css views.css rescue.css library.css
+│   (+ private-plans.css for the pp- workspace system)
 └── lib/data/         # curated content source (see lib/data/README.md)
 ```
 

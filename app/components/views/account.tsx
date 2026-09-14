@@ -3,7 +3,7 @@
 // confirms explicitly with its consequences spelled out (see §1.18).
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import {
   backupFilename,
@@ -27,7 +27,12 @@ import {
   wrapForEncryption,
 } from "../../lib/crypto";
 import { ProfileScopeToggle } from "../profile-scope";
-import { DEFAULT_REMINDERS, ensurePermission, fireNotification } from "../../lib/notify";
+import {
+  DEFAULT_REMINDERS,
+  ensurePermission,
+  fireNotification,
+  reminderFatigue,
+} from "../../lib/notify";
 import { buildDemo, clearDemoData, mergeHistoryDemo, saveDemoReviews } from "../../lib/demo";
 import { askPrompt, dayId } from "../../lib/wird";
 import { PRAYER_AR, PRAYER_ORDER, type PrayerTimes } from "../../lib/prayer";
@@ -50,6 +55,11 @@ import {
   type HealthIssue,
   type QuarantineEntry,
 } from "../../lib/schema";
+import {
+  DEFAULT_PERSONALIZE,
+  PERSONALIZE_KEY,
+  type PersonalizeSettings,
+} from "../../lib/personalize";
 import { collectDiagnostics, type DiagnosticsSnapshot } from "../../lib/diagnostics";
 import { loadExcludeFlag, privatePlansPresent } from "../../lib/private-plans";
 
@@ -293,6 +303,21 @@ export function AccountView({ onReset }: { onReset: () => void }) {
   const askName = askPrompt;
   const [reminders, setReminders] = useStoredState("wird-reminders-v1", DEFAULT_REMINDERS);
   const [analyticsOptOut, setAnalyticsOptOut] = useStoredState("wird-analytics-optout-v1", false);
+  const [personalize, setPersonalize] = useStoredState<PersonalizeSettings>(
+    PERSONALIZE_KEY,
+    DEFAULT_PERSONALIZE,
+  );
+  const [lastSeen] = useStoredState<string | null>("wird-lastseen-v1", null);
+  // STEP 6: fatigue notice shows only while reminders are on and the user
+  // allows reminder analysis — pausing resolves it, no extra state needed.
+  const fatigue = useMemo(() => {
+    try {
+      if (!personalize.master || !personalize.analyzeReminders) return null;
+      return reminderFatigue(lastSeen, dayId(), reminders);
+    } catch {
+      return null;
+    }
+  }, [personalize, lastSeen, reminders]);
   const [prayerTimes, setPrayerTimes] = useStoredState<PrayerTimes>("wird-prayer-times-v1", {});
   const [remindMsg, setRemindMsg] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -907,6 +932,52 @@ export function AccountView({ onReset }: { onReset: () => void }) {
             </button>
           </div>
           {remindMsg && <p className="backup-msg">{remindMsg}</p>}
+          {fatigue && (
+            <div className="pp-card pp-setback-card">
+              <p>
+                <b>{t("rm.fatigueT")}</b>
+              </p>
+              <p className="backup-msg">{t("rm.fatigueB", { n: fatigue.absent })}</p>
+              <div className="backup-actions">
+                <button
+                  type="button"
+                  className="pp-btn-ghost"
+                  onClick={() => setReminders((r) => ({ ...r, enabled: false }))}
+                >
+                  {t("rm.pause")}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </article>
+      <article className="new-day">
+        <span>◌</span>
+        <div>
+          <b>{t("ps.t")}</b>
+          <p>{t("ps.s")}</p>
+          {(
+            [
+              ["master", "ps.master", "ps.masterD"],
+              ["analyzeHabits", "ps.habits", "ps.habitsD"],
+              ["analyzeMood", "ps.mood", "ps.moodD"],
+              ["analyzeReminders", "ps.reminders", "ps.remindersD"],
+            ] as const
+          ).map(([key, label, desc]) => (
+            <div key={key}>
+              <button
+                type="button"
+                className="linklike"
+                aria-pressed={personalize[key]}
+                onClick={() => setPersonalize((p) => ({ ...p, [key]: !p[key] }))}
+              >
+                {personalize[key] ? "✓ " : ""}
+                {t(label)}
+              </button>
+              <p className="backup-msg">{t(desc)}</p>
+            </div>
+          ))}
+          <p className="backup-msg">{t("ps.recoveryNote")}</p>
         </div>
       </article>
       <AppearanceCard />

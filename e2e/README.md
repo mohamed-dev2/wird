@@ -15,7 +15,8 @@ Conventions:
   10-day return, 95-day restart), `analytics` (insights layers, empty
   state), `private-plans` (plan lifecycle, quick exit, leak scan),
   `offline` (external blocked + full browser offline: core flows, bundled
-  search, plans, calm CDN failures, true-offline restart).
+  search, plans, calm CDN failures, true-offline restart),
+  `personalize` (fatigue notice + pause, settings persistence).
 - Offline simulation: `page.route` aborting non-loopback hosts (external
   cut, localhost alive) for degraded-network flows; `context.setOffline`
   (browser-wide, SW-tested) for airplane-mode flows. Fresh context per

@@ -372,6 +372,18 @@ export const SCHEMAS: Record<string, Schema> = {
   "wird-adhkar-log-v1": S(1, isObj, () => ({})),
   "wird-privacy-names-v1": S(1, isBool, () => false),
   "wird-analytics-optout-v1": S(1, isBool, () => false),
+  "wird-personalize-v1": S(
+    1,
+    // Structural twin of isPersonalizeLike in personalize.ts (R2: schema
+    // imports nothing — update both together).
+    (v) =>
+      isObj(v) &&
+      typeof v.master === "boolean" &&
+      typeof v.analyzeHabits === "boolean" &&
+      typeof v.analyzeMood === "boolean" &&
+      typeof v.analyzeReminders === "boolean",
+    () => ({ master: true, analyzeHabits: true, analyzeMood: true, analyzeReminders: true }),
+  ),
   "wird-vault-v1": S(
     1,
     (v) => typeof v === "object" && v !== null,
