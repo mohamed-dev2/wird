@@ -84,3 +84,38 @@ auto-request the right reviewer.
 3. Religious text must be sourced and attributed
    (`docs/HOW_TO_ADD_RELIGIOUS_CONTENT.md`) — no generated content.
 4. If in doubt, document the decision in an ADR.
+
+## Trademark and brand
+
+"Wird", its logo, and visual identity belong to the project holder and
+are NOT covered by the Apache-2.0 copyright license (which grants no
+trademark rights). Forks, modified versions, community projects, and
+unofficial deployments must not present themselves as official Wird,
+use confusingly similar branding, or imply endorsement. Fair nominative
+use (naming Wird to describe compatibility or origin) is fine.
+
+## Copyright complaints
+
+Reports concerning code, images, fonts, educational or religious
+content, translations, or other material: file a GitHub issue (or
+private advisory if sensitive) identifying the work, the rightsholder,
+and the basis. Maintainers verify against `CONTENT_RIGHTS.md` and
+provenance before acting — no automatic takedowns on accusation; valid
+findings are fixed with attribution or removal plus a CHANGELOG entry.
+
+## Privacy requests
+
+Access/correction/deletion/export requests map to local actions the
+requester performs themselves (`PRIVACY_POLICY.md` §5); maintainers hold
+no user data and operate no queue. Complaints or consent questions go
+through the private advisory channel; the response documents what was
+checked, without collecting more personal data.
+
+## Legal change gate
+
+Any feature that adds data, sensitivity, third parties, storage,
+sharing, or consent surface must pass, in order: data-inventory update
+→ Privacy Policy / Terms update if the promise changes → security
+review → implementation. Sensitive-data features additionally need the
+privacy-impact review (`docs/ADAPTIVE.md` gate list, youth-risk and
+accidental-disclosure analysis included) before code is written.

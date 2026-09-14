@@ -35,13 +35,15 @@ redesign, dependency change).
 - [ ] Repo is **private** until this audit passes (toggle only on purpose).
 - [ ] No secrets, no `.env*` real files, `.env.example` only.
 - [ ] Step 3 docs complete and truthful (no placeholder docs).
-- [ ] `LICENSE` (MIT) + `THIRD_PARTY_NOTICES.md` list everything bundled.
+- [ ] `LICENSE` (Apache-2.0, word-verified) + `NOTICE` + `THIRD_PARTY_NOTICES.md` list everything bundled.
+- [ ] Legal set complete: `TERMS_OF_USE.md`, `PRIVACY_POLICY.md`, `DATA_*.md`, `CONTENT_RIGHTS.md`, `docs/SAFETY.md`, `docs/COMPLIANCE_MATRIX.md` — all reachable (`/terms`, `/privacy`), versioned, and matching implementation (compliance tests).
 - [ ] SBOM generation works (`npm run sbom`) and is attached at release.
 - [ ] Full gate stack green on a fresh clone (`npm ci` → `npm run diagnose` → build → e2e).
 - [ ] DCO policy documented (CONTRIBUTING.md), not ambiguous.
 - [ ] Codeowners accurate; at least one non-original-developer is a
       maintainer or on the path to it (see MAINTAINER_HANDOVER.md).
 - [ ] Security contact is real and private (SECURITY.md).
+- [ ] Professional legal review completed (privacy, PDPL, minors, licensing, terms) — docs alone are not clearance.
 
 ## Final principle (3.71)
 

@@ -2,7 +2,8 @@
 
 Wird is **100% on-device**. This file states exactly what stays, what can
 leave, and through which user action — so any future change can be checked
-against it.
+against it. The user-facing policy with rights, retention, and contacts
+is `../PRIVACY_POLICY.md` (also served in-app at `/privacy`).
 
 ## Never leaves the device except by explicit user action
 

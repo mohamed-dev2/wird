@@ -55,6 +55,10 @@ export default function LibraryPage() {
       )}
       {tab === "paths" && <PathsList />}
       {tab === "dreams" && <DreamsBoard dreams={dreams} setDreams={setDreams} />}
+      <div className="lib-card">
+        <p className="eyebrow">{t("lb.sourcesT")}</p>
+        <p className="backup-msg">{t("lb.sourcesB")}</p>
+      </div>
     </section>
   );
 }

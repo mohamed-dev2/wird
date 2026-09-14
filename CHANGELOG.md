@@ -5,6 +5,14 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Legal architecture (STEP 8): Apache-2.0 license (word-verified),
+  wird-gamma copyright, NOTICE, SPDX on new routes; versioned bilingual
+  Terms + Privacy Policy as docs AND live `/terms` + `/privacy` routes
+  (offline-capable, sitemap-listed, mobile-tested); data inventory,
+  classification, retention, content-rights, safety, and compliance-matrix
+  docs; Library sources attribution in-app; policy↔code consistency tests;
+  canonical site `https://wird-gamma.vercel.app/` everywhere.
+
 - Reliability deep layer (STEP 7, 7.14–7.34): storage probe + readiness
   verdict (actually writes, never "healthy because running"); wipe now
   downloads a rescue snapshot first; preview↔restore agreement asserted;

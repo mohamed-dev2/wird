@@ -64,6 +64,9 @@ tools to move between devices.
 48. [Companion project (design record)](docs/COMPANION_PROJECT.md)
 49. [Adaptive intelligence](docs/ADAPTIVE.md)
 50. [Reliability architecture](docs/RELIABILITY.md)
+51. [Terms of Use](TERMS_OF_USE.md) · [Privacy Policy](PRIVACY_POLICY.md) (also served at `/terms`, `/privacy`)
+52. [Data inventory](DATA_INVENTORY.md) · [Classification](DATA_CLASSIFICATION.md) · [Retention](DATA_RETENTION.md) · [Content rights](CONTENT_RIGHTS.md)
+53. [Safety (youth + roadmaps)](docs/SAFETY.md) · [Compliance matrix](docs/COMPLIANCE_MATRIX.md)
 
 ## 1. Quick start
 
@@ -99,6 +102,8 @@ husky pre-commit (lint-staged) + commit-msg hooks.
 | `/account`       | `app/account/`       | Profile, backup, transfer, reminders, times, theme                       |
 | `/recovery`      | `app/recovery/`      | Last-resort recovery: inspect, emergency export, restore, surgical reset |
 | `/private-plans` | `app/private-plans/` | Optional private self-management plans (discreet, unlisted from nav)     |
+| `/terms`         | `app/terms/`         | Terms of Use, bilingual, versioned (static, precached)                   |
+| `/privacy`       | `app/privacy/`       | Privacy Policy, bilingual, versioned (static, precached)                 |
 
 Shared chrome (sidebar, bottom nav, header, zikr dock, login gate) lives in
 `app/components/shell.tsx`; all state in `app/components/wird-store.tsx`
@@ -348,7 +353,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`
   (7 checks), `npm run comments:check`, `npm run css:check`,
   `npm run boundaries:check`, `npm run metrics` (informational report).
-- Vitest (232 tests, 30 files): history/coach/recovery/transfer/demo logic plus the reliability
+- Vitest (242 tests, 31 files): history/coach/recovery/transfer/demo logic plus the reliability
   suites — `schema` (envelopes, quarantine, salvage, future-versions,
   quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
   two-phase zero-write rejection, snapshot rollback, salvage),
@@ -375,7 +380,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   legacy verifiers (in `recovery`), `private-plans` (run math,
   history-preserving resets, neutral copy, generic reminders, schema
   round-trip).
-- Playwright (38 tests, prod server, serial `--workers=1` pinned in
+- Playwright (41 tests, prod server, serial `--workers=1` pinned in
   `npm run test:e2e`): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across

@@ -380,6 +380,9 @@ const AR: Record<string, string> = {
   "lb.hadith": "الحديث",
   "lb.paths": "مسارات العلم",
   "lb.dreams": "الأحلام",
+  "lb.sourcesT": "مصادر المحتوى",
+  "lb.sourcesB":
+    "المصحف العثماني، والترجمة الإنجليزية ClearQuran، وتفسير الجلالين، ومختارات الحديث، وكتب الحديث الكاملة (MIT)، ومرآة مثبتة لسنن مختارة، وتفاسير Quran.com، وتلاوات EveryAyah، وقائمة BIP-39. التفاصيل والحقوق في CONTENT_RIGHTS.md.",
   "qr.search": "ابحث في الآيات أو السور…",
   "qr.searchAria": "البحث في القرآن",
   "qr.fontDown": "تصغير الخط",
@@ -1369,6 +1372,9 @@ const EN: Record<string, string> = {
   "lb.hadith": "Hadith",
   "lb.paths": "Paths",
   "lb.dreams": "Dreams",
+  "lb.sourcesT": "Content sources",
+  "lb.sourcesB":
+    "Uthmani mushaf, ClearQuran English, Jalalayn tafsir, hadith selections, full hadith books (MIT), a pinned mirror for selected collections, Quran.com tafsirs, EveryAyah recitations, and the BIP-39 list. Rights and details in CONTENT_RIGHTS.md.",
   "qr.search": "Search verses or surahs…",
   "qr.searchAria": "Search Quran",
   "qr.fontDown": "Smaller",

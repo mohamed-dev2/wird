@@ -52,6 +52,15 @@ Every doc in this folder, one line each. The root `README.md` and
 ## Privacy, security, network
 
 - `PRIVACY.md` — high-level privacy statement (user-facing).
+- `../PRIVACY_POLICY.md` — versioned policy: what/why/where/rights/contact.
+- `../TERMS_OF_USE.md` — versioned terms: service, content, availability, limits.
+- `../DATA_CLASSIFICATION.md` — PUBLIC → HIGHLY SENSITIVE levels + rules.
+- `../DATA_INVENTORY.md` — every field: purpose, sensitivity, retention, export.
+- `../DATA_RETENTION.md` — shortest-practical retention per dataset.
+- `../CONTENT_RIGHTS.md` — non-code content sources, licenses, review flags.
+- `SAFETY.md` — youth audit + parent-access/safety roadmaps.
+- `COMPLIANCE_MATRIX.md` — requirement → implementation → test → status.
+- `ADAPTIVE.md` — personalization engine, requirement map, privacy controls.
 - `PRIVACY_ARCHITECTURE.md` — how privacy is enforced structurally
   (sensitivity classes, local-first design).
 - `NETWORK.md` — exhaustive network-request matrix.

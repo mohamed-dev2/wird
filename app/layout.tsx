@@ -14,7 +14,8 @@ import { SwRegister } from "./components/sw-register";
 import { WirdProvider } from "./components/wird-store";
 import { alexandria, dmSans } from "./fonts";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://wird.vercel.app";
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://wird-gamma.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

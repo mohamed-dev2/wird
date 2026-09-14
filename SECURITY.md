@@ -102,6 +102,18 @@ the first and last line of defense for a fully-offline app.
 - No HTML is injected from user data; tafsir/hadith HTML is sanitized via
   `stripHtml` before it reaches the DOM.
 
+## Incident response (internal process)
+
+Detect (health Diagnostics, user report, advisory) → contain (safe mode,
+feature parks, Vercel rollback) → investigate (diagnostics export,
+quarantine forensics — user bytes stay local) → determine affected data
+(DATA_INVENTORY.md classes) → assess legal obligations (do not promise a
+notification period unless legally verified) → remediate → notify where
+required → document (postmortem: what/why/first-failure/escape/prevention,
+no blame) → prevent recurrence (regression test + gate). Security log is
+the local export log (kind/time/count, user-visible); no incident data
+leaves the device except through the reporter's own private advisory.
+
 ## Authentication boundaries
 
 There is no account, no server session, no third-party login. The only
@@ -115,9 +127,9 @@ surfing) and the optional vault passphrase — both client-side by design.
   - Preferred: GitHub Security Advisories → **New advisory** via
     `Security` tab (private draft), addressed to the maintainers.
   - Alternative: open a private fork + draft **security patch PR** and @-
-    mention a maintainer describing the issue discreetly, **or** email the
-    link to a private summary to `security@wird.example` (placeholder —
-    replace with the maintainer address when publishing the repo).
+    mention a maintainer describing the issue discreetly.
+- Dedicated security email is not yet configured; do not trust any address
+  claiming to be Wird unless published here by the project owner.
 - Include, if possible: affected version/commit, reproduction steps, impact,
   and a suggested fix. Reports are handled confidentially; we publish an
   advisory + fix only after the issue is resolved (and, if needed, after a

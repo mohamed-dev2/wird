@@ -67,6 +67,7 @@ import {
   type DiagnosticsSnapshot,
 } from "../../lib/diagnostics";
 import { loadExcludeFlag, privatePlansPresent } from "../../lib/private-plans";
+import { PRIVACY_TITLE, TERMS_TITLE } from "../../lib/legal";
 
 function AppearanceCard() {
   const t = useT();
@@ -766,6 +767,8 @@ export function AccountView({ onReset }: { onReset: () => void }) {
                       {t("auth.pausePersonal")}
                     </button>
                     <Link href="/private-plans">{t("pp.title")}</Link>
+                    <Link href="/terms">{TERMS_TITLE[lang === "en" ? "en" : "ar"]}</Link>
+                    <Link href="/privacy">{PRIVACY_TITLE[lang === "en" ? "en" : "ar"]}</Link>
                     {vaultState === "off" ? (
                       <button
                         type="button"

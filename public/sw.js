@@ -4,7 +4,7 @@
  * network-first (fresh shell when online) with cache fallback (usable
  * Today screen when offline). Bump CACHE on shell changes — activate
  * purges older versions and the in-app update banner applies them. */
-const CACHE = "wird-v4";
+const CACHE = "wird-v5";
 const CORE = [
   "/",
   "/calendar",
@@ -14,6 +14,8 @@ const CORE = [
   "/account",
   "/recovery",
   "/private-plans",
+  "/terms",
+  "/privacy",
   "/manifest.webmanifest",
   "/data/quran-uthmani.min.json",
   "/data/en-clear.min.json",
