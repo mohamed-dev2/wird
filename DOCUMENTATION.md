@@ -189,7 +189,8 @@ Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-vault-v1`, `wird-travel-v1` (hidden-from-extra-eyes profile IDs),
 `wird-export-log-v1` (what-left-the-device consent log, capped),
 `wird-private-plans-excluded-v1` (private-plans backup exclusion flag),
-`wird-safe-mode-v1` (device-global degraded boot flag)
+`wird-safe-mode-v1` (device-global degraded boot flag),
+`wird-probe-v1` (transient storage-probe key, written + removed in one call, never persisted)
 (diagnostics, see below).
 
 Helpers: `loadFromStorage` / `saveToStorage` (`app/lib/wird.ts`, profile-aware),
@@ -347,7 +348,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`
   (7 checks), `npm run comments:check`, `npm run css:check`,
   `npm run boundaries:check`, `npm run metrics` (informational report).
-- Vitest (214 tests, 29 files): history/coach/recovery/transfer/demo logic plus the reliability
+- Vitest (225 tests, 30 files): history/coach/recovery/transfer/demo logic plus the reliability
   suites — `schema` (envelopes, quarantine, salvage, future-versions,
   quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
   two-phase zero-write rejection, snapshot rollback, salvage),
@@ -374,7 +375,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   legacy verifiers (in `recovery`), `private-plans` (run math,
   history-preserving resets, neutral copy, generic reminders, schema
   round-trip).
-- Playwright (33 tests, prod server, serial `--workers=1` pinned in
+- Playwright (35 tests, prod server, serial `--workers=1` pinned in
   `npm run test:e2e`): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across

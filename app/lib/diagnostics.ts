@@ -37,6 +37,69 @@ function splitKey(storedKey: string): { profile: string | null; dataset: string 
   return { profile: null, dataset: storedKey };
 }
 
+// ---------- readiness (STEP 7.26/7.27) ----------
+
+export type StorageProbe = "ok" | "denied" | "full";
+
+/**
+ * Actually write + delete a probe key: a health check must test the thing
+ * it claims (7.26), not merely report that the process runs. Transient
+ * probe key, removed in the same call — never persisted, never backed up.
+ */
+export function probeStorage(store?: StorageLike | null): StorageProbe {
+  const st = store ?? browserStore();
+  if (!st) return "denied";
+  try {
+    st.setItem("wird-probe-v1", "1");
+  } catch (e) {
+    const msg = `${(e as Error)?.name ?? ""} ${(e as Error)?.message ?? e}`;
+    return /quota/i.test(msg) ? "full" : "denied";
+  }
+  try {
+    const v = st.getItem("wird-probe-v1");
+    st.removeItem("wird-probe-v1");
+    return v === "1" ? "ok" : "denied";
+  } catch {
+    return "denied";
+  }
+}
+
+export type Readiness = {
+  /** Servable state. False = writes impossible or newer-version data
+   * present — the app degrades to explicit read-only messaging, never a
+   * silent corrupted state (7.27/7.28). Boot itself never blocks. */
+  ready: boolean;
+  storage: StorageProbe;
+  futureVersionKeys: number;
+  quarantineEntries: number;
+  notes: Array<"storage-denied" | "storage-full" | "future-versions" | "quarantine-near-cap">;
+};
+
+/**
+ * Compose a readiness verdict from a diagnostics snapshot + live probe.
+ * Pure and unit-tested; surfaced today through the per-dataset statuses
+ * on /recovery (same numbers, no new screen), and available to any host
+ * probe that needs liveness vs readiness split.
+ */
+export function summarizeReadiness(
+  snap: Pick<DiagnosticsSnapshot, "futureVersionKeys" | "quarantineEntries">,
+  storage: StorageProbe,
+): Readiness {
+  const notes: Readiness["notes"] = [];
+  // QUARANTINE_MAX is 20 in schema.ts: warn while headroom still exists.
+  if (storage === "full") notes.push("storage-full");
+  else if (storage === "denied") notes.push("storage-denied");
+  if (snap.futureVersionKeys > 0) notes.push("future-versions");
+  if (snap.quarantineEntries >= 18) notes.push("quarantine-near-cap");
+  return {
+    ready: notes.length === 0,
+    storage,
+    futureVersionKeys: snap.futureVersionKeys,
+    quarantineEntries: snap.quarantineEntries,
+    notes,
+  };
+}
+
 export type DatasetStatus = "ok" | "legacy" | "migrated" | "quarantined" | "future" | "unknown";
 
 export type DatasetReport = {

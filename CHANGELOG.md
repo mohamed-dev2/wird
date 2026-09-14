@@ -5,6 +5,14 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Reliability deep layer (STEP 7, 7.14–7.34): storage probe + readiness
+  verdict (actually writes, never "healthy because running"); wipe now
+  downloads a rescue snapshot first; preview↔restore agreement asserted;
+  disaster-scenario matrix, backup taxonomy, deletion tiers, release and
+  feature rollback paths, shutdown/job model, resource-bound table, and
+  large-dataset suites (2000-record validation, 500-key restore,
+  7000-record search, 3-year-history e2e) in `docs/RELIABILITY.md`.
+
 - Reliability layer (STEP 7): route + global + section error boundaries
   with content-free diagnostics; safe mode (skips companion, deep
   analytics, QR scan/LAN; bannered, `?safe=1` linkable, error-screen

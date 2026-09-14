@@ -60,7 +60,11 @@ import {
   PERSONALIZE_KEY,
   type PersonalizeSettings,
 } from "../../lib/personalize";
-import { collectDiagnostics, type DiagnosticsSnapshot } from "../../lib/diagnostics";
+import {
+  collectDiagnostics,
+  buildEmergencyExport,
+  type DiagnosticsSnapshot,
+} from "../../lib/diagnostics";
 import { loadExcludeFlag, privatePlansPresent } from "../../lib/private-plans";
 
 function AppearanceCard() {
@@ -580,6 +584,16 @@ export function AccountView({ onReset }: { onReset: () => void }) {
           ? `تأكيد أخير: سيُمسح ${n} عنصرًا من هذا الجهاز نهائيًا (مع بقاء سجل التشخيص). لا يمكن التراجع بدون نسخة احتياطية. متابعة؟`
           : `Final check: this permanently erases ${n} items from this device (diagnostics log kept). No undo without a backup. Continue?`;
       if (!window.confirm(second)) return;
+      // STEP 7.22: point-in-time rescue — an emergency snapshot downloads
+      // BEFORE anything is removed, so "no undo" always has one undo.
+      // Export failure never blocks the confirmed wipe (best effort).
+      try {
+        const rescue = buildEmergencyExport();
+        downloadFile(backupFilename("wird-emergency-"), JSON.stringify(rescue));
+        logExport("emergency", rescue.summary.recovered);
+      } catch {
+        // rescue failed — user already confirmed twice; proceed.
+      }
       for (const k of Object.keys(data)) {
         if (k === "wird-quarantine-v1" || k === "wird-health-v1") continue;
         localStorage.removeItem(k);
