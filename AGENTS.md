@@ -35,7 +35,7 @@ day one.
   `recovery.ts` (12-word BIP39 secret + salted verifier), `transfer.ts`/`lan.ts` (QR/LAN), content
   loaders (`quran.ts`, `tafsir.ts`, `audio.ts`, `hadith-full.ts`),
   `privacy.ts` (sensitivity + network manifest), `strings.ts` (AR/EN
-  dictionary, ~975 keys), `i18n.ts`.
+  dictionary, ~979 keys), `i18n.ts`.
 - `app/components/` — React UI. `app/components/views/` route views,
   `app/components/library/` Quran/hadith, `transfer.tsx` (export infra),
   `profile-scope.tsx`, `login-gate.tsx`.

@@ -6,7 +6,7 @@
 npm run typecheck   # strict TS + noUncheckedIndexedAccess
 npm run lint        # eslint --max-warnings 0
 npm run format:check
-npm run test        # vitest run (unit, 242 tests)
+npm run test        # vitest run (unit, 246 tests)
 npm run test:e2e    # playwright (production server, serial --workers=1 pinned in script)
 npm run build
 npm run docs:check  # keys + routes + AR/EN parity + links + inventory + quality + version stamp
@@ -50,6 +50,7 @@ Pure logic only — no DOM, no storage beyond in-memory mocks:
 | `safe-mode`                   | `?safe=` parsing, SSR default, registry contract                                                     |
 | `section-error`               | static error mapping + content-free unique diagnostic ids                                            |
 | `reliability`                 | storage probe classes, readiness verdicts, preview agreement, large-data budgets                     |
+| `audit`                       | route inventory, internal-link + push resolution, sitemap/SW-shell consistency, static secret scan   |
 
 Conventions: seeded PRNGs (reproducible), synthetic histories built from
 day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
@@ -81,6 +82,10 @@ day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
   insights; wipe downloads a rescue snapshot before erasing.
 - `legal.spec.ts` — terms/privacy render versioned bilingual documents
   with cross-links; small-screen + offline reload covered.
+- `audit.spec.ts` — core journey touches loopback hosts only; unicode
+  check-in round-trip; back/forward/refresh/duplicate-tab integrity;
+  calm 404 renders + recovers. Machine inventory: `npm run audit:manifest`
+  regenerates `audit/*.json` (see `MASTER_AUDIT.md`).
 
 Rules learned the hard way:
 

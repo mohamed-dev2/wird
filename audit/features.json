@@ -1,0 +1,110 @@
+[
+  {
+    "doc": "docs/features/accessibility.md",
+    "title": "Accessibility feature",
+    "modules": []
+  },
+  {
+    "doc": "docs/features/adhkar.md",
+    "title": "Adhkar (daily remembrances)",
+    "modules": ["app/lib/wird.ts", "app/components/views/adhkar.tsx"]
+  },
+  {
+    "doc": "docs/features/analytics.md",
+    "title": "Analytics",
+    "modules": [
+      "app/lib/analytics.ts",
+      "app/lib/history.ts",
+      "app/lib/coach.ts",
+      "app/components/views/calendar.tsx",
+      "app/components/analytics-layers.tsx",
+      "app/insights/page.tsx",
+      "app/lib/__tests__/analytics.test.ts"
+    ]
+  },
+  {
+    "doc": "docs/features/coach.md",
+    "title": "Coach (brief)",
+    "modules": ["app/lib/coach.ts", "app/components/companion.tsx"]
+  },
+  {
+    "doc": "docs/features/goals-habits-review.md",
+    "title": "Goals, habits, and review",
+    "modules": ["app/lib/wird.ts", "app/lib/history.ts", "app/components/views/review.tsx"]
+  },
+  {
+    "doc": "docs/features/hadith.md",
+    "title": "Hadith library",
+    "modules": [
+      "app/lib/data/hadith.ts",
+      "app/lib/hadith-full.ts",
+      "app/components/library/hadith-library.tsx",
+      "app/components/library/hadith-full.tsx"
+    ]
+  },
+  {
+    "doc": "docs/features/localization.md",
+    "title": "Localization feature",
+    "modules": ["app/lib/strings.ts", "app/lib/i18n.ts", "app/components/wird-store.tsx"]
+  },
+  {
+    "doc": "docs/features/privacy.md",
+    "title": "Privacy feature",
+    "modules": ["app/lib/privacy.ts", "app/lib/vault.ts", "app/lib/analytics.ts"]
+  },
+  {
+    "doc": "docs/features/private-recovery.md",
+    "title": "Private plans (STEP 4) — anonymous self-management system",
+    "modules": [
+      "app/lib/private-plans.ts",
+      "app/components/views/private-plans.tsx",
+      "app/components/views/private-plan-detail.tsx",
+      "app/lib/strings.ts",
+      "app/lib/__tests__/private-plans.test.ts"
+    ]
+  },
+  {
+    "doc": "docs/features/quran.md",
+    "title": "Quran reader",
+    "modules": [
+      "app/lib/quran.ts",
+      "app/lib/tafsir.ts",
+      "app/lib/audio.ts",
+      "app/components/library/quran-reader.tsx"
+    ]
+  },
+  {
+    "doc": "docs/features/README.md",
+    "title": "Features",
+    "modules": [
+      "app/lib/analytics.ts",
+      "app/lib/history.ts",
+      "app/lib/coach.ts",
+      "app/lib/companion.ts",
+      "app/lib/quran.ts",
+      "app/lib/tafsir.ts",
+      "app/components/library/quran-reader.tsx",
+      "app/lib/hadith-full.ts"
+    ]
+  },
+  {
+    "doc": "docs/features/return-system.md",
+    "title": "Return system (adaptive guide)",
+    "modules": ["app/lib/companion.ts"]
+  },
+  {
+    "doc": "docs/features/security.md",
+    "title": "Security feature",
+    "modules": ["app/lib/crypto.ts", "app/lib/recovery.ts", "app/components/login-gate.tsx"]
+  },
+  {
+    "doc": "docs/features/storage.md",
+    "title": "Storage (zero-loss schema)",
+    "modules": [
+      "app/lib/schema.ts",
+      "app/lib/wird.ts",
+      "app/lib/use-stored-state.ts",
+      "app/lib/crypto.ts"
+    ]
+  }
+]

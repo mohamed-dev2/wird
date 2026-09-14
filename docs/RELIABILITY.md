@@ -247,11 +247,34 @@ fails these gates the same as a crash.
 - New widget area → wrap in `SectionGuard` if its failure must not take
   the route with it.
 
-- New external host → `net.ts` breaker + `NETWORK.md` + `privacy.ts` +
-  SW rule + calm UI state + failure-matrix tests (the tafsir/hadith
-  pattern).
-- New multi-step mutation → classify it in the consistency table above
-  and test the unhappy path (quota/failure injection like
-  `crypto-restore.test.ts`).
-- New widget area → wrap in `SectionGuard` if its failure must not take
-  the route with it.
+## Appendix: incident timeline + postmortem templates (audit §44–46)
+
+Local-first means most "incidents" are user-side (corrupt profile,
+failed transfer, stuck SW). Copy the timeline while debugging; file the
+postmortem for anything that touched user data or needed a release.
+
+Timeline (fill during the incident):
+
+```text
+date/time (UTC):
+reporter + device/browser:
+symptom (user words):
+repro (exact steps):
+scope (one profile / all profiles / one device):
+data at risk? (yes/no + which keys):
+mitigation given to the user:
+root cause (after):
+fix + test that locks it:
+```
+
+Postmortem (within a week for data-touching incidents):
+
+```text
+title + date:
+severity (P0/P1/P2) + why:
+what happened (3 lines max):
+why it wasn't caught (which gate was missing):
+fix (code + test file):
+docs updated:
+follow-ups (owner + date):
+```

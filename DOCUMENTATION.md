@@ -67,6 +67,7 @@ tools to move between devices.
 51. [Terms of Use](TERMS_OF_USE.md) · [Privacy Policy](PRIVACY_POLICY.md) (also served at `/terms`, `/privacy`)
 52. [Data inventory](DATA_INVENTORY.md) · [Classification](DATA_CLASSIFICATION.md) · [Retention](DATA_RETENTION.md) · [Content rights](CONTENT_RIGHTS.md)
 53. [Safety (youth + roadmaps)](docs/SAFETY.md) · [Compliance matrix](docs/COMPLIANCE_MATRIX.md)
+54. [Master audit](MASTER_AUDIT.md) · [Audit report (this run)](AUDIT_REPORT.md) · [Audit baseline](AUDIT_BASELINE.md) · machine inventory in `audit/` (`npm run audit:manifest`)
 
 ## 1. Quick start
 
@@ -316,7 +317,7 @@ Account → transfer card (`app/components/transfer.tsx`):
 
 ## 7. Internationalization & themes
 
-- 975-key AR/EN dictionary (`app/lib/strings.ts`, parity enforced by
+- 979-key AR/EN dictionary (`app/lib/strings.ts`, parity enforced by
   `docs:check`); `useT()` hook + `tr()`; religious/user content stays Arabic.
 - `document.dir` flips rtl/ltr; `[dir="ltr"]` CSS mirrors layout.
 - Themes light/dark/oled via `data-theme` + `tokens.css`; OS preference
@@ -353,7 +354,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`
   (7 checks), `npm run comments:check`, `npm run css:check`,
   `npm run boundaries:check`, `npm run metrics` (informational report).
-- Vitest (242 tests, 31 files): history/coach/recovery/transfer/demo logic plus the reliability
+- Vitest (246 tests, 32 files): history/coach/recovery/transfer/demo logic plus the reliability
   suites — `schema` (envelopes, quarantine, salvage, future-versions,
   quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
   two-phase zero-write rejection, snapshot rollback, salvage),
@@ -380,7 +381,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   legacy verifiers (in `recovery`), `private-plans` (run math,
   history-preserving resets, neutral copy, generic reminders, schema
   round-trip).
-- Playwright (41 tests, prod server, serial `--workers=1` pinned in
+- Playwright (45 tests, prod server, serial `--workers=1` pinned in
   `npm run test:e2e`): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across

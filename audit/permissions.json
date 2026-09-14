@@ -1,0 +1,42 @@
+{
+  "model": "local-only: no accounts, roles, or server sessions; protection is device gates + per-profile namespacing",
+  "gates": [
+    {
+      "gate": "profile PIN + lockout",
+      "code": ["app/lib/profiles.ts", "app/components/login-gate.tsx"]
+    },
+    {
+      "gate": "duress PIN decoy",
+      "code": ["app/lib/profiles.ts"]
+    },
+    {
+      "gate": "reflection vault passphrase",
+      "code": ["app/lib/vault.ts"]
+    },
+    {
+      "gate": "notification permission (OS)",
+      "code": ["app/lib/notify.ts"]
+    },
+    {
+      "gate": "PIN re-verify for destructive backup actions",
+      "code": ["app/components/views/account.tsx"]
+    },
+    {
+      "gate": "travel-mode hidden profiles",
+      "code": ["app/lib/profiles.ts"]
+    },
+    {
+      "gate": "discreet plan names + quick exit",
+      "code": ["app/components/views/private-plans.tsx"]
+    },
+    {
+      "gate": "safe mode flag",
+      "code": ["app/lib/safe-mode.ts"]
+    },
+    {
+      "gate": "personalization toggles",
+      "code": ["app/lib/personalize.ts"]
+    }
+  ],
+  "storageKeys": 58
+}

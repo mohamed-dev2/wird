@@ -20,6 +20,7 @@
     "sbom": "node scripts/generate-sbom.mjs",
     "boundaries:check": "node scripts/check-boundaries.mjs",
     "metrics": "node scripts/check-metrics.mjs",
+    "audit:manifest": "node scripts/generate-audit.mjs",
     "diagnose": "npm run typecheck && npm run lint && npm run format:check && npm run docs:check && npm run comments:check && npm run css:check && npm run boundaries:check && npm run test",
     "clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true});require('fs').rmSync('tsconfig.tsbuildinfo',{force:true})\"",
     "prepare": "husky"

@@ -1,0 +1,65 @@
+{
+  "unit": {
+    "files": [
+      "app/lib/__tests__/adaptive.test.ts",
+      "app/lib/__tests__/analytics-perf.test.ts",
+      "app/lib/__tests__/analytics.test.ts",
+      "app/lib/__tests__/audit.test.ts",
+      "app/lib/__tests__/catalog.test.ts",
+      "app/lib/__tests__/coach.test.ts",
+      "app/lib/__tests__/companion.test.ts",
+      "app/lib/__tests__/content.test.ts",
+      "app/lib/__tests__/crypto-restore.test.ts",
+      "app/lib/__tests__/crypto-security.test.ts",
+      "app/lib/__tests__/daily.test.ts",
+      "app/lib/__tests__/demo.test.ts",
+      "app/lib/__tests__/fuzz.test.ts",
+      "app/lib/__tests__/guidance-safety.test.ts",
+      "app/lib/__tests__/hadith-full.test.ts",
+      "app/lib/__tests__/history.test.ts",
+      "app/lib/__tests__/isolation.test.ts",
+      "app/lib/__tests__/legal-compliance.test.ts",
+      "app/lib/__tests__/net.test.ts",
+      "app/lib/__tests__/notify.test.ts",
+      "app/lib/__tests__/personalize.test.ts",
+      "app/lib/__tests__/prayer.test.ts",
+      "app/lib/__tests__/privacy-firewall.test.ts",
+      "app/lib/__tests__/private-plans.test.ts",
+      "app/lib/__tests__/recovery.test.ts",
+      "app/lib/__tests__/reliability.test.ts",
+      "app/lib/__tests__/safe-mode.test.ts",
+      "app/lib/__tests__/schema.test.ts",
+      "app/lib/__tests__/section-error.test.ts",
+      "app/lib/__tests__/storage-adapter.test.ts",
+      "app/lib/__tests__/transfer.test.ts",
+      "app/lib/__tests__/vault.test.ts"
+    ],
+    "tests": 246
+  },
+  "e2e": {
+    "files": [
+      "e2e/analytics.spec.ts",
+      "e2e/audit.spec.ts",
+      "e2e/companion.spec.ts",
+      "e2e/legal.spec.ts",
+      "e2e/offline.spec.ts",
+      "e2e/personalize.spec.ts",
+      "e2e/private-plans.spec.ts",
+      "e2e/recovery.spec.ts",
+      "e2e/reliability.spec.ts",
+      "e2e/smoke.spec.ts",
+      "e2e/transfer.spec.ts"
+    ],
+    "tests": 45
+  },
+  "gates": [
+    "typecheck",
+    "lint",
+    "format:check",
+    "docs:check",
+    "comments:check",
+    "css:check",
+    "boundaries:check",
+    "audit"
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "route": "/",
+    "file": "app/page.tsx"
+  },
+  {
+    "route": "/account",
+    "file": "app/account/page.tsx"
+  },
+  {
+    "route": "/calendar",
+    "file": "app/calendar/page.tsx"
+  },
+  {
+    "route": "/insights",
+    "file": "app/insights/page.tsx"
+  },
+  {
+    "route": "/library",
+    "file": "app/library/page.tsx"
+  },
+  {
+    "route": "/privacy",
+    "file": "app/privacy/page.tsx"
+  },
+  {
+    "route": "/private-plans",
+    "file": "app/private-plans/page.tsx"
+  },
+  {
+    "route": "/recovery",
+    "file": "app/recovery/page.tsx"
+  },
+  {
+    "route": "/review",
+    "file": "app/review/page.tsx"
+  },
+  {
+    "route": "/terms",
+    "file": "app/terms/page.tsx"
+  }
+]

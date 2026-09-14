@@ -5,6 +5,15 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Master audit (STEP 9): `MASTER_AUDIT.md` (100-item map with
+  local-first scoping, statuses, severities), `AUDIT_REPORT.md` (real
+  gate numbers: 246 unit + 45 e2e green, 0 vulns), `AUDIT_BASELINE.md`,
+  machine inventory in `audit/` via `npm run audit:manifest`; calm
+  bilingual 404 (`app/not-found.tsx`); static audit tests (routes,
+  links, sitemap/SW, secret scan) + audit e2e (network allowlist,
+  unicode round-trip, navigation integrity, 404); incident templates in
+  `docs/RELIABILITY.md`; fixed duplicated doc blocks; dictionary now
+  979 keys.
 - Legal architecture (STEP 8): Apache-2.0 license (word-verified),
   wird-gamma copyright, NOTICE, SPDX on new routes; versioned bilingual
   Terms + Privacy Policy as docs AND live `/terms` + `/privacy` routes
