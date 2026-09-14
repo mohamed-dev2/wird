@@ -5,6 +5,11 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Dev container: Dockerfile now installs the Playwright Chromium OS
+  libraries (the old `ca-certificates`-only layer could not launch the
+  browser); browser install moved from every-start to one-time
+  `postCreateCommand`; new `.dockerignore` keeps the build context
+  hermetic.
 - Deen journey (STEP 10, ADR-007): five voluntary tracking levels
   (fard → mustahabb → makruh awareness → character → refinement) at
   `/deen` with prayers, quests, good-deeds library, scoreless haram/

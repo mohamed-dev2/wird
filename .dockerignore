@@ -1,0 +1,10 @@
+# Keep the build context small and hermetic: dependencies are installed
+# inside the image (npm ci), never copied from the host.
+node_modules
+.next
+.git
+test-results
+playwright-report
+coverage
+*.log
+.DS_Store

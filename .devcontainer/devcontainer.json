@@ -37,7 +37,6 @@
       }
     }
   },
-  "postCreateCommand": "npm ci",
-  "waitFor": "postCreateCommand",
-  "postStartCommand": "npx playwright install chromium"
+  "postCreateCommand": "npm ci && npx playwright install chromium",
+  "waitFor": "postCreateCommand"
 }

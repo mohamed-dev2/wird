@@ -45,6 +45,15 @@ docker build -t wird-dev .devcontainer
 docker run -it -v "$(pwd)":/workspace wird-dev
 ```
 
+The image carries the Playwright Chromium OS libraries; the browser
+itself installs once via `postCreateCommand` (`npx playwright install
+chromium`), not on every start. Known limits: the container runs as
+root, so if Chromium refuses its sandbox there, e2e inside the
+container needs a non-root user (follow-up with your exact error);
+`docker build` requires LF line endings in the Dockerfile (enforced by
+`.gitattributes` — drag-copied trees may carry CRLF, re-checkout
+instead).
+
 This is not the primary workflow; it exists for CI reproducibility and
 contributors whose OS requires it.
 
