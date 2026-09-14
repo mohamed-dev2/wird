@@ -6,7 +6,7 @@
 npm run typecheck   # strict TS + noUncheckedIndexedAccess
 npm run lint        # eslint --max-warnings 0
 npm run format:check
-npm run test        # vitest run (unit, 203 tests)
+npm run test        # vitest run (unit, 214 tests)
 npm run test:e2e    # playwright (production server, serial --workers=1 pinned in script)
 npm run build
 npm run docs:check  # keys + routes + AR/EN parity + links + inventory + quality + version stamp
@@ -46,6 +46,10 @@ Pure logic only — no DOM, no storage beyond in-memory mocks:
 | `notify`                      | tone-key matrix, historic copy lock, fatigue matrix, suggestion-copy safety scan           |
 | `adaptive`                    | challenge-advice matrix, co-occurrence math + gates, insight emission                      |
 | `privacy-firewall`            | recovery import/key scan: only documented modules touch plan data                          |
+| `safe-mode`                   | `?safe=` parsing, SSR default, registry contract                                           |
+| `section-error`               | static error mapping + content-free unique diagnostic ids                                  |
+| `net` (breakers)              | open/half-open/close transitions, no-touch fast-fail, bounded stall                        |
+| `crypto-restore` (idempotent) | restore-twice convergence, mid-failure rollback preserves prior state                      |
 
 Conventions: seeded PRNGs (reproducible), synthetic histories built from
 day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
@@ -72,6 +76,8 @@ day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
   `docs/offline-architecture.md`.
 - `personalize.spec.ts` — fatigue notice after seeded absence with pause
   resolution; personalization toggles persist across reload.
+- `reliability.spec.ts` — safe mode parks optional systems while core
+  tracking works; exiting restores everything.
 
 Rules learned the hard way:
 

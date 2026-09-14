@@ -1,6 +1,6 @@
 // Tafsir sources: Jalalayn bundled offline; others fetched on demand from
 // CSP-allowlisted endpoints and cached by the service worker afterwards.
-import { fetchWithTimeout } from "./net";
+import { circuitGet, createCircuitBreaker } from "./net";
 export type TafsirSource = { id: string; ar: string; en: string; offline?: boolean };
 
 export const TAFSIRS: TafsirSource[] = [
@@ -19,6 +19,9 @@ export const TAFSIRS: TafsirSource[] = [
 
 const apiCache = new Map<string, Promise<string>>();
 let jalalaynCache: Promise<Map<string, string>> | null = null;
+// STEP 7.10: repeated api.quran.com failures short-circuit instead of
+// hammering a broken endpoint; the UI already handles rejection calmly.
+const tafsirBreaker = createCircuitBreaker();
 
 function loadJalalayn(): Promise<Map<string, string>> {
   if (!jalalaynCache) {
@@ -61,7 +64,8 @@ export function fetchTafsir(sourceId: string, surah: number, ayah: number): Prom
   const key = `${sourceId}/${surah}:${ayah}`;
   const hit = apiCache.get(key);
   if (hit) return hit;
-  const p = fetchWithTimeout(
+  const p = circuitGet(
+    tafsirBreaker,
     `https://api.quran.com/api/v4/tafsirs/${sourceId}/by_ayah/${surah}:${ayah}`,
   )
     .then((r) => {

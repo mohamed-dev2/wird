@@ -10,6 +10,7 @@ import { DreamsBoard, type Dream } from "../components/library/dreams-board";
 import { HadithLibrary } from "../components/library/hadith-library";
 import { PathsList } from "../components/library/paths-list";
 import { QuranReader } from "../components/library/quran-reader";
+import { SectionGuard } from "../components/section-error";
 
 const TABS = [
   { id: "adhkar", labelKey: "lb.adhkar" },
@@ -42,8 +43,16 @@ export default function LibraryPage() {
         ))}
       </div>
       {tab === "adhkar" && <AdhkarView />}
-      {tab === "quran" && <QuranReader />}
-      {tab === "hadith" && <HadithLibrary />}
+      {tab === "quran" && (
+        <SectionGuard>
+          <QuranReader />
+        </SectionGuard>
+      )}
+      {tab === "hadith" && (
+        <SectionGuard>
+          <HadithLibrary />
+        </SectionGuard>
+      )}
       {tab === "paths" && <PathsList />}
       {tab === "dreams" && <DreamsBoard dreams={dreams} setDreams={setDreams} />}
     </section>

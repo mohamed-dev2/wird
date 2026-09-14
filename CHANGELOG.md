@@ -5,6 +5,13 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Reliability layer (STEP 7): route + global + section error boundaries
+  with content-free diagnostics; safe mode (skips companion, deep
+  analytics, QR scan/LAN; bannered, `?safe=1` linkable, error-screen
+  entry); per-host circuit breakers on CDN loads; restore-twice
+  convergence + rollback tests; `docs/RELIABILITY.md` (domains,
+  consistency contract, retry/breaker policy, degradation ladder).
+
 - Adaptive intelligence (STEP 6): `wird-personalize-v1` control center
   (master/habits/mood/reminders switches + why-lines, recovery
   test-locked out by firewall); wired reminder tones (gentle/balanced/

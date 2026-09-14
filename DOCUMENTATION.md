@@ -63,6 +63,7 @@ tools to move between devices.
 47. [Offline architecture](docs/offline-architecture.md)
 48. [Companion project (design record)](docs/COMPANION_PROJECT.md)
 49. [Adaptive intelligence](docs/ADAPTIVE.md)
+50. [Reliability architecture](docs/RELIABILITY.md)
 
 ## 1. Quick start
 
@@ -187,7 +188,8 @@ Device-global (never namespaced): `wird-profiles-v1`, `wird-active-profile`,
 `wird-guide-log-v1`, `wird-privacy-names-v1`, `wird-analytics-optout-v1`,
 `wird-vault-v1`, `wird-travel-v1` (hidden-from-extra-eyes profile IDs),
 `wird-export-log-v1` (what-left-the-device consent log, capped),
-`wird-private-plans-excluded-v1` (private-plans backup exclusion flag)
+`wird-private-plans-excluded-v1` (private-plans backup exclusion flag),
+`wird-safe-mode-v1` (device-global degraded boot flag)
 (diagnostics, see below).
 
 Helpers: `loadFromStorage` / `saveToStorage` (`app/lib/wird.ts`, profile-aware),
@@ -308,7 +310,7 @@ Account → transfer card (`app/components/transfer.tsx`):
 
 ## 7. Internationalization & themes
 
-- 968-key AR/EN dictionary (`app/lib/strings.ts`, parity enforced by
+- 975-key AR/EN dictionary (`app/lib/strings.ts`, parity enforced by
   `docs:check`); `useT()` hook + `tr()`; religious/user content stays Arabic.
 - `document.dir` flips rtl/ltr; `[dir="ltr"]` CSS mirrors layout.
 - Themes light/dark/oled via `data-theme` + `tokens.css`; OS preference
@@ -345,7 +347,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`
   (7 checks), `npm run comments:check`, `npm run css:check`,
   `npm run boundaries:check`, `npm run metrics` (informational report).
-- Vitest (203 tests, 27 files): history/coach/recovery/transfer/demo logic plus the reliability
+- Vitest (214 tests, 29 files): history/coach/recovery/transfer/demo logic plus the reliability
   suites — `schema` (envelopes, quarantine, salvage, future-versions,
   quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
   two-phase zero-write rejection, snapshot rollback, salvage),
@@ -372,7 +374,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   legacy verifiers (in `recovery`), `private-plans` (run math,
   history-preserving resets, neutral copy, generic reminders, schema
   round-trip).
-- Playwright (31 tests, prod server, serial `--workers=1` pinned in
+- Playwright (33 tests, prod server, serial `--workers=1` pinned in
   `npm run test:e2e`): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across
@@ -384,7 +386,8 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   blocked + full browser offline: core flows, bundled search, plans,
   calm CDN failures, true-offline restart, library regressions
   (no-duplicate-button, Ahmed/Darimi chips, Tazkirul source, localized
-  fav label);
+  fav label), fatigue notice + settings persistence, safe-mode parks +
+  core-works + exit;
   hydration-error listener fails the run on mismatch.
 - CI (`.github/workflows/ci.yml`): `npm ci` → typecheck → lint →
   format:check → unit → Playwright chromium → test:e2e → build →

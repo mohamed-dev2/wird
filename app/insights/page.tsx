@@ -10,6 +10,8 @@ import { buildBrief, buildCatalog, categoryBalance, type Category } from "../lib
 import { dayId, hijriParts } from "../lib/wird";
 import { shareProgress } from "../lib/share";
 import { AnalyticsLayers } from "../components/analytics-layers";
+import { SafeBanner, SectionGuard } from "../components/section-error";
+import { useSafeMode } from "../lib/safe-mode";
 import { useT } from "../lib/i18n";
 import { useWird } from "../components/wird-store";
 
@@ -72,6 +74,7 @@ function Radar({ values }: { values: { category: Category; pct: number }[] }) {
 }
 
 export default function InsightsPage() {
+  const [safe, setSafe] = useSafeMode();
   const t = useT();
   const { history, customs, allHabits, lang } = useWird();
   const todayId = useMemo(() => dayId(), []);
@@ -355,7 +358,13 @@ export default function InsightsPage() {
           })}
         </div>
       </div>
-      <AnalyticsLayers />
+      {safe ? (
+        <SafeBanner onExit={() => setSafe(false)} />
+      ) : (
+        <SectionGuard>
+          <AnalyticsLayers />
+        </SectionGuard>
+      )}
     </section>
   );
 }

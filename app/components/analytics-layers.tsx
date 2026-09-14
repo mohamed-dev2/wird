@@ -220,7 +220,7 @@ export function AnalyticsLayers() {
   );
 
   return (
-    <>
+    <section className="analytics-layers">
       {/* range selector */}
       <div className="brief-card">
         <p className="eyebrow">{t("an.custom")}</p>
@@ -647,7 +647,7 @@ export function AnalyticsLayers() {
           {fmtPct(rangeActive.rate)})
         </p>
       </div>
-    </>
+    </section>
   );
 }
 

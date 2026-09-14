@@ -31,6 +31,7 @@ const GLOBAL_KEYS = new Set([
   "wird-travel-v1",
   "wird-export-log-v1",
   "wird-private-plans-excluded-v1",
+  "wird-safe-mode-v1",
 ]);
 
 let activeId: string | null = null;

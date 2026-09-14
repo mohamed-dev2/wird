@@ -205,3 +205,56 @@ describe("export filenames", () => {
     expect(a).not.toBe(b);
   });
 });
+
+describe("restore idempotency (7.8)", () => {
+  it("applying the same backup twice converges (no duplicates, same state)", () => {
+    const data = {
+      "wird-tasbeeh-v2": DAY,
+      "wird-daymode-v1": JSON.stringify("ok"),
+    };
+    const first = restoreBackupSafe(data);
+    expect(first.rolledBack).toBe(false);
+    const snapshot = collectBackup();
+    const second = restoreBackupSafe(data);
+    expect(second.rolledBack).toBe(false);
+    // Same applied keys, identical store afterwards — retries are safe.
+    expect(second.applied).toBe(first.applied);
+    expect(collectBackup()).toEqual(snapshot);
+  });
+  it("a mid-restore failure rolls everything back (7.6)", () => {
+    localStorage.setItem("wird-daymode-v1", JSON.stringify("keep"));
+    const inner = new Map<string, string>();
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k) inner.set(k, localStorage.getItem(k) as string);
+    }
+    // Fail exactly once (transient quota storm), then behave: rollback can
+    // complete and the test stays order-independent.
+    let failLeft = 1;
+    (globalThis as unknown as { localStorage: unknown }).localStorage = {
+      getItem: (k: string) => (inner.has(k) ? (inner.get(k) as string) : null),
+      setItem: (k: string, v: string) => {
+        if (failLeft > 0) {
+          failLeft--;
+          const e = new Error("QuotaExceededError: storage full");
+          e.name = "QuotaExceededError";
+          throw e;
+        }
+        inner.set(k, v);
+      },
+      removeItem: (k: string) => {
+        inner.delete(k);
+      },
+      get length() {
+        return inner.size;
+      },
+      key: (i: number) => [...inner.keys()][i] ?? null,
+      clear: () => inner.clear(),
+    };
+    expect(() =>
+      restoreBackupSafe({ "wird-daymode-v1": JSON.stringify("new"), "wird-tasbeeh-v2": DAY }),
+    ).toThrow();
+    expect(inner.get("wird-daymode-v1")).toBe(JSON.stringify("keep"));
+    expect(inner.has("wird-tasbeeh-v2")).toBe(false);
+  });
+});

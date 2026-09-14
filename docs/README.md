@@ -69,6 +69,7 @@ Every doc in this folder, one line each. The root `README.md` and
 - `ANALYTICS.md` — insight rules, thresholds, confidence.
 - `COMPANION.md` — companion/return-system states + coach behavior.
 - `ADAPTIVE.md` — personalization engine, requirement map, privacy controls.
+- `RELIABILITY.md` — failure domains, consistency contract, breakers, safe mode.
 
 ## Guides (step-by-step)
 

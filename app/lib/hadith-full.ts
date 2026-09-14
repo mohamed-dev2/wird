@@ -8,7 +8,7 @@
 //   chapters 8–30 absent upstream) and Sunan al-Darimi (Arabic full,
 //   English absent upstream). Documented honestly in
 //   docs/features/hadith.md; revisit only with a reviewed source.
-import { fetchWithTimeout } from "./net";
+import { circuitGet, createCircuitBreaker } from "./net";
 import { normalizeAr } from "./quran";
 export type FullHadith = {
   num: number;
@@ -67,6 +67,10 @@ type MirrorPayload = { hadiths?: unknown; chapters?: unknown };
 const mirrorCache = new Map<FullBookId, Promise<FullBook>>();
 // One fetch + one parse per mirror book: both the Arabic book and the EN
 // map derive from this shared payload instead of downloading twice.
+// STEP 7.10: one breaker for the whole CDN host (both upstreams live
+// there) — repeated failures short-circuit instead of hammering.
+const hadithBreaker = createCircuitBreaker();
+
 const mirrorRaw = new Map<FullBookId, Promise<MirrorPayload>>();
 
 function loadMirrorRaw(id: FullBookId): Promise<MirrorPayload> {
@@ -75,7 +79,7 @@ function loadMirrorRaw(id: FullBookId): Promise<MirrorPayload> {
   const file = MIRROR_FILES[id];
   const p = (
     file
-      ? fetchWithTimeout(`${MIRROR_BASE}/${file}`).then((r) => {
+      ? circuitGet(hadithBreaker, `${MIRROR_BASE}/${file}`).then((r) => {
           if (!r.ok) throw new Error("mirror missing");
           return r.json() as Promise<MirrorPayload>;
         })
@@ -146,7 +150,8 @@ export function loadFullBook(id: FullBookId): Promise<FullBook> {
   const hit = cache.get(id);
   if (hit) return hit;
   const meta = FULL_BOOKS.find((b) => b.id === id);
-  const p = fetchWithTimeout(
+  const p = circuitGet(
+    hadithBreaker,
     `https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-${id}.min.json`,
   )
     .then((r) => {
@@ -199,7 +204,8 @@ export function loadFullBookEn(id: FullBookId): Promise<Map<number, string>> {
     ? // Mirror payload is bilingual: EN derives from the same pinned
       // file (browser/SW-cached after the Arabic load — no new origin).
       mirrorEn(id)
-    : fetchWithTimeout(
+    : circuitGet(
+        hadithBreaker,
         `https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/eng-${id}.min.json`,
       )
         .then((r) => {

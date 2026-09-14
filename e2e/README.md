@@ -16,7 +16,8 @@ Conventions:
   state), `private-plans` (plan lifecycle, quick exit, leak scan),
   `offline` (external blocked + full browser offline: core flows, bundled
   search, plans, calm CDN failures, true-offline restart),
-  `personalize` (fatigue notice + pause, settings persistence).
+  `personalize` (fatigue notice + pause, settings persistence),
+  `reliability` (safe-mode parks + core-works + exit).
 - Offline simulation: `page.route` aborting non-loopback hosts (external
   cut, localhost alive) for degraded-network flows; `context.setOffline`
   (browser-wide, SW-tested) for airplane-mode flows. Fresh context per

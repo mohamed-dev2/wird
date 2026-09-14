@@ -1,4 +1,4 @@
-// AR/EN string dictionary (968+ keys). Religious/user content stays Arabic
+// AR/EN string dictionary (975+ keys). Religious/user content stays Arabic
 // by convention; AR↔EN key parity is enforced by docs:check in CI. Copy
 // under cm|tw|ret|an|goals is additionally scanned by guidance-safety tests.
 import type { Lang } from "../components/wird-store";
@@ -205,6 +205,13 @@ const AR: Record<string, string> = {
   "rm.on": "✓ مفعّلة",
   "rm.off": "تفعيل",
   "rm.pause": "إيقاف مؤقت",
+  "safe.try": "الوضع الآمن",
+  "err.recovery": "طوارئ",
+  "err.secT": "تعذر تحميل هذا القسم",
+  "err.secB": "بياناتك المحفوظة لم تُحذف. أعد المحاولة.",
+  "err.retry": "إعادة المحاولة",
+  "safe.banner": "الوضع الآمن مفعّل: المزايا الاختيارية متوقفة.",
+  "safe.exit": "إنهاء الوضع الآمن",
   "rm.bed": "الحصاد",
   "rm.gentle": "لطيف",
   "rm.bal": "متوازن",
@@ -1187,6 +1194,13 @@ const EN: Record<string, string> = {
   "rm.on": "✓ On",
   "rm.off": "Enable",
   "rm.pause": "Pause",
+  "safe.try": "Try safe mode",
+  "err.recovery": "Recovery screen",
+  "err.secT": "This section couldn't load",
+  "err.secB": "Your saved data has not been deleted. Try again.",
+  "err.retry": "Try again",
+  "safe.banner": "Safe mode is on: optional features are paused.",
+  "safe.exit": "Exit safe mode",
   "rm.bed": "Review",
   "rm.gentle": "Gentle",
   "rm.bal": "Balanced",

@@ -94,6 +94,8 @@ import {
 } from "./lib/notify";
 import { arDuration, nextPrayer } from "./lib/prayer";
 import { loadPersonalize } from "./lib/personalize";
+import { useSafeMode } from "./lib/safe-mode";
+import { SafeBanner, SectionGuard } from "./components/section-error";
 import { useStoredState } from "./lib/use-stored-state";
 
 export default function TodayPage() {
@@ -230,6 +232,7 @@ export default function TodayPage() {
   // for the session (no log→reselect cascade); the effect below persists
   // today's entry for FUTURE sessions only.
   const todayStr = dayId();
+  const [safe, setSafe] = useSafeMode();
   const [cmReady, setCmReady] = useState(false);
   const [cmDismissed, setCmDismissed] = useState<string | null>(null);
   const [showTawbah, setShowTawbah] = useState(false);
@@ -739,40 +742,52 @@ export default function TodayPage() {
             </div>
             <div className="hero-deco">✦</div>
           </section>
-          {cmReady && guidance && guidance.logKind !== cmDismissed && (
-            <>
-              <CompanionCard
-                guidance={guidance}
-                verse={guideVerse}
-                hadith={guideHadith}
-                overlayNote={overlayNote}
-                coreTitles={guideCoreTitles}
-                contextLine={returnContext}
-                onAction={(g) => handleGuideAction(g.action)}
-                onDismiss={() => setCmDismissed(guidance.logKind)}
-              />
-              {showTawbah && (
-                <div className="tawbah-card">
-                  <h3>{t("tw.t")}</h3>
-                  <p>{t("tw.s")}</p>
-                  <div className="return-actions">
-                    <button
-                      type="button"
-                      className="review-submit"
-                      onClick={() => {
-                        editIntention();
-                        setShowTawbah(false);
-                      }}
-                    >
-                      {t("tw.intention")}
-                    </button>
-                    <button type="button" className="linklike" onClick={() => setShowTawbah(false)}>
-                      {t("tw.continue")}
-                    </button>
+          {safe ? (
+            <SafeBanner onExit={() => setSafe(false)} />
+          ) : (
+            cmReady &&
+            guidance &&
+            guidance.logKind !== cmDismissed && (
+              <>
+                <SectionGuard>
+                  <CompanionCard
+                    guidance={guidance}
+                    verse={guideVerse}
+                    hadith={guideHadith}
+                    overlayNote={overlayNote}
+                    coreTitles={guideCoreTitles}
+                    contextLine={returnContext}
+                    onAction={(g) => handleGuideAction(g.action)}
+                    onDismiss={() => setCmDismissed(guidance.logKind)}
+                  />
+                </SectionGuard>
+                {showTawbah && (
+                  <div className="tawbah-card">
+                    <h3>{t("tw.t")}</h3>
+                    <p>{t("tw.s")}</p>
+                    <div className="return-actions">
+                      <button
+                        type="button"
+                        className="review-submit"
+                        onClick={() => {
+                          editIntention();
+                          setShowTawbah(false);
+                        }}
+                      >
+                        {t("tw.intention")}
+                      </button>
+                      <button
+                        type="button"
+                        className="linklike"
+                        onClick={() => setShowTawbah(false)}
+                      >
+                        {t("tw.continue")}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </>
+                )}
+              </>
+            )
           )}
           <section className="mode-bar">
             <div>

@@ -34,6 +34,8 @@ import { lanAnswer, lanApplyAnswer, lanOffer } from "../lib/lan";
 import { getActiveProfileId } from "../lib/profiles";
 import { loadVerifiers, newRecoveryPhrase, saveVerifierSalted } from "../lib/recovery";
 import { useT } from "../lib/i18n";
+import { SafeBanner } from "./section-error";
+import { useSafeMode } from "../lib/safe-mode";
 import { useWird } from "./wird-store";
 import { ProfileScopeToggle } from "./profile-scope";
 
@@ -679,43 +681,54 @@ function Recovery() {
 
 export function Transfer() {
   const t = useT();
+  const [safe, setSafe] = useSafeMode();
   const [tab, setTab] = useState<Tab>("qr");
+  // STEP 7.13: safe mode keeps file + recovery-phrase transfer, pauses the
+  // camera/radio paths (QR scan, LAN). Nothing is removed, only parked.
+  const tabs: [Tab, string][] =
+    safe === true
+      ? [
+          ["qr", t("tr.tabQr")],
+          ["rec", t("tr.tabRec")],
+        ]
+      : [
+          ["qr", t("tr.tabQr")],
+          ["scan", t("tr.tabScan")],
+          ["lan", t("tr.tabLan")],
+          ["rec", t("tr.tabRec")],
+        ];
+  // Parked tabs fall back to QR show (derived, no setState during render).
+  const effTab: Tab = safe === true && (tab === "scan" || tab === "lan") ? "qr" : tab;
   return (
     <article className="new-day">
       <span>📲</span>
       <div>
         <b>{t("tr.title")}</b>
         <p>{t("tr.sub")}</p>
+        {safe === true && <SafeBanner onExit={() => setSafe(false)} />}
         <div className="book-chips">
-          {(
-            [
-              ["qr", t("tr.tabQr")],
-              ["scan", t("tr.tabScan")],
-              ["lan", t("tr.tabLan")],
-              ["rec", t("tr.tabRec")],
-            ] as [Tab, string][]
-          ).map(([id, label]) => (
+          {tabs.map(([id, label]) => (
             <button
               key={id}
               type="button"
               onClick={() => setTab(id)}
-              aria-pressed={tab === id}
-              className={tab === id ? "selected" : ""}
+              aria-pressed={effTab === id}
+              className={effTab === id ? "selected" : ""}
             >
               {label}
             </button>
           ))}
         </div>
-        {tab === "qr" && <QrShow />}
-        {tab === "scan" && <QrScan />}
-        {tab === "lan" && (
+        {effTab === "qr" && <QrShow />}
+        {effTab === "scan" && <QrScan />}
+        {effTab === "lan" && (
           <>
             <LanSend />
             <hr className="soft-hr" />
             <LanReceive />
           </>
         )}
-        {tab === "rec" && <Recovery />}
+        {effTab === "rec" && <Recovery />}
       </div>
     </article>
   );
