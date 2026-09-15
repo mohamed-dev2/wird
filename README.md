@@ -14,6 +14,14 @@ guide that understands where you are in your journey. Nothing leaves the
 device except user-initiated transfers. No analytics SDKs, no tracking, no
 cloud AI.
 
+## Screenshots
+
+| Today                                                                        | Deen journey                                                          | Library                                                         |
+| ---------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------------- |
+| ![Today screen with progress ring and guidance](docs/assets/shots/today.png) | ![Deen dashboard with prayers and quests](docs/assets/shots/deen.png) | ![Library with adhkar and books](docs/assets/shots/library.png) |
+
+Shots are generated from the app itself (`npm run build && node scripts/shot-readme.mjs`); regenerate after visual changes.
+
 ## التشغيل | Run
 
 ```bash

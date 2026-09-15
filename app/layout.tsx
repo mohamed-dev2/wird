@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Wird" }],
   creator: "Wird",
   manifest: "/manifest.webmanifest",
-  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  icons: { icon: "/icon.svg", apple: "/apple-touch-icon.png" },
   openGraph: {
     type: "website",
     locale: "ar_SA",

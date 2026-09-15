@@ -146,6 +146,18 @@ describe("identity, manifest, honesty", () => {
       expect(m, `manifest.${k}`).toHaveProperty(k);
     }
     expect(existsSync(join(ROOT, "public", "icon.svg"))).toBe(true);
+    // Raster icons for Apple touch + Android installability (pixels
+    // derive 1:1 from icon.svg via scripts/make-icons.mjs). Apple touch
+    // icons live outside the manifest (referenced from metadata).
+    for (const [file, size] of [
+      ["apple-touch-icon.png", null],
+      ["icon-192.png", "192x192"],
+      ["icon-512.png", "512x512"],
+    ] as Array<[string, string | null]>) {
+      expect(existsSync(join(ROOT, "public", file)), file).toBe(true);
+      if (size) expect(JSON.stringify(m.icons), `manifest lists ${size}`).toContain(size);
+    }
+    expect(read("app/layout.tsx")).toContain('apple: "/apple-touch-icon.png"');
   });
   it("no fake rich results, no rulings-as-SEO, no noindex accidents", () => {
     const src = walk(APP)

@@ -5,6 +5,10 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Polish + presence: README screenshots generated from the app
+  (`docs/assets/shots/`, via `scripts/shot-readme.mjs`); raster app
+  icons (180/192/512 PNGs derived 1:1 from `icon.svg` via
+  `scripts/make-icons.mjs`) wired into the manifest + Apple touch icon.
 - SEO (STEP 11): per-route titles/descriptions/canonicals (server
   layouts for client pages), OG/Twitter images, WebSite JSON-LD,
   Google verification file kept byte-exact + HTTP-proven locally;
