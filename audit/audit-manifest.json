@@ -1,14 +1,14 @@
 {
-  "generated": "2026-09-14T16:46:39.291Z",
-  "commit": "d93d7e4",
+  "generated": "2026-09-15T02:19:15.435Z",
+  "commit": "d824f0f",
   "version": "0.1.0",
   "node": "22",
   "counts": {
     "routes": 11,
     "featureDocs": 15,
     "storageKeys": 59,
-    "unitTests": 273,
-    "e2eTests": 50,
+    "unitTests": 282,
+    "e2eTests": 54,
     "integrations": 3
   }
 }

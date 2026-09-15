@@ -63,6 +63,7 @@ Every doc in this folder, one line each. The root `README.md` and
 - `PRIVACY_ARCHITECTURE.md` — how privacy is enforced structurally
   (sensitivity classes, local-first design).
 - `NETWORK.md` — exhaustive network-request matrix.
+- `SEO.md` — SEO audit + report (titles, canonicals, OG, JSON-LD, verification readiness).
 - `offline-architecture.md` — offline-first contract: classification
   manifest, storage, sync boundaries, SW behavior, failure modes, testing.
 - `COMPANION_PROJECT.md` — separate restriction-companion design record

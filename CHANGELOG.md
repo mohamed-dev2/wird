@@ -5,6 +5,11 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- SEO (STEP 11): per-route titles/descriptions/canonicals (server
+  layouts for client pages), OG/Twitter images, WebSite JSON-LD,
+  Google verification file kept byte-exact + HTTP-proven locally;
+  static + behavioral SEO regression suites; `docs/SEO.md` report
+  (READY FOR GOOGLE VERIFICATION — indexing never claimed).
 - Search-console verification file (`public/google373507699530d312.html`,
   served at `/google373507699530d312.html`; token only, no user data).
 - Dev container: Dockerfile now installs the Playwright Chromium OS

@@ -12,7 +12,19 @@ import {
   TERMS_TITLE,
 } from "../lib/legal";
 
-export const metadata: Metadata = { title: "Privacy Policy" };
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "Privacy Policy for Wird: what stays on your device, what can leave, and your rights. Versioned.",
+  alternates: { canonical: "/privacy" },
+  openGraph: {
+    title: "Privacy Policy",
+    description:
+      "Privacy Policy for Wird: what stays on your device, what can leave, and your rights. Versioned.",
+    url: "/privacy",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Wird — Daily Companion" }],
+  },
+};
 
 export default function PrivacyPage() {
   return (

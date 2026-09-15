@@ -31,11 +31,12 @@
       "app/lib/__tests__/safe-mode.test.ts",
       "app/lib/__tests__/schema.test.ts",
       "app/lib/__tests__/section-error.test.ts",
+      "app/lib/__tests__/seo.test.ts",
       "app/lib/__tests__/storage-adapter.test.ts",
       "app/lib/__tests__/transfer.test.ts",
       "app/lib/__tests__/vault.test.ts"
     ],
-    "tests": 273
+    "tests": 282
   },
   "e2e": {
     "files": [
@@ -49,10 +50,11 @@
       "e2e/private-plans.spec.ts",
       "e2e/recovery.spec.ts",
       "e2e/reliability.spec.ts",
+      "e2e/seo.spec.ts",
       "e2e/smoke.spec.ts",
       "e2e/transfer.spec.ts"
     ],
-    "tests": 50
+    "tests": 54
   },
   "gates": [
     "typecheck",

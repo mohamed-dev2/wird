@@ -6,7 +6,7 @@
 npm run typecheck   # strict TS + noUncheckedIndexedAccess
 npm run lint        # eslint --max-warnings 0
 npm run format:check
-npm run test        # vitest run (unit, 273 tests)
+npm run test        # vitest run (unit, 282 tests)
 npm run test:e2e    # playwright (production server, serial --workers=1 pinned in script)
 npm run build
 npm run docs:check  # keys + routes + AR/EN parity + links + inventory + quality + version stamp
@@ -51,6 +51,7 @@ Pure logic only — no DOM, no storage beyond in-memory mocks:
 | `section-error`               | static error mapping + content-free unique diagnostic ids                                               |
 | `reliability`                 | storage probe classes, readiness verdicts, preview agreement, large-data budgets                        |
 | `audit`                       | route inventory, internal-link + push resolution, sitemap/SW-shell consistency, static secret scan      |
+| `seo`                         | title uniqueness, descriptions/canonicals, robots/sitemap/verification/manifest/JSON-LD honesty         |
 | `deen`                        | XP single-award, levels preserve history, streaks/returns, scoreless reflections, catalog kinds, clamps |
 
 Conventions: seeded PRNGs (reproducible), synthetic histories built from
@@ -91,6 +92,9 @@ day offsets off a fixed `TODAY`, window functions fed through `shiftDay`
   double quest completion pays once; level-up keeps history with
   gamification off; library sources + scoreless speech check; offline
   open + URL/title leak scan.
+- `seo.spec.ts` — head title/description/canonical/OG/JSON-LD per
+  route; robots/sitemap/verification over HTTP; real 404 status +
+  trailing-slash; mobile render.
 
 Rules learned the hard way:
 

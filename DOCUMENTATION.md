@@ -69,6 +69,7 @@ tools to move between devices.
 53. [Safety (youth + roadmaps)](docs/SAFETY.md) · [Compliance matrix](docs/COMPLIANCE_MATRIX.md)
 54. [Master audit](MASTER_AUDIT.md) · [Audit report (this run)](AUDIT_REPORT.md) · [Audit baseline](AUDIT_BASELINE.md) · machine inventory in `audit/` (`npm run audit:manifest`)
 55. [Limitations](LIMITATIONS.md) · [Deen journey](docs/features/deen.md) · [ADR-007](docs/adr/ADR-007.md)
+56. [SEO report](docs/SEO.md)
 
 ## 1. Quick start
 
@@ -366,7 +367,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   (`--max-warnings 0`), `npm run format:check`, `npm run docs:check`
   (7 checks), `npm run comments:check`, `npm run css:check`,
   `npm run boundaries:check`, `npm run metrics` (informational report).
-- Vitest (273 tests, 33 files): history/coach/recovery/transfer/demo logic plus the reliability
+- Vitest (282 tests, 34 files): history/coach/recovery/transfer/demo logic plus the reliability
   suites — `schema` (envelopes, quarantine, salvage, future-versions,
   quota, caps, migration idempotence), `crypto-restore` (manifest, dry-run,
   two-phase zero-write rejection, snapshot rollback, salvage),
@@ -393,7 +394,7 @@ DENY`, strict `Referrer-Policy`, `Cross-Origin-Opener-Policy`,
   legacy verifiers (in `recovery`), `private-plans` (run math,
   history-preserving resets, neutral copy, generic reminders, schema
   round-trip).
-- Playwright (50 tests, prod server, serial `--workers=1` pinned in
+- Playwright (54 tests, prod server, serial `--workers=1` pinned in
   `npm run test:e2e`): toggles persist, routes render, theme/lang persist,
   tilt vars, transfer QR + recovery flows, `/recovery` health + emergency
   export, corruption survival + quarantine, A/B profile isolation across

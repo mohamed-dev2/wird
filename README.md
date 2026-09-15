@@ -23,7 +23,7 @@ npm run build      # production build
 npm run start      # serve production
 npm run lint       # ESLint flat config, zero warnings
 npm run typecheck  # tsc --noEmit (strict + noUncheckedIndexedAccess)
-npm run test       # Vitest unit tests (273)
+npm run test       # Vitest unit tests (282)
 npm run test:e2e   # Playwright e2e (production server)
 npm run format     # Prettier write
 npm run docs:check # verify docs match code (keys + routes + parity + links + inventory + quality + version)

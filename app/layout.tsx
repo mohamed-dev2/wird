@@ -50,13 +50,36 @@ export const metadata: Metadata = {
     siteName: "وِرد",
     title: "وِرد | رفيقك اليومي للعبادات",
     description: "تابع صلواتك وأذكارك وقرآنك — بخصوصية كاملة ودون إنترنت.",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Wird - Daily Companion",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "وِرد | رفيقك اليومي للعبادات",
     description: "تابع صلواتك وأذكارك وقرآنك — بخصوصية كاملة ودون إنترنت.",
+    images: ["/opengraph-image"],
   },
   robots: { index: true, follow: true },
+};
+
+// Machine-readable site identity (STEP 11): WebSite only: the one
+// schema this site genuinely qualifies for. No ratings, reviews,
+// prices, organizations, or counts are claimed anywhere.
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Wird",
+  alternateName: "وِرد",
+  url: siteUrl,
+  inLanguage: ["ar", "en"],
+  description:
+    "Local-first Islamic habits companion: prayers, adhkar, Quran, goals, and private self-management - all on your device.",
 };
 
 export const viewport: Viewport = {
@@ -69,6 +92,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="ar" dir="rtl" className={`${alexandria.variable} ${dmSans.variable}`}>
       <body>
+        <script
+          type="application/ld+json"
+          // Static identity block only: no user data can reach this string.
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
         <WirdProvider>
           <SwRegister />
           <Shell>{children}</Shell>
