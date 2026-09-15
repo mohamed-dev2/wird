@@ -5,6 +5,8 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Search-console verification file (`public/google373507699530d312.html`,
+  served at `/google373507699530d312.html`; token only, no user data).
 - Dev container: Dockerfile now installs the Playwright Chromium OS
   libraries (the old `ca-certificates`-only layer could not launch the
   browser); browser install moved from every-start to one-time
