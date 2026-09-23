@@ -2245,3 +2245,64 @@ video {
     animation: none;
   }
 }
+
+/* SEO FAQ + internal links (public landing block at page bottom). */
+.seo-faq {
+  margin-block: 40px 8px;
+  border-block-start: 1px solid var(--border, #d8dfd5);
+  padding-block-start: 16px;
+  max-inline-size: 720px;
+  margin-inline: auto;
+}
+
+.seo-faq h2,
+.seo-links h3 {
+  font-size: 17px;
+  margin: 0 0 10px;
+}
+
+.seo-faq details {
+  border-block-end: 1px solid var(--border, #d8dfd5);
+}
+
+.seo-faq summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--ink, #16211c);
+  padding-block: 10px;
+}
+
+.seo-faq details[open] summary {
+  margin-block-end: 4px;
+}
+
+.seo-faq details p {
+  margin: 0 0 12px;
+  color: var(--muted, #5c6b63);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.seo-links {
+  margin-block-start: 20px;
+}
+
+.seo-links ul {
+  list-style: none;
+  margin: 0;
+  padding-inline-start: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+}
+
+.seo-links a {
+  color: var(--link, #14725d);
+  text-underline-offset: 3px;
+}
+
+.seo-links a:focus-visible {
+  outline: 2px solid var(--focus, #1c6b4f);
+  outline-offset: 2px;
+  border-radius: 4px;
+}

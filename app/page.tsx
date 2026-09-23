@@ -12,6 +12,7 @@ import { fastLabel, PRAYER_ID } from "./lib/daymode";
 import { EditModal } from "./components/edit-modal";
 import { NowView } from "./components/views/now";
 import { PrayerArc } from "./components/prayer-arc";
+import Link from "next/link";
 
 // Inline vault unlock (locked reflections): password + button only, generic
 // failure message. Session-scoped — reload locks again by design.
@@ -1794,6 +1795,65 @@ export default function TodayPage() {
           onDelete={deleteEditing}
         />
       )}
+      <section className="seo-faq" aria-labelledby="seo-faq-title">
+        <h2 id="seo-faq-title">{t("seo.faq.title")}</h2>
+        {(
+          [
+            ["q1", "a1"],
+            ["q2", "a2"],
+            ["q3", "a3"],
+            ["q4", "a4"],
+            ["q5", "a5"],
+          ] as Array<[string, string]>
+        ).map(([q, a]) => (
+          <details key={q}>
+            <summary>{t(`seo.faq.${q}`)}</summary>
+            <p>{t(`seo.faq.${a}`)}</p>
+          </details>
+        ))}
+        <nav className="seo-links" aria-label={t("seo.links.title")}>
+          <h3>{t("seo.links.title")}</h3>
+          <ul>
+            <li>
+              <Link href="/library">{t("nav.library")}</Link>
+            </li>
+            <li>
+              <Link href="/deen">{t("nav.deen")}</Link>
+            </li>
+            <li>
+              <Link href="/review">{t("nav.review")}</Link>
+            </li>
+            <li>
+              <Link href="/insights">{t("nav.insights")}</Link>
+            </li>
+          </ul>
+        </nav>
+        <script
+          type="application/ld+json"
+          // FAQPage mirrors the visible block above (same strings), so the
+          // markup never disagrees with what the page actually says.
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "FAQPage",
+              inLanguage: lang === "en" ? "en" : "ar",
+              mainEntity: (
+                [
+                  ["q1", "a1"],
+                  ["q2", "a2"],
+                  ["q3", "a3"],
+                  ["q4", "a4"],
+                  ["q5", "a5"],
+                ] as Array<[string, string]>
+              ).map(([q, a]) => ({
+                "@type": "Question",
+                name: t(`seo.faq.${q}`),
+                acceptedAnswer: { "@type": "Answer", text: t(`seo.faq.${a}`) },
+              })),
+            }).replace(/</g, "\\u003c"),
+          }}
+        />
+      </section>
       <footer>{t("footer.verse")}</footer>
     </>
   );

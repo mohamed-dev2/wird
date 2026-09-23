@@ -5,6 +5,11 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- SEO content pass: homepage FAQ (5 honest long-tail Q&A) + matching
+  `FAQPage` JSON-LD, descriptive internal links to core routes, and new
+  regression guards (unique titles/descriptions per route, FAQ parity);
+  `docs/INDEXING.md` gained the post-index playbook (keyword/CTR/Vitals
+  owner steps).
 - Public-launch ops: `docs/INDEXING.md` records the verified live-index
   state (robots/sitemap/verification file/home metadata all `200`) and
   the Search Console checklist that actually puts Wird in Google;

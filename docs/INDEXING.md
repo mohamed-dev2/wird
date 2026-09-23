@@ -52,6 +52,37 @@ curl https://wird-gamma.vercel.app/robots.txt
 curl https://wird-gamma.vercel.app/sitemap.xml
 ```
 
+## Post-index playbook (shipped 2026-09-23)
+
+Applied from the on-page/performance checklist so the site ranks once it
+is indexed; owner side is listed where only Google Search Console (GSC)
+data can decide.
+
+- **Long-tail + intent**: homepage now carries a visible FAQ
+  (`app/page.tsx` `.seo-faq`, 5 honest Q&A) matched 1:1 by `FAQPage`
+  JSON-LD, targeting multi-word Arabic queries ("هل يحتاج وِرد إلى
+  الإنترنت؟" etc.). Add/trim Q&A from real GSC queries after indexing.
+- **On-page head**: `<title>` + meta description already carry the
+  keywords; `robots: index, follow` enforced by test. CTR tuning is
+  owner-side once GSC shows impressions-vs-clicks: rewrite the meta
+  description, then `npm run build` auto-deploys.
+- **Internal links**: homepage footer links to `/library`, `/deen`,
+  `/review`, `/insights` with descriptive anchors (route labels), not
+  "click here" — enforced by a unit test.
+- **Duplicate content**: `seo.test.ts` now fails if any two listed
+  routes share a title or description, and canonicals are same-route
+  absolute. No route re-targets the same query.
+- **Headings**: one `<h1>` (shell greeting) per route today; `terms`/
+  `privacy` double-h1 (shell + document) is accepted — Google treats
+  multiple h1s leniently — so it was left as-is rather than risking
+  the shared heading structure.
+- **Core Web Vitals**: measured owner-side at
+  https://pagespeed.web.dev/?url=https://wird-gamma.vercel.app after
+  indexing. Code side already helps: static-only routes (no CLS from
+  async data), self-hosted `next/font` fonts (no FOUT shift), tiny
+  raster icons, `content-visibility` on long Today cards
+  (`app/additions.css`). No third-party scripts exist to remove.
+
 ## Change note (this pass, 2026-09-23)
 
 No app code changed for indexing — it was already correct and live.
