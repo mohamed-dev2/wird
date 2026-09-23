@@ -8,7 +8,6 @@ const AR: Record<string, string> = {
   "nav.today": "اليوم",
   "nav.calendar": "التقويم",
   "nav.insights": "التقدّم",
-  "nav.review": "الحصاد",
   "nav.library": "الأذكار",
   "nav.account": "حسابي",
   "nav.skip": "تخطَّ إلى المحتوى",
@@ -1141,6 +1140,7 @@ const AR: Record<string, string> = {
   "dn.ach.disciplined": "المنضبط",
   "dn.ach.disciplinedD": "حافظت على قاعدة شخصية 7 أيام.",
   "dn.library": "المكتبة والتعلم",
+  "dn.review": "المراجعة",
   "dn.mustahabb": "النمو بالمستحبات",
   "dn.mustahabbSub":
     "ممارسات مستحبة مجمعة للنمو. كل عنصر يوضح إن كان موثقا أو هدفا شخصيا — والأحكام تختلف بين المذاهب.",
@@ -1340,7 +1340,6 @@ const EN: Record<string, string> = {
   "nav.today": "Today",
   "nav.calendar": "Calendar",
   "nav.insights": "Progress",
-  "nav.review": "Review",
   "nav.library": "Adhkar",
   "nav.account": "Account",
   "nav.skip": "Skip to content",
@@ -2496,6 +2495,7 @@ const EN: Record<string, string> = {
   "dn.ach.disciplined": "Disciplined",
   "dn.ach.disciplinedD": "Kept a personal discipline rule for 7 days.",
   "dn.library": "Library and learning",
+  "dn.review": "Review",
   "dn.mustahabb": "Mustahabb growth",
   "dn.mustahabbSub":
     "Recommended practices grouped for growth. Each item shows whether it is sourced or a personal goal - rulings vary by school.",

@@ -29,7 +29,7 @@ test("core journey touches loopback hosts only", async ({ page }) => {
     } catch {}
   });
   await ensureProfile(page);
-  for (const route of ["/calendar", "/insights", "/review", "/account", "/recovery"]) {
+  for (const route of ["/calendar", "/insights", "/deen", "/account", "/recovery"]) {
     await page.goto(route);
     await expect(page.locator("aside.sidebar")).toBeVisible({ timeout: 15000 });
   }
@@ -88,7 +88,7 @@ test("back, forward, refresh, duplicate tab stay valid", async ({ page, context 
   await page.reload();
   await expect(page.locator("aside.sidebar")).toBeVisible();
   const tab2 = await context.newPage();
-  await tab2.goto("/review");
+  await tab2.goto("/deen");
   await expect(tab2.locator("aside.sidebar")).toBeVisible();
   await tab2.close();
   expect(badLogs).toEqual([]);

@@ -35,6 +35,19 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  async redirects() {
+    // /review (الحصاد) folded into the /deen journey as a third tab — keep
+    // the old URL alive forever so bookmarks, shared links, and the PWA
+    // notification never break. No query or fragment to carry over (client
+    // state is in-memory by design, see DOCUMENTATION.md route table).
+    return [
+      {
+        source: "/review",
+        destination: "/deen",
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     const headers = [...securityHeaders];
     if (process.env.NODE_ENV === "production") {

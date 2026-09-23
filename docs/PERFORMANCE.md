@@ -58,7 +58,7 @@ Data that is large and not immediately needed is code-split and lazy:
 
 - `lib/hadith-full.ts` (CDN hadith) loads on demand, not on app mount.
 - `lib/quran.ts` corpus loads on mount but behind `Suspense`; pages
-  `/library`, `/review`, `/insights` do not block on Quran data.
+  `/library`, `/deen`, `/insights` do not block on Quran data.
 - Tafsir CDN calls are per-ayah, never bulk-fetched.
 - Mirror books (Ahmed/Darimi) download + parse once per session: the
   Arabic book and the EN map derive from one shared payload

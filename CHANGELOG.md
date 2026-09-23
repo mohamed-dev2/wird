@@ -5,6 +5,13 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- **الحصاد folded into /deen**: the previous `/review` night-checklist page
+  now lives as a third "المراجعة / Review" tab inside the Deen journey
+  (`/deen`, tabs: Today · Library · Review); `/review` permanently
+  redirects (`308`→`/deen`) so old bookmarks, shared links, and PWA
+  notification deep-links keep working; nav, sitemap, SW `CORE` (bumped
+  to `wird-v7`), manifest shortcuts, notification defaults, metadata,
+  SEO/docs/audit counts, and all static + e2e suites updated.
 - Branch security: GitHub-server protection ENABLED on `main` + `develop`
   (`gh` API 2026-09-23): require PR + `CI / verify` status check (strict),
   linear history, no force pushes, no deletions, no admins bypass —

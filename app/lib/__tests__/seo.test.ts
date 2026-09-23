@@ -40,16 +40,7 @@ describe("titles, descriptions, canonicals", () => {
       expect(seen.has(t), `duplicate title "${t}" in ${rel} (first: ${seen.get(t)})`).toBe(false);
       seen.set(t, rel);
     }
-    for (const r of [
-      "calendar",
-      "insights",
-      "review",
-      "library",
-      "account",
-      "terms",
-      "privacy",
-      "deen",
-    ]) {
+    for (const r of ["calendar", "insights", "library", "account", "terms", "privacy", "deen"]) {
       expect(
         [...seen.values()].some((v) => v.startsWith(`${r}/`)),
         `route ${r} titled`,
@@ -64,16 +55,7 @@ describe("titles, descriptions, canonicals", () => {
         return read(`app/${r}/page.tsx`);
       }
     };
-    for (const r of [
-      "calendar",
-      "insights",
-      "review",
-      "library",
-      "account",
-      "terms",
-      "privacy",
-      "deen",
-    ]) {
+    for (const r of ["calendar", "insights", "library", "account", "terms", "privacy", "deen"]) {
       expect(srcOf(r), `${r} description`).toMatch(/description:\s*"/);
     }
     // Recovery is fully discreet: no metadata export at all, so the
@@ -119,7 +101,7 @@ describe("long-tail content, internal links, duplicate content", () => {
   });
   it("home links descriptively to every core route", () => {
     const src = read("app/page.tsx");
-    for (const route of ["/library", "/deen", "/review", "/insights"]) {
+    for (const route of ["/library", "/deen", "/calendar", "/insights"]) {
       expect(src, `internal link ${route}`).toContain(`Link href="${route}"`);
     }
     expect(src, "descriptive anchor text (nav.* labels)").toContain('t("nav.library")');
@@ -134,16 +116,7 @@ describe("long-tail content, internal links, duplicate content", () => {
       }
     };
     const seen = new Map<string, string>();
-    for (const r of [
-      "calendar",
-      "insights",
-      "review",
-      "library",
-      "account",
-      "terms",
-      "privacy",
-      "deen",
-    ]) {
+    for (const r of ["calendar", "insights", "library", "account", "terms", "privacy", "deen"]) {
       const d = srcOf(r).match(/description:\s*"([^"]+)"/);
       if (!d) continue;
       expect(

@@ -1,14 +1,20 @@
-// Review page (/review): tri-state nightly checklist + score/mood/gratitude.
-// Submits write BOTH the per-day review record (enveloped) and the history
-// merge. Includes one honest night-context line for strong/low/return days.
-
+// Review tab (Deen journey, /deen): tri-state nightly checklist + score/mood/
+// gratitude. Submits write BOTH the per-day review record (enveloped) and the
+// history merge. Includes one honest night-context line for strong/low/return
+// days. Moved here from /review (now a permanent redirect to /deen).
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { dayId, hijriParts, loadFromStorage, QURAN_GOAL_PAGES, saveToStorage } from "../lib/wird";
-import { assessUser, selectGuidance } from "../lib/companion";
-import { useT } from "../lib/i18n";
-import { useWird } from "../components/wird-store";
+import {
+  dayId,
+  hijriParts,
+  loadFromStorage,
+  QURAN_GOAL_PAGES,
+  saveToStorage,
+} from "../../lib/wird";
+import { assessUser, selectGuidance } from "../../lib/companion";
+import { useT } from "../../lib/i18n";
+import { useWird } from "../wird-store";
 
 type Status = "done" | "partial" | "missed";
 type Mood = "good" | "ok" | "low" | null;
@@ -47,7 +53,7 @@ function loadReviews(): Record<string, SavedReview> {
   return loadFromStorage<Record<string, SavedReview>>("wird-reviews-v1", {});
 }
 
-export default function ReviewPage() {
+export function ReviewTab() {
   const t = useT();
   const {
     done,
@@ -118,8 +124,8 @@ export default function ReviewPage() {
   const gradeTitle =
     loadedScore >= 85 ? t("rv.g85") : loadedScore >= 60 ? t("rv.g60") : t("rv.gLow");
 
-  // Night context (2.39): one honest line for the states that matter at
-  // night — no card, no logging (Today owns the guidance log).
+  // Night context: one honest line for the states that matter at night — no
+  // card, no logging (Today owns the guidance log).
   const nightLine = useMemo(() => {
     try {
       const todayId = dayId();

@@ -430,7 +430,7 @@ export default function TodayPage() {
   const handleGuideAction = (kind: string) => {
     try {
       if (kind === "rescue") scrollToId("rescue-plan");
-      else if (kind === "review") router.push("/review");
+      else if (kind === "review") router.push("/deen");
       else if (kind === "core") {
         setMinimumPlan(true);
         scrollToId("rescue-plan");
@@ -1821,7 +1821,7 @@ export default function TodayPage() {
               <Link href="/deen">{t("nav.deen")}</Link>
             </li>
             <li>
-              <Link href="/review">{t("nav.review")}</Link>
+              <Link href="/calendar">{t("nav.calendar")}</Link>
             </li>
             <li>
               <Link href="/insights">{t("nav.insights")}</Link>

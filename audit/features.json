@@ -41,7 +41,7 @@
   {
     "doc": "docs/features/goals-habits-review.md",
     "title": "Goals, habits, and review",
-    "modules": ["app/lib/wird.ts", "app/lib/history.ts", "app/components/views/review.tsx"]
+    "modules": ["app/lib/wird.ts", "app/lib/history.ts", "app/components/views/review-tab.tsx"]
   },
   {
     "doc": "docs/features/hadith.md",

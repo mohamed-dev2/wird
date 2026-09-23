@@ -100,8 +100,7 @@ husky pre-commit (lint-staged) + commit-msg hooks.
 | `/`              | `app/page.tsx`       | Today: hero, habits, rescue plan, goals, night review                    |
 | `/calendar`      | `app/calendar/`      | 30-day month grid, Friday plan                                           |
 | `/insights`      | `app/insights/`      | Real stats, balance radar, coach brief, Hijri year                       |
-| `/review`        | `app/review/`        | End-of-day checklist (tri-state) + score + mood                          |
-| `/deen`          | `app/deen/`          | Deen journey: levels, quests, deeds, reflections, streaks (see §3)       |
+| `/deen`          | `app/deen/`          | Deen journey — tabs: Today · Library · Review (see §3)                   |
 | `/library`       | `app/library/`       | Tabs: Adhkar · Quran · Hadith · Paths · Dreams                           |
 | `/account`       | `app/account/`       | Profile, backup, transfer, reminders, times, theme                       |
 | `/recovery`      | `app/recovery/`      | Last-resort recovery: inspect, emergency export, restore, surgical reset |
@@ -113,6 +112,10 @@ Shared chrome (sidebar, bottom nav, header, zikr dock, login gate) lives in
 `app/components/shell.tsx`; all state in `app/components/wird-store.tsx`
 (`WirdProvider` + `useWird()`). Views that need props live in
 `app/components/views/`.
+
+> `/review` was folded into `/deen` (Review tab) and now permanently
+> redirects — old bookmarks, shared links, and PWA notification deep-links
+> keep working.
 
 ## 3. Features by route
 
@@ -126,10 +129,11 @@ reflection (persisted textarea), tiered return screen after ≥3 absent days
 adaptive companion card (one ranked guidance + verified verse/hadith, see
 §14), kids quests, qada / fasting / breaker cards, Ramadan banner in Ramadan.
 
-**Review (`/review`)** — auto-built checklist from today's real data plus six
-heart-check items; tri-state (done/partial/missed); mood + gratitude; weighted
-score saved immutably per day (`wird-reviews-v1`, merged into history);
-one-line night context for strong/low/return days (see §14).
+**Review (Deen journey, `/deen` → Review tab)** — auto-built checklist from
+today's real data plus six heart-check items; tri-state (done/partial/missed);
+mood + gratitude; weighted score saved immutably per day (`wird-reviews-v1`,
+merged into history); one-line night context for strong/low/return days
+(see §14). Retains tab state in memory only, like the other deen tabs.
 
 **Insights (`/insights`)** — period pills (1–365d buckets), weekly bars, 4
 metrics, coach brief (at-risk → neglect → pace → lift + praise), 6-axis

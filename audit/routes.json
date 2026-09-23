@@ -36,10 +36,6 @@
     "file": "app/recovery/page.tsx"
   },
   {
-    "route": "/review",
-    "file": "app/review/page.tsx"
-  },
-  {
     "route": "/terms",
     "file": "app/terms/page.tsx"
   }
