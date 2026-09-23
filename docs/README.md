@@ -64,6 +64,8 @@ Every doc in this folder, one line each. The root `README.md` and
   (sensitivity classes, local-first design).
 - `NETWORK.md` — exhaustive network-request matrix.
 - `SEO.md` — SEO audit + report (titles, canonicals, OG, JSON-LD, verification readiness).
+- `INDEXING.md` — launch/ops side: verified live state, Search Console
+  checklist, rules for robots/sitemap/verification file.
 - `offline-architecture.md` — offline-first contract: classification
   manifest, storage, sync boundaries, SW behavior, failure modes, testing.
 - `COMPANION_PROJECT.md` — separate restriction-companion design record
@@ -113,6 +115,8 @@ Every doc in this folder, one line each. The root `README.md` and
 
 - `REPRODUCIBILITY.md` — reproducible environment, lockfile, Dev Container,
   OS-specific notes.
+- `BRANCHING.md` — GitHub Flow model: branch names, PR/CI rules, how to
+  protect `main` (owner action).
 - `DEPENDENCIES.md` — dependency governance + supply-chain policy.
 - `RELEASE.md` — release pipeline, artifact integrity (SHA-256), SBOM.
 - `VERSIONING.md` — versioning, migrations, deprecation.

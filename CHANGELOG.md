@@ -5,6 +5,11 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Public-launch ops: `docs/INDEXING.md` records the verified live-index
+  state (robots/sitemap/verification file/home metadata all `200`) and
+  the Search Console checklist that actually puts Wird in Google;
+  `docs/BRANCHING.md` introduces GitHub Flow (protected `main`,
+  `feat/fix/docs/chore/hotfix` PR branches, signed commits).
 - Polish + presence: README screenshots generated from the app
   (`docs/assets/shots/`, via `scripts/shot-readme.mjs`); raster app
   icons (180/192/512 PNGs derived 1:1 from `icon.svg` via
