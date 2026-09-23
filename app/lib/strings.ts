@@ -8,7 +8,6 @@ const AR: Record<string, string> = {
   "nav.today": "اليوم",
   "nav.calendar": "التقويم",
   "nav.insights": "التقدّم",
-  "nav.review": "الحصاد",
   "nav.library": "الأذكار",
   "nav.account": "حسابي",
   "nav.skip": "تخطَّ إلى المحتوى",
@@ -160,6 +159,23 @@ const AR: Record<string, string> = {
   "night.journalPh": "اكتب لنفسك كلمة طيبة…",
   "night.journalNote": "هذه المساحة لك وحدك، ولا تدخل في الإحصاءات.",
   "footer.verse": "﴿ وَاذْكُر رَّبَّكَ كَثِيرًا وَسَبِّحْ بِالْعَشِيِّ وَالْإِبْكَارِ ﴾",
+  "seo.faq.title": "أسئلة شائعة عن وِرد",
+  "seo.faq.q1": "هل يحتاج تطبيق وِرد إلى اتصال بالإنترنت؟",
+  "seo.faq.a1":
+    "لا، يعمل وِرد دون إنترنت؛ الصلوات والأذكار والقرآن والبيانات كلها على جهازك. الإنترنت مطلوب فقط عند طلب تفسير أو حديث أو صوتية غير محمّلة مسبقًا.",
+  "seo.faq.q2": "أين تُخزَّن بياناتي، وهل تُرفع إلى خادم؟",
+  "seo.faq.a2":
+    "تُحفظ بياناتك على جهازك فقط (تخزين محلي)، ولا تُرسل إلى أي خادم. لا حسابات إلزامية، ولا أدوات تتبّع، ولا تحليلات خارجية.",
+  "seo.faq.q3": "هل أستطيع متابعة الصلوات والأذكار والقرآن في تطبيق واحد؟",
+  "seo.faq.a3":
+    "نعم، يجمع وِرد الصلوات والأذكار والقرآن والأهداف والمراجعة اليومية في شاشة اليوم، مع إحصاءات تفصّلها سعيك الصحيح دون كشفها لأحد.",
+  "seo.faq.q4": "هل وِرد عربي ويدعم اتجاه RTL؟",
+  "seo.faq.a4":
+    "نعم، وِرد عربي أولًا بواجهة كاملة الاتجاه من اليمين لليسار، مع إمكانية التبديل إلى الإنجليزية في أي وقت.",
+  "seo.faq.q5": "هل يعمل وِرد كتطبيق مستقل حتى دون إنترنت؟",
+  "seo.faq.a5":
+    "نعم، يمكنك تثبيته كتطبيق (PWA) من المتصفح؛ يعمل دون إنترنت ويحفظ بياناتك بين الجلسات دون حساب.",
+  "seo.links.title": "استكشف التطبيق أكثر",
   "minplan.title": "خطة الحد الأدنى مفعّلة",
   "minplan.sub": "الصلوات، ذكر قصير، آية واحدة، استغفار ١٠ مرات، والوتر. هذا يكفي لليوم.",
   "minplan.cancel": "إلغاء",
@@ -1124,6 +1140,7 @@ const AR: Record<string, string> = {
   "dn.ach.disciplined": "المنضبط",
   "dn.ach.disciplinedD": "حافظت على قاعدة شخصية 7 أيام.",
   "dn.library": "المكتبة والتعلم",
+  "dn.review": "المراجعة",
   "dn.mustahabb": "النمو بالمستحبات",
   "dn.mustahabbSub":
     "ممارسات مستحبة مجمعة للنمو. كل عنصر يوضح إن كان موثقا أو هدفا شخصيا — والأحكام تختلف بين المذاهب.",
@@ -1323,7 +1340,6 @@ const EN: Record<string, string> = {
   "nav.today": "Today",
   "nav.calendar": "Calendar",
   "nav.insights": "Progress",
-  "nav.review": "Review",
   "nav.library": "Adhkar",
   "nav.account": "Account",
   "nav.skip": "Skip to content",
@@ -1475,6 +1491,23 @@ const EN: Record<string, string> = {
   "night.journalPh": "Write yourself something kind…",
   "night.journalNote": "Yours alone — excluded from stats.",
   "footer.verse": "﴿ وَاذْكُر رَّبَّكَ كَثِيرًا وَسَبِّحْ بِالْعَشِيِّ وَالْإِبْكَارِ ﴾",
+  "seo.faq.title": "Frequently asked questions about Wird",
+  "seo.faq.q1": "Does Wird need an internet connection?",
+  "seo.faq.a1":
+    "No - Wird works offline; prayers, adhkar, Quran and your data all live on your device. Internet is only needed when you request a tafsir, hadith, or audio not bundled in advance.",
+  "seo.faq.q2": "Where is my data stored, and is it uploaded to a server?",
+  "seo.faq.a2":
+    "Your data is stored on your device only (local storage) and is never sent to a server. No mandatory accounts, no tracking, no third-party analytics.",
+  "seo.faq.q3": "Can I track prayers, adhkar and Quran in one app?",
+  "seo.faq.a3":
+    "Yes - Wird brings prayers, adhkar, Quran, goals and the daily review into one Today screen, with statistics that stay private to you.",
+  "seo.faq.q4": "Is Wird in Arabic and does it support RTL?",
+  "seo.faq.a4":
+    "Yes - Wird is Arabic-first with a full right-to-left interface, and you can switch to English at any time.",
+  "seo.faq.q5": "Does Wird work as a standalone app even offline?",
+  "seo.faq.a5":
+    "Yes - you can install it as a PWA from the browser; it works offline and keeps your data between sessions without an account.",
+  "seo.links.title": "Explore the app further",
   "minplan.title": "Minimum plan active",
   "minplan.sub": "Prayers, short dhikr, one verse, 10 istighfar, and Witr. Enough for today.",
   "minplan.cancel": "Cancel",
@@ -2462,6 +2495,7 @@ const EN: Record<string, string> = {
   "dn.ach.disciplined": "Disciplined",
   "dn.ach.disciplinedD": "Kept a personal discipline rule for 7 days.",
   "dn.library": "Library and learning",
+  "dn.review": "Review",
   "dn.mustahabb": "Mustahabb growth",
   "dn.mustahabbSub":
     "Recommended practices grouped for growth. Each item shows whether it is sourced or a personal goal - rulings vary by school.",

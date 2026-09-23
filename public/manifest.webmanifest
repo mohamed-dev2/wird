@@ -14,7 +14,7 @@
   "categories": ["productivity", "lifestyle"],
   "shortcuts": [
     { "name": "اليوم", "url": "/" },
-    { "name": "حصاد اليوم", "url": "/review" },
+    { "name": "الدين", "url": "/deen" },
     { "name": "الأذكار", "url": "/library" }
   ],
   "icons": [

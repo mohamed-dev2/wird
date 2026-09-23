@@ -18,7 +18,6 @@ test("head carries title, description, canonical, OG, JSON-LD", async ({ page })
   for (const [route, titlePart] of [
     ["/calendar", "التقويم"],
     ["/insights", "التقدم"],
-    ["/review", "الحصاد"],
     ["/library", "المكتبة"],
     ["/account", "حسابي"],
     ["/deen", "دين"],
@@ -71,6 +70,12 @@ test("robots, sitemap, verification file serve correctly", async ({ request }) =
   const v = await request.get("/google373507699530d312.html");
   expect(v.status()).toBe(200);
   expect((await v.text()).trim()).toBe("google-site-verification: google373507699530d312.html");
+});
+
+test("former /review permanently redirects to /deen", async ({ request }) => {
+  const res = await request.get("/review", { maxRedirects: 0 });
+  expect([307, 308].includes(res.status()), `redirect status ${res.status()}`).toBe(true);
+  expect(res.headers()["location"]).toContain("/deen");
 });
 
 test("unknown URLs return a real 404, trailing slash resolves cleanly", async ({

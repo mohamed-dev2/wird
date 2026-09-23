@@ -7,7 +7,8 @@ Goals, recurring habits (catalog + customs), and the daily review flow.
   pledges, qada, kids datasets).
 - Day aggregation: `app/lib/history.ts` (DayRecord merges habit toggles
   monotonically).
-- Review UI: `app/components/views/review.tsx`, routes `/review`, `/calendar`.
+- Review UI: `app/components/views/review-tab.tsx` (Deen journey tab, /deen),
+  routes /deen, /calendar; /review redirects permanently to /deen.
 
 **Key behaviors:**
 

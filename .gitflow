@@ -1,0 +1,9 @@
+[gitflow]
+  branch.master = main
+  branch.develop = develop
+  prefix.feature = feature/
+  prefix.bugfix = bugfix/
+  prefix.release = release/
+  prefix.hotfix = hotfix/
+  prefix.support = support/
+  versiontag = v

@@ -40,16 +40,7 @@ describe("titles, descriptions, canonicals", () => {
       expect(seen.has(t), `duplicate title "${t}" in ${rel} (first: ${seen.get(t)})`).toBe(false);
       seen.set(t, rel);
     }
-    for (const r of [
-      "calendar",
-      "insights",
-      "review",
-      "library",
-      "account",
-      "terms",
-      "privacy",
-      "deen",
-    ]) {
+    for (const r of ["calendar", "insights", "library", "account", "terms", "privacy", "deen"]) {
       expect(
         [...seen.values()].some((v) => v.startsWith(`${r}/`)),
         `route ${r} titled`,
@@ -64,16 +55,7 @@ describe("titles, descriptions, canonicals", () => {
         return read(`app/${r}/page.tsx`);
       }
     };
-    for (const r of [
-      "calendar",
-      "insights",
-      "review",
-      "library",
-      "account",
-      "terms",
-      "privacy",
-      "deen",
-    ]) {
+    for (const r of ["calendar", "insights", "library", "account", "terms", "privacy", "deen"]) {
       expect(srcOf(r), `${r} description`).toMatch(/description:\s*"/);
     }
     // Recovery is fully discreet: no metadata export at all, so the
@@ -96,6 +78,53 @@ describe("titles, descriptions, canonicals", () => {
       expect(m[1], `${rel} canonical`).toBe(`/${route}`);
     }
     expect(read("app/layout.tsx")).toContain("metadataBase");
+  });
+});
+
+describe("long-tail content, internal links, duplicate content", () => {
+  it("home carries a visible FAQ block with matching FAQPage JSON-LD", () => {
+    const src = read("app/page.tsx");
+    expect(src, "visible faq section").toContain('className="seo-faq"');
+    expect(src, "JsonLD FAQ type").toContain('"@type": "FAQPage"');
+    expect(src, "JsonLD answer shape").toContain("acceptedAnswer");
+    // Same strings render both the on-page <details> list and the schema,
+    // so the two can never drift apart.
+    expect(
+      src.match(/\["q\d", "a\d"\]/g) ?? [],
+      "faq pairs in visible block + schema",
+    ).toHaveLength(10);
+    expect(src).toContain("seo.faq.${q}");
+    expect(src).toContain("seo.faq.${a}");
+    const strings = read("app/lib/strings.ts");
+    expect(strings.match(/seo\.faq\.q[1-5]/g) ?? [], "ar+en q keys").toHaveLength(10);
+    expect(strings.match(/seo\.faq\.a[1-5]/g) ?? [], "ar+en a keys").toHaveLength(10);
+  });
+  it("home links descriptively to every core route", () => {
+    const src = read("app/page.tsx");
+    for (const route of ["/library", "/deen", "/calendar", "/insights"]) {
+      expect(src, `internal link ${route}`).toContain(`Link href="${route}"`);
+    }
+    expect(src, "descriptive anchor text (nav.* labels)").toContain('t("nav.library")');
+    expect(src).not.toContain('href="/library">click here');
+  });
+  it("listed routes never share a description (no cannibalized queries)", () => {
+    const srcOf = (r: string): string => {
+      try {
+        return read(`app/${r}/layout.tsx`);
+      } catch {
+        return read(`app/${r}/page.tsx`);
+      }
+    };
+    const seen = new Map<string, string>();
+    for (const r of ["calendar", "insights", "library", "account", "terms", "privacy", "deen"]) {
+      const d = srcOf(r).match(/description:\s*"([^"]+)"/);
+      if (!d) continue;
+      expect(
+        seen.has(d[1] ?? ""),
+        `duplicate description on ${r} (first: ${seen.get(d[1] ?? "")})`,
+      ).toBe(false);
+      seen.set(d[1] ?? "", r);
+    }
   });
 });
 

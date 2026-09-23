@@ -115,8 +115,9 @@ Every doc in this folder, one line each. The root `README.md` and
 
 - `REPRODUCIBILITY.md` — reproducible environment, lockfile, Dev Container,
   OS-specific notes.
-- `BRANCHING.md` — GitHub Flow model: branch names, PR/CI rules, how to
-  protect `main` (owner action).
+- `BRANCHING.md` — Git Flow system (now live): `main` + `develop`,
+  `feature/bugfix/release/hotfix/*` branches, CI gates, how to protect
+  both long-lived branches (owner action). `.gitflow` config ships in-repo.
 - `DEPENDENCIES.md` — dependency governance + supply-chain policy.
 - `RELEASE.md` — release pipeline, artifact integrity (SHA-256), SBOM.
 - `VERSIONING.md` — versioning, migrations, deprecation.

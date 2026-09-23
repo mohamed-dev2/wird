@@ -5,11 +5,33 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- **الحصاد folded into /deen**: the previous `/review` night-checklist page
+  now lives as a third "المراجعة / Review" tab inside the Deen journey
+  (`/deen`, tabs: Today · Library · Review); `/review` permanently
+  redirects (`308`→`/deen`) so old bookmarks, shared links, and PWA
+  notification deep-links keep working; nav, sitemap, SW `CORE` (bumped
+  to `wird-v7`), manifest shortcuts, notification defaults, metadata,
+  SEO/docs/audit counts, and all static + e2e suites updated.
+- Branch security: GitHub-server protection ENABLED on `main` + `develop`
+  (`gh` API 2026-09-23): require PR + `CI / verify` status check (strict),
+  linear history, no force pushes, no deletions, no admins bypass —
+  direct pushes fail server-side (cryptographic signature check left off
+  until GPG/SSH signing is configured; `git commit -s` sign-off stays a
+  rule); local `.husky/pre-push` remains as the client-side wall;
+  `branch-guard` test keeps both documented.
+- SEO content pass: homepage FAQ (5 honest long-tail Q&A) + matching
+  `FAQPage` JSON-LD, descriptive internal links to core routes, and new
+  regression guards (unique titles/descriptions per route, FAQ parity);
+  `docs/INDEXING.md` gained the post-index playbook (keyword/CTR/Vitals
+  owner steps).
 - Public-launch ops: `docs/INDEXING.md` records the verified live-index
   state (robots/sitemap/verification file/home metadata all `200`) and
   the Search Console checklist that actually puts Wird in Google;
-  `docs/BRANCHING.md` introduces GitHub Flow (protected `main`,
-  `feat/fix/docs/chore/hotfix` PR branches, signed commits).
+  **branch system live**: Git Flow with long-lived `main` + `develop`
+  (both on origin), `feature/bugfix/release/hotfix/support/*` short-lived
+  branches, `.gitflow` config, CI now also gates `develop`,
+  `docs/BRANCHING.md` documents it all (protection of both branches is an
+  owner action — `gh`/PAT not available from the dev env).
 - Polish + presence: README screenshots generated from the app
   (`docs/assets/shots/`, via `scripts/shot-readme.mjs`); raster app
   icons (180/192/512 PNGs derived 1:1 from `icon.svg` via

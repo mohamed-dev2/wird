@@ -30,8 +30,8 @@ the JSONs). This run's numbers: `AUDIT_REPORT.md`. Frozen snapshot:
 
 ## 5–7. Routes, journeys, navigation — PASS (+1 FIXED)
 
-- Inventory: 10 routes (`/`, account, calendar, insights, library,
-  recovery, review, private-plans, terms, privacy); static check
+- Inventory: 10 routes (`/`, account, calendar, insights, deen, library,
+  recovery, private-plans, terms, privacy); static check
   `app/lib/__tests__/audit.test.ts` asserts every `href="/…"` and
   `router.push("/…")` resolves, sitemap lists the public routes, and the
   SW `CORE` shell matches existing routes (a stale shell entry would

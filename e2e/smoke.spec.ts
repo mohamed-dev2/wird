@@ -47,11 +47,12 @@ test("today loads, toggles persist, no hydration errors", async ({ page }) => {
   expect(badLogs).toEqual([]);
 });
 
-test("routes render: calendar, review, insights, library", async ({ page }) => {
+test("routes render: calendar, deen review, insights, library", async ({ page }) => {
   await ensureProfile(page);
   await page.goto("/calendar");
   await expect(page.getByRole("heading", { name: /تقويم رحلتك/ })).toBeVisible();
-  await page.goto("/review");
+  await page.goto("/deen");
+  await page.getByRole("tab", { name: /المراجعة|Review/ }).click();
   await expect(page.getByRole("heading", { name: /ماذا فعلت اليوم/ })).toBeVisible();
   await page.goto("/insights");
   await expect(page.getByRole("heading", { name: /خطواتك الهادئة/ })).toBeVisible();
