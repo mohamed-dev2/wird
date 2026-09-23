@@ -5,11 +5,13 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
-- Branch security: `.husky/pre-push` blocks direct + forced pushes to
-  `main`/`develop` on every machine (client-side wall; `ALLOW_PROTECTED_PUSH=1`
-  owner override), GitHub-side rule table (require PR, `verify` check,
-  signed commits, no force, no deletions) documented in
-  `docs/BRANCHING.md`, and a `branch-guard` test keeps both intact.
+- Branch security: GitHub-server protection ENABLED on `main` + `develop`
+  (`gh` API 2026-09-23): require PR + `CI / verify` status check (strict),
+  linear history, no force pushes, no deletions, no admins bypass —
+  direct pushes fail server-side (cryptographic signature check left off
+  until GPG/SSH signing is configured; `git commit -s` sign-off stays a
+  rule); local `.husky/pre-push` remains as the client-side wall;
+  `branch-guard` test keeps both documented.
 - SEO content pass: homepage FAQ (5 honest long-tail Q&A) + matching
   `FAQPage` JSON-LD, descriptive internal links to core routes, and new
   regression guards (unique titles/descriptions per route, FAQ parity);
