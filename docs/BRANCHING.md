@@ -73,22 +73,29 @@ branches push freely.
 
 ### Enforced by GitHub (ENABLED 2026-09-23 via `gh` API on
 
-| Setting                               | `main`        | `develop`     |
-| ------------------------------------- | ------------- | ------------- |
-| Require a pull request before merging | Yes (1)       | Yes           |
-| Require status checks to pass         | `CI / verify` | `CI / verify` |
-| Require branches up to date (strict)  | Yes           | Yes           |
-| Require linear history                | Yes           | Yes           |
-| Require signed commits                | Yes           | Yes           |
-| Do not allow force pushes             | Yes           | Yes           |
-| Do not allow deletions                | Yes           | Yes           |
-| Require conversation resolution       | Yes           | Yes           |
-| Enforce for admins                    | Yes           | Yes           |
+| Setting                                 | `main`           | `develop`     |
+| --------------------------------------- | ---------------- | ------------- |
+| Require a pull request before merging   | Yes (1)          | Yes           |
+| Require status checks to pass           | `CI / verify`    | `CI / verify` |
+| Require branches up to date (strict)    | Yes              | Yes           |
+| Require linear history                  | Yes              | Yes           |
+| Require cryptographic commit signatures | Off (note below) | Off           |
+| Do not allow force pushes               | Yes              | Yes           |
+| Do not allow deletions                  | Yes              | Yes           |
+| Require conversation resolution         | Yes              | Yes           |
+| Enforce for admins                      | Yes              | Yes           |
 
 Rules live on GitHub (Settings → Branches), not in the repo, so they
 survive fresh clones. Direct/forced pushes to `main` or `develop` now
 fail server-side — even for the owner — and the pre-push hook becomes a
 fast local warning, not the only wall.
+
+> **Cryptographic signatures — deliberately OFF.** `git commit -s`
+> (sign-off trailer) stays a repo rule, but GitHub's _signed commits_
+> check requires real GPG/SSH signatures and blocks every merge until a
+> signing key is configured on each machine. No key is set up in this
+> project, so the check is disabled; enable it (Settings → Branches →
+> Require signed commits) once contributors sign with GPG/SSH.
 
 ## What this replaced
 
