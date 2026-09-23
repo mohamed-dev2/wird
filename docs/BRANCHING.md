@@ -42,7 +42,7 @@ Branches are short-lived: delete after merge. No `develop`, no
 
 ## Protecting `main` (owner action — needs GitHub acceds token)
 
-Cannot be set from this environment (no `gh` CLI). In GitHub:
+Cannot be set from this environment (no `gh` CLI / token here). In GitHub:
 Settings → Branches → **Add rule** for `main`:
 
 - Require a pull request before merging (0 required approvals is fine
