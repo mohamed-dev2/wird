@@ -67,7 +67,7 @@ data can decide.
   owner-side once GSC shows impressions-vs-clicks: rewrite the meta
   description, then `npm run build` auto-deploys.
 - **Internal links**: homepage footer links to `/library`, `/deen`,
-  `/review`, `/insights` with descriptive anchors (route labels), not
+  `/calendar`, `/insights` with descriptive anchors (route labels), not
   "click here" — enforced by a unit test.
 - **Duplicate content**: `seo.test.ts` now fails if any two listed
   routes share a title or description, and canonicals are same-route

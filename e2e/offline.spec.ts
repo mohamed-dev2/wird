@@ -58,7 +58,7 @@ test("core flows work with external network blocked", async ({ page }) => {
     "/",
     "/calendar",
     "/insights",
-    "/review",
+    "/deen",
     "/library",
     "/account",
     "/recovery",

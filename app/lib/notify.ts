@@ -41,7 +41,7 @@ export async function ensurePermission(): Promise<boolean> {
   }
 }
 
-export function fireNotification(title: string, body: string, url = "/review"): void {
+export function fireNotification(title: string, body: string, url = "/deen"): void {
   try {
     if (!canNotify() || Notification.permission !== "granted") return;
     if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {

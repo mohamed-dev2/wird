@@ -5,8 +5,10 @@ voluntary tracking levels, quests, a good-deeds library, awareness
 reflections, streaks, and achievements. The app **never ranks faith,
 calculates reward, counts sins, or leads by shame** (ADR-007).
 
-- Route: `/deen` (nav-listed, sitemap-listed, SW-precached; Today and
-  Library tabs, tab state in-memory only — never in URLs).
+- Route: `/deen` (nav-listed, sitemap-listed, SW-precached; Today,
+  Library, and Review tabs, tab state in-memory only — never in URLs).
+  The former `/review` (الحصاد) checklist lives here as the Review tab;
+  the old URL permanently redirects to `/deen`.
 - Content: `app/lib/deen-catalog.ts` (catalogs only — no user data;
   `verified` vs `personal-goal`/`habit`/`advice` kinds, sources on every
   verified row, shared school-variance notes).
@@ -14,9 +16,10 @@ calculates reward, counts sins, or leads by shame** (ADR-007).
   the existing `loadFromStorage`/`saveToStorage` seam — no database, no
   new storage architecture).
 - Views: `app/components/views/deen-page.tsx` (tabs),
-  `deen-today.tsx` (dashboard), `deen-library.tsx` (library/learn).
+  `deen-today.tsx` (dashboard), `deen-library.tsx` (library/learn),
+  `review-tab.tsx` (nightly review checklist).
 - Copy: `dn.*` keys in `app/lib/strings.ts` (AR/EN parity +
-  `guidance-safety` scan cover all 316 pairs).
+  `guidance-safety` scan cover all 317 pairs).
 
 ## Contract (what the system promises)
 

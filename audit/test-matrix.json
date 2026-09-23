@@ -5,6 +5,7 @@
       "app/lib/__tests__/analytics-perf.test.ts",
       "app/lib/__tests__/analytics.test.ts",
       "app/lib/__tests__/audit.test.ts",
+      "app/lib/__tests__/branch-guard.test.ts",
       "app/lib/__tests__/catalog.test.ts",
       "app/lib/__tests__/coach.test.ts",
       "app/lib/__tests__/companion.test.ts",
@@ -36,7 +37,7 @@
       "app/lib/__tests__/transfer.test.ts",
       "app/lib/__tests__/vault.test.ts"
     ],
-    "tests": 282
+    "tests": 287
   },
   "e2e": {
     "files": [

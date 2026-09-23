@@ -18,8 +18,9 @@ except titles/descriptions/canonicals where they were missing.
 
 ## Title strategy
 
-`%s | ورد` template (root `lang="ar"`): التقويم، التقدم، الحصاد،
-المكتبة، حسابي، دين (discreet single word), Terms of Use, Privacy
+`%s | ورد` template (root `lang="ar"`): التقويم، التقدم، المكتبة،
+حسابي، دين (discreet single word — Today is root; Review lives inside
+/deen as a tab, no separate title), Terms of Use, Privacy
 Policy (EN pages keep EN titles). One title per route, enforced
 unique by test.
 

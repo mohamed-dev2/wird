@@ -134,10 +134,10 @@ an explicit opt-in product decision:
 
 ## Service worker contract (5.14)
 
-`public/sw.js` (CACHE `wird-v6`, no build step):
+`public/sw.js` (CACHE `wird-v7`, no build step):
 
-- Precaches route shells (`/`, `/calendar`, `/insights`, `/review`,
-  `/deen`, `/library`, `/account`, `/recovery`, `/private-plans`), manifest, and
+- Precaches route shells (`/`, `/calendar`, `/insights`, `/deen`,
+  `/library`, `/account`, `/recovery`, `/private-plans`), manifest, and
   the five `public/data` bundles at install (best-effort).
 - Navigations: network-first (fresh shell + instant updates when online),
   falling back to the precached route shell, else `/` — so an offline

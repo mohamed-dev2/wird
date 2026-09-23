@@ -40,7 +40,6 @@ describe("route inventory (audit 4-5)", () => {
       "/insights",
       "/library",
       "/recovery",
-      "/review",
       "/private-plans",
       "/terms",
       "/privacy",
@@ -66,7 +65,6 @@ describe("route inventory (audit 4-5)", () => {
     for (const r of [
       "/calendar",
       "/insights",
-      "/review",
       "/deen",
       "/library",
       "/account",
@@ -80,7 +78,6 @@ describe("route inventory (audit 4-5)", () => {
       "/",
       "/calendar",
       "/insights",
-      "/review",
       "/deen",
       "/library",
       "/account",
