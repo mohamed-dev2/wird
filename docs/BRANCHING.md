@@ -55,18 +55,41 @@ never merge to `main` and should be deleted after use.
   and `hotfix/` so the tag history stays linear-ish and honest.
 - `main` only ever receives `release/*` and `hotfix/*`.
 
-## Protecting `main` + `develop` (owner action)
+## Securing the branches
 
-Branch protection cannot be set from this environment (`gh` CLI / PAT not
-present). In GitHub: Settings → Branches → **Add rule**, once per branch:
+### Enforced in this repo (every dev machine)
 
-- `main`: require PR + status checks, linear history, signed commits; no
-  force push, no deletions.
-- `develop`: same, plus "require N reviews" once outside contributors
-  arrive.
+`.husky/pre-push` (husky, installed via `npm ci`) refuses **direct or
+forced pushes to `main` and `develop`** — `push-sec` prints the reason
+and the push fails locally BEFORE anything reaches GitHub. Feature/bug
+branches push freely.
 
-Both rules make the diagram above the only way code reaches a protected
-branch — pulling without review becomes impossible.
+- Force push is blocked everywhere (no `-f`/`--force-with-lease` on any
+  branch through this hook — a `+`-prefixed ref fails always).
+- `ALLOW_PROTECTED_PUSH=1` overrides once (owner-only, release moves
+  before rules exist server-side).
+- The hook is client-side, so treat it as the belt; the GitHub rules
+  below are the suspenders.
+
+### Enforced by GitHub (owner action — needs `gh`/PAT, not present here)
+
+The authoritative block lives on GitHub and cannot be set from this
+environment. Do it once per branch: Settings → Branches → **Add rule**,
+for `main` then `develop`:
+
+| Setting                                            | `main`                                                   | `develop` |
+| -------------------------------------------------- | -------------------------------------------------------- | --------- |
+| Require a pull request before merging              | Yes (1 review; raise when contributors arrive)           | Yes       |
+| Require status checks to pass                      | Yes                                                      | Yes       |
+| Tick check(s)                                      | `verify` (the CI workflow) — plus `check-links` if added | `verify`  |
+| Require branches to be up to date (linear history) | Yes                                                      | Yes       |
+| Require signed commits                             | Yes                                                      | Yes       |
+| Do not allow force pushes                          | Yes                                                      | Yes       |
+| Do not allow deletions                             | Yes                                                      | Yes       |
+
+Once enabled, even you cannot push `main`/`develop` directly — every
+change must go through a reviewed PR with green CI. The pre-push hook
+then becomes a fast local warning, not the only wall.
 
 ## What this replaced
 

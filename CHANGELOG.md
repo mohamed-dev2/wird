@@ -5,6 +5,11 @@ or architecture-level changes are listed.
 
 ## Unreleased
 
+- Branch security: `.husky/pre-push` blocks direct + forced pushes to
+  `main`/`develop` on every machine (client-side wall; `ALLOW_PROTECTED_PUSH=1`
+  owner override), GitHub-side rule table (require PR, `verify` check,
+  signed commits, no force, no deletions) documented in
+  `docs/BRANCHING.md`, and a `branch-guard` test keeps both intact.
 - SEO content pass: homepage FAQ (5 honest long-tail Q&A) + matching
   `FAQPage` JSON-LD, descriptive internal links to core routes, and new
   regression guards (unique titles/descriptions per route, FAQ parity);
