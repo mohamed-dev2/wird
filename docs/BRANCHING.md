@@ -71,25 +71,24 @@ branches push freely.
 - The hook is client-side, so treat it as the belt; the GitHub rules
   below are the suspenders.
 
-### Enforced by GitHub (owner action — needs `gh`/PAT, not present here)
+### Enforced by GitHub (ENABLED 2026-09-23 via `gh` API on
 
-The authoritative block lives on GitHub and cannot be set from this
-environment. Do it once per branch: Settings → Branches → **Add rule**,
-for `main` then `develop`:
+| Setting                               | `main`        | `develop`     |
+| ------------------------------------- | ------------- | ------------- |
+| Require a pull request before merging | Yes (1)       | Yes           |
+| Require status checks to pass         | `CI / verify` | `CI / verify` |
+| Require branches up to date (strict)  | Yes           | Yes           |
+| Require linear history                | Yes           | Yes           |
+| Require signed commits                | Yes           | Yes           |
+| Do not allow force pushes             | Yes           | Yes           |
+| Do not allow deletions                | Yes           | Yes           |
+| Require conversation resolution       | Yes           | Yes           |
+| Enforce for admins                    | Yes           | Yes           |
 
-| Setting                                            | `main`                                                   | `develop` |
-| -------------------------------------------------- | -------------------------------------------------------- | --------- |
-| Require a pull request before merging              | Yes (1 review; raise when contributors arrive)           | Yes       |
-| Require status checks to pass                      | Yes                                                      | Yes       |
-| Tick check(s)                                      | `verify` (the CI workflow) — plus `check-links` if added | `verify`  |
-| Require branches to be up to date (linear history) | Yes                                                      | Yes       |
-| Require signed commits                             | Yes                                                      | Yes       |
-| Do not allow force pushes                          | Yes                                                      | Yes       |
-| Do not allow deletions                             | Yes                                                      | Yes       |
-
-Once enabled, even you cannot push `main`/`develop` directly — every
-change must go through a reviewed PR with green CI. The pre-push hook
-then becomes a fast local warning, not the only wall.
+Rules live on GitHub (Settings → Branches), not in the repo, so they
+survive fresh clones. Direct/forced pushes to `main` or `develop` now
+fail server-side — even for the owner — and the pre-push hook becomes a
+fast local warning, not the only wall.
 
 ## What this replaced
 
